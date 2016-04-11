@@ -1,19 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>eu.europa.ec.joinup.sat</groupId>
-        <artifactId>nbdemetra-parent</artifactId>
-        <version>2.1.0</version>
-    </parent>
 
+    <groupId>eu.europa.ec.joinup.sat</groupId>
     <artifactId>nbdemetra-sa-advanced</artifactId>
     <packaging>nbm</packaging>
+    <version>2.1.0</version>
 
     <name>NbDemetra - SA - Advanced</name>
     <description>This module provides some experimental seasonal adjustment methods (with RegArima preprocessing):
         basic structural models, generalized airline models and airline + seasonal noise models (called mixed airline)
     </description>
+
+    <properties>
+        <!-- build -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jdk.version>1.7</jdk.version>
+        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <nbm-maven-plugin.version>3.14</nbm-maven-plugin.version>
+        <!-- dependencies -->
+        <demetra.version>2.1.0</demetra.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>eu.europa.ec.joinup.sat</groupId>
+                <artifactId>nbdemetra-parent</artifactId>
+                <version>${demetra.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- NetBeans -->
@@ -64,11 +84,11 @@
       
         <!-- NbDemetra -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>eu.europa.ec.joinup.sat</groupId>
             <artifactId>nbdemetra-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>eu.europa.ec.joinup.sat</groupId>
             <artifactId>nbdemetra-ui</artifactId>
         </dependency>
     </dependencies>
@@ -76,13 +96,28 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <!-- to have the jar plugin pickup the nbm generated manifest -->
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>            
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
+                <version>${nbm-maven-plugin.version}</version>
                 <extensions>true</extensions>
-                <configuration>
-                    <publicPackages>
-                    </publicPackages>
-                </configuration>
             </plugin>
         </plugins>
     </build>
