@@ -5,7 +5,7 @@
     <groupId>eu.europa.ec.joinup.sat</groupId>
     <artifactId>nbdemetra-sa-advanced</artifactId>
     <packaging>nbm</packaging>
-    <version>2.0.0-dev</version>
+    <version>2.1.0</version>
 
     <name>NbDemetra - SA - Advanced</name>
     <description>This module provides some experimental seasonal adjustment methods (with RegArima preprocessing):
