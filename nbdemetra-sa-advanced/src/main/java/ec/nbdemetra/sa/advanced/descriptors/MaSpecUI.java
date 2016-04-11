@@ -2,13 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package ec.nbdemetra.sa.advanced.descriptors;
 
 import ec.tstoolkit.arima.special.MaSpecification;
 import ec.tstoolkit.descriptors.EnhancedPropertyDescriptor;
 import ec.tstoolkit.descriptors.IPropertyDescriptors;
 import ec.tstoolkit.utilities.Arrays2;
+import ec.tstoolkit.utilities.IntList;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
@@ -26,23 +26,44 @@ public class MaSpecUI implements IPropertyDescriptors {
         core = spec;
     }
 
-    public int[] getNoisyPeriods() {
-        return core.noisyPeriods;
+    public String getNoisyPeriods() {
+        int[] periods = core.noisyPeriods;
+        StringBuilder builder = new StringBuilder();
+        if (periods != null && periods.length > 0) {
+            builder.append(periods[0]+1);
+            for (int i = 1; i < periods.length; ++i) {
+                builder.append(' ').append(periods[i] + 1);
+            }
+        }
+        return builder.toString();
+        // return core.noisyPeriods;
     }
 
-    public void setNoisyPeriods(int[] values){
-        if (Arrays2.isNullOrEmpty(values))
-            core.noisyPeriods=null;
-        else
-            core.noisyPeriods=values;
+    public void setNoisyPeriods(String values) {
+        IntList periods = new IntList();
+        ec.tstoolkit.utilities.StringFormatter.read(periods, values);
+        if (periods.isEmpty()) {
+            core.noisyPeriods = null;
+        } else {
+            periods.toArray();
+            int[] p = periods.toArray();
+            for (int i = 0; i < p.length; ++i) {
+                p[i]--;
+            }
+            core.noisyPeriods = p;
+        }
+//        if (Arrays2.isNullOrEmpty(values))
+//            core.noisyPeriods=null;
+//        else
+//            core.noisyPeriods=values;
     }
 
     public boolean isAllPeriods() {
         return core.allPeriods;
     }
 
-    public void setAllPeriods(boolean all){
-        core.allPeriods=all;
+    public void setAllPeriods(boolean all) {
+        core.allPeriods = all;
     }
 
     private EnhancedPropertyDescriptor npDesc() {
