@@ -17,6 +17,7 @@ import ec.tstoolkit.utilities.LinearId;
 import ec.nbdemetra.sa.advanced.descriptors.StmSpecUI;
 import ec.ui.view.tsprocessing.IProcDocumentView;
 import ec.nbdemetra.sa.advanced.ui.StructuralModelViewFactory;
+import ec.tss.sa.SaManager;
 import org.openide.util.lookup.ServiceProvider;
 
 @ServiceProvider(service = IWorkspaceItemManager.class,
@@ -24,6 +25,7 @@ position = 1800)
 public class StmDocumentManager extends AbstractWorkspaceTsItemManager<StmSpecification, StmDocument> {
 
     static {
+        SaManager.instance.add(new StmProcessor());
         DocumentUIServices.getDefault().register(StmDocument.class, new DocumentUIServices.AbstractUIFactory<StmSpecification, StmDocument>() {
 
             @Override

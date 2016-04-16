@@ -17,6 +17,7 @@ import ec.tstoolkit.utilities.LinearId;
 import ec.nbdemetra.sa.advanced.descriptors.MixedAirlineSpecUI;
 import ec.ui.view.tsprocessing.IProcDocumentView;
 import ec.nbdemetra.sa.advanced.ui.MixedAirlineViewFactory;
+import ec.tss.sa.SaManager;
 import org.openide.util.lookup.ServiceProvider;
 
 @ServiceProvider(service = IWorkspaceItemManager.class,
@@ -24,7 +25,8 @@ position = 1830)
 public class MixedAirlineDocumentManager extends AbstractWorkspaceTsItemManager<MixedAirlineSpecification, MixedAirlineDocument> {
 
     static {
-        DocumentUIServices.getDefault().register(MixedAirlineDocument.class, new DocumentUIServices.AbstractUIFactory<MixedAirlineSpecification, MixedAirlineDocument>() {
+       SaManager.instance.add(new MixedAirlineProcessor());
+       DocumentUIServices.getDefault().register(MixedAirlineDocument.class, new DocumentUIServices.AbstractUIFactory<MixedAirlineSpecification, MixedAirlineDocument>() {
 
             @Override
             public IProcDocumentView<MixedAirlineDocument> getDocumentView(MixedAirlineDocument document) {
