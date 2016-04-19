@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jdemetra-fn</artifactId>
+            <artifactId>jdemetra-core</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

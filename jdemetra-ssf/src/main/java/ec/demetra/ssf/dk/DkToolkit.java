@@ -18,7 +18,7 @@ package ec.demetra.ssf.dk;
 
 import ec.tstoolkit.data.DataBlockStorage;
 import ec.demetra.ssf.dk.sqrt.DiffuseSquareRootInitializer;
-import ec.tstoolkit.eco.ILikelihood;
+import ec.demetra.eco.ILikelihood;
 import ec.demetra.realfunctions.IParametricMapping;
 import ec.demetra.ssf.dk.sqrt.DefaultDiffuseSquareRootFilteringResults;
 import ec.demetra.ssf.dk.sqrt.DiffuseSquareRootSmoother;

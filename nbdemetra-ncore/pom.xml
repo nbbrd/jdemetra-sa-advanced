@@ -29,7 +29,7 @@
             </dependency>
             <dependency>
                 <groupId>be.nbb.demetra</groupId>
-                <artifactId>jdemetra-fn</artifactId>
+                <artifactId>jdemetra-core</artifactId>
                 <version>${nbbdemetra.version}</version>
             </dependency>
         </dependencies>
@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jdemetra-fn</artifactId>
+            <artifactId>jdemetra-core</artifactId>
         </dependency>
         
     </dependencies>

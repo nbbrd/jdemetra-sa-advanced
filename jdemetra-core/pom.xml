@@ -6,10 +6,10 @@
         <artifactId>demetra-sa-advanced-aggregator</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>jdemetra-fn</artifactId>
+    <artifactId>jdemetra-core</artifactId>
     <packaging>jar</packaging>
-    <name>Demetra - Function</name>
-    <description>Handling of real function</description>
+    <name>Demetra - Core</name>
+    <description>Core modules of JDemetra</description>
 
     <dependencies>
         <!-- compile only -->

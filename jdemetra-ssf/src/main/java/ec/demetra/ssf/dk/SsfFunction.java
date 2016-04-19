@@ -36,7 +36,7 @@ public class SsfFunction<S extends ISsf> implements IFunction, ISsqFunction {
     private final boolean mt, sym;
     final IParametricMapping<S> mapper;
     final ISsfData data;
-    boolean ml = true, log=false;
+    boolean ml = true, log=false, fast=false;
 
     /**
      *
@@ -69,6 +69,14 @@ public class SsfFunction<S extends ISsf> implements IFunction, ISsqFunction {
         this.log = log;
     }
 
+    public boolean isFast() {
+        return fast;
+    }
+
+    public void setFast(boolean fast) {
+        this.fast = fast;
+    }
+    
     @Override
     public IFunctionInstance evaluate(IReadDataBlock parameters) {
         return new SsfFunctionInstance<>(this, parameters);

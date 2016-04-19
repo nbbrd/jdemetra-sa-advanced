@@ -16,7 +16,10 @@
  */
 package ec.demetra.ssf.dk;
 
-import ec.tstoolkit.eco.ILikelihood;
+import ec.demetra.eco.ILikelihood;
+import ec.tstoolkit.data.DataBlock;
+import ec.tstoolkit.data.IReadDataBlock;
+import ec.tstoolkit.data.ReadDataBlock;
 import ec.tstoolkit.utilities.Arrays2;
 
 /**
@@ -27,7 +30,7 @@ import ec.tstoolkit.utilities.Arrays2;
  *
  * @author Jean Palate
  */
-public class DkDiffuseLikelihood implements ILikelihood {
+public class DkLikelihood implements ILikelihood {
 
     /**
      * Respectively: diffuse log-likelihood sum of the squared residuals log
@@ -35,13 +38,13 @@ public class DkDiffuseLikelihood implements ILikelihood {
      */
     private double ll, ssqerr, ldet, lddet;
     private int nobs, nd;
-    private double[] res;
+    private DataBlock res;
     private boolean legacy;
 
     /**
      *
      */
-    public DkDiffuseLikelihood() {
+    public DkLikelihood() {
     }
 
     private int m() {
@@ -121,7 +124,7 @@ public class DkDiffuseLikelihood implements ILikelihood {
     }
 
     @Override
-    public double[] getResiduals() {
+    public IReadDataBlock getResiduals() {
         return res;
     }
 
@@ -161,11 +164,7 @@ public class DkDiffuseLikelihood implements ILikelihood {
         ssqerr /= factor * factor;
         ll += (m()) * Math.log(factor);
         if (res != null) {
-            for (int i = 0; i < res.length; ++i) {
-                if (!Double.isNaN(res[i])) {
-                    res[i] /= factor;
-                }
-            }
+            res.applyIf(x->Double.isFinite(x), x->x/factor);
         }
     }
 
@@ -220,21 +219,8 @@ public class DkDiffuseLikelihood implements ILikelihood {
 
     }
 
-    public void add(ILikelihood ll) {
-        nobs += ll.getN();
-        ssqerr += ll.getSsqErr();
-        ldet += ll.getLogDeterminant();
-        if (res != null) {
-            double[] nres = ll.getResiduals();
-            if (nres != null) {
-                res = Arrays2.concat(res, nres);
-            }
-        }
-        calcll();
-    }
-
-    void setResiduals(double[] res) {
-        this.res = res;
+    void setResiduals(IReadDataBlock res) {
+        this.res = new DataBlock(res);
     }
 
     @Override

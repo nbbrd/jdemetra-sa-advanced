@@ -79,7 +79,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>be.nbb.demetra</groupId>
-                    <artifactId>jdemetra-fn</artifactId>
+                    <artifactId>jdemetra-core</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

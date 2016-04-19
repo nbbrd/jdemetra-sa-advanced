@@ -18,8 +18,8 @@ package ec.demetra.ssf.univariate;
 
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.design.Development;
-import ec.tstoolkit.eco.ILikelihood;
-import ec.tstoolkit.eco.Likelihood;
+import ec.demetra.eco.ILikelihood;
+import ec.demetra.eco.Likelihood;
 import ec.demetra.ssf.IPredictionErrorDecomposition;
 import ec.demetra.ssf.ResidualsCumulator;
 import ec.demetra.ssf.State;

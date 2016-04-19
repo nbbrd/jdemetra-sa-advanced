@@ -357,7 +357,7 @@ public class DiffuseSimulationSmoother {
         }
 
         private void filter() {
-            FastDiffuseFilter f = new FastDiffuseFilter(ssf, frslts, new ResultsRange(0, n));
+            DkFilter f = new DkFilter(ssf, frslts, new ResultsRange(0, n));
             f.setNormalized(false);
             ferrors = simulatedData.clone();
             f.filter(new DataBlock(ferrors));

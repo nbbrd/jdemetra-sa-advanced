@@ -25,7 +25,8 @@ import ec.tstoolkit.data.DescriptiveStatistics;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.eco.DefaultLikelihoodEvaluation;
 import ec.tstoolkit.eco.DiffuseConcentratedLikelihood;
-import ec.tstoolkit.eco.ILikelihood;
+import ec.demetra.eco.ILikelihood;
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.maths.realfunctions.IFunctionMinimizer;
 import ec.tstoolkit.maths.realfunctions.ProxyMinimizer;
 import ec.tstoolkit.maths.realfunctions.levmar.LevenbergMarquardtMethod;
@@ -183,8 +184,8 @@ public class MixedAirlineMonitor {
     private void compute2(SarimaModel airline, double refll) {
         int freq = m_series.getFrequency().intValue();
         // we compute the one-step-ahead forecast errors
-        double[] res = m_models.get(0).ll.getResiduals();
-        TsData residuals = new TsData(m_series.getStart().plus(m_series.getLength() - res.length), res, false);
+        IReadDataBlock res = m_models.get(0).ll.getResiduals();
+        TsData residuals = new TsData(m_series.getStart().plus(m_series.getLength() - res.getLength()), res);
         int[] np = sortNoisyPeriods(residuals);
         for (int i = 1; i < np.length - 1; ++i) {
             MixedAirlineModel m = new MixedAirlineModel();
@@ -280,7 +281,7 @@ public class MixedAirlineMonitor {
             MixedEstimation me = new MixedEstimation();
             MixedAirlineEstimation estimation = new MixedAirlineEstimation();
             me.model = estimation.compute2(model.getAirline(), model.getNoisyPeriods(), m_series);
-            me.ll = DkToolkit.likelihoodComputer().compute(MixedAirlineSsf.of(me.model), new SsfData(m_series));
+            me.ll = DkToolkit.likelihoodComputer(true, true).compute(MixedAirlineSsf.of(me.model), new SsfData(m_series));
             return me;
         } catch (RuntimeException e) {
             return null;

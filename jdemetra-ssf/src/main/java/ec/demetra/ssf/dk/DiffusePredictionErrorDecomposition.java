@@ -19,7 +19,7 @@ package ec.demetra.ssf.dk;
 import ec.demetra.ssf.StateInfo;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.eco.Determinant;
-import ec.tstoolkit.eco.ILikelihood;
+import ec.demetra.eco.ILikelihood;
 import ec.demetra.ssf.akf.AugmentedState;
 import ec.demetra.ssf.dk.sqrt.IDiffuseSquareRootFilteringResults;
 import ec.demetra.ssf.univariate.PredictionErrorDecomposition;
@@ -38,8 +38,8 @@ public class DiffusePredictionErrorDecomposition extends PredictionErrorDecompos
     }
 
     @Override
-    public ILikelihood likelihood() {
-        DkDiffuseLikelihood ll = new DkDiffuseLikelihood();
+    public DkLikelihood likelihood() {
+        DkLikelihood ll = new DkLikelihood();
         int nobs = nd + cumulator.getObsCount();
         ll.set(cumulator.getSsqErr(), cumulator.getLogDeterminant(), ddet.getLogDeterminant(), nobs, nd);
         if (bres) {
@@ -48,7 +48,7 @@ public class DiffusePredictionErrorDecomposition extends PredictionErrorDecompos
 //                System.arraycopy(res, 0, tmp, 0, n);
 //                ll.setResiduals(tmp);
 //            } else {
-            ll.setResiduals(res.getData());
+            ll.setResiduals(res);
 //            }
         }
         return ll;

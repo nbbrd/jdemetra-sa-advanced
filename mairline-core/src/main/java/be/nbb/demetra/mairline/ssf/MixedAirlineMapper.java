@@ -27,6 +27,7 @@ import ec.tstoolkit.data.ReadDataBlock;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.sarima.SarimaModelBuilder;
+import ec.tstoolkit.sarima.estimation.SarimaMapping;
 
 /**
  *
@@ -74,6 +75,7 @@ public abstract class MixedAirlineMapper implements IParametricMapping<ISsf> {
         public MixedAirlineModel toModel(IReadDataBlock p) {
             SarimaModelBuilder builder = new SarimaModelBuilder();
             SarimaModel airline = builder.createAirlineModel(freq, p.get(0), p.get(1));
+            SarimaMapping.stabilize(airline);
             MixedAirlineModel m = new MixedAirlineModel();
             m.setAirline(airline);
             m.setNoisyPeriods(noisyPeriods);
@@ -86,6 +88,7 @@ public abstract class MixedAirlineMapper implements IParametricMapping<ISsf> {
             SarimaModelBuilder builder = new SarimaModelBuilder();
             SarimaModel airline = builder.createAirlineModel(freq, p.get(0), p.get(1));
             MixedAirlineModel m = new MixedAirlineModel();
+            SarimaMapping.stabilize(airline);
             m.setAirline(airline);
             m.setNoisyPeriods(noisyPeriods);
             m.setNoisyPeriodsVariance(p.get(2)*p.get(2));

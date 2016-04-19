@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>be.nbb.demetra</groupId>
-            <artifactId>jdemetra-fn</artifactId>
+            <artifactId>jdemetra-core</artifactId>
         </dependency>
         <!-- test only -->
         <dependency>

@@ -16,24 +16,22 @@
  */
 package be.nbb.demetra.sts;
 
-import be.nbb.demetra.sts.BsmMapper.Transformation;
+import be.nbb.demetra.sts.BsmMapping.Transformation;
+import ec.demetra.realfunctions.IFunction;
+import ec.demetra.realfunctions.IFunctionInstance;
+import ec.demetra.realfunctions.IFunctionMinimizer;
+import ec.demetra.realfunctions.ProxyMinimizer;
+import ec.demetra.realfunctions.TransformedFunction;
+import ec.demetra.ssf.dk.SsfFunction;
+import ec.demetra.ssf.dk.SsfFunctionInstance;
+import ec.demetra.ssf.implementations.structural.Component;
+import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.data.AbsMeanNormalizer;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.data.ReadDataBlock;
 import ec.tstoolkit.design.Development;
-import ec.tstoolkit.eco.DiffuseConcentratedLikelihood;
 import ec.tstoolkit.maths.matrices.SubMatrix;
-import ec.tstoolkit.maths.realfunctions.IFunction;
-import ec.tstoolkit.maths.realfunctions.IFunctionInstance;
-import ec.tstoolkit.maths.realfunctions.IFunctionMinimizer;
-import ec.tstoolkit.maths.realfunctions.ProxyMinimizer;
-import ec.tstoolkit.maths.realfunctions.TransformedFunction;
-import ec.tstoolkit.ssf.FastSsfAlgorithm;
-import ec.tstoolkit.ssf.SsfData;
-import ec.tstoolkit.ssf.SsfFunction;
-import ec.tstoolkit.ssf.SsfFunctionInstance;
-import ec.tstoolkit.ssf.SsfModel;
 
 /**
  *
@@ -51,7 +49,7 @@ public class BsmMonitor {
 
     private int m_freq = 1;
 
-    private BsmMapper m_mapper;
+    private BsmMapping m_mapping;
 
     private BasicStructuralModel m_bsm;
 
@@ -65,8 +63,8 @@ public class BsmMonitor {
     private double m_dsmall = 0.01;
 
     private DiffuseConcentratedLikelihood m_ll;
-    private SsfFunction<BasicStructuralModel> fn_;
-    private SsfFunctionInstance<BasicStructuralModel> fnmax_;
+    private SsfFunction<SsfBsm> fn_;
+    private SsfFunctionInstance<SsfBsm> fnmax_;
 
     private double m_factor;
 
@@ -84,7 +82,7 @@ public class BsmMonitor {
             m_bsm = initialize();
         }
 
-        if (m_mapper.getDim() == 0) {
+        if (m_mapping.getDim() == 0) {
             return true;
         }
         fn_ = null;
@@ -98,7 +96,7 @@ public class BsmMonitor {
             // ec.tstoolkit.maths.realfunctions.QRMarquardt();
             // qr.setIncreaseStep(32);
             // fmin = new ProxyMinimizer(qr);
-            fmin = new ProxyMinimizer(new ec.tstoolkit.maths.realfunctions.levmar.LevenbergMarquardtMethod());
+            fmin = new ProxyMinimizer(new ec.demetra.realfunctions.levmar.LevenbergMarquardtMinimzer());
             //fmin = new ec.tstoolkit.maths.realfunctions.riso.LbfgsMinimizer();
             //fmin = new ec.tstoolkit.maths.realfunctions.jbfgs.Bfgs();
             fmin.setConvergenceCriterion(m_eps);
@@ -106,8 +104,8 @@ public class BsmMonitor {
 
         fmin.setMaxIter(10);
         for (int i = 0; i < 3; ++i) {
-            fn_ = buildFunction(m_bsm, null, true);
-            IReadDataBlock parameters = m_mapper.map(m_bsm);
+            fn_ = buildFunction(ssf, null, true);
+            
             fmin.minimize(fn_, fn_.evaluate(parameters));
             m_bconverged = fmin.getIterCount() < fmin.getMaxIter();
             fnmax_ = (SsfFunctionInstance<BasicStructuralModel>) fmin.getResult();
@@ -115,8 +113,8 @@ public class BsmMonitor {
             m_ll = fnmax_.getLikelihood();
 
             Component cmp = m_bsm.fixMaxVariance(1);
-            if (cmp != m_mapper.getFixedComponent()) {
-                m_mapper.setFixedComponent(cmp);
+            if (cmp != m_mapping.getFixedComponent()) {
+                m_mapping.setFixedComponent(cmp);
             } else {
                 break;
             }
@@ -126,15 +124,15 @@ public class BsmMonitor {
             fmin.setMaxIter(30);
             fn_ = buildFunction(m_bsm, null,
                     true);
-            IReadDataBlock parameters = m_mapper.map(m_bsm);
+            IReadDataBlock parameters = m_mapping.map(m_bsm);
             fmin.minimize(fn_, fn_.evaluate(parameters));
             m_bconverged = fmin.getIterCount() < fmin.getMaxIter();
             fnmax_ = (SsfFunctionInstance<BasicStructuralModel>) fmin.getResult();
             m_bsm = fnmax_.ssf;
             m_ll = fnmax_.getLikelihood();
             Component cmp = m_bsm.fixMaxVariance(1);
-            if (cmp != m_mapper.getFixedComponent()) {
-                m_mapper.setFixedComponent(cmp);
+            if (cmp != m_mapping.getFixedComponent()) {
+                m_mapping.setFixedComponent(cmp);
             }
         }
 
@@ -145,7 +143,7 @@ public class BsmMonitor {
             // update the likelihood !
             fn_ = buildFunction(m_bsm, null,
                     true);
-            IReadDataBlock parameters = m_mapper.map(m_bsm);
+            IReadDataBlock parameters = m_mapping.map(m_bsm);
             fnmax_=(SsfFunctionInstance<BasicStructuralModel>) fn_.evaluate(parameters);
             m_ll=fnmax_.getLikelihood();
             ok=false;
@@ -156,16 +154,17 @@ public class BsmMonitor {
         return ok;
     }
 
-    private SsfFunction<BasicStructuralModel> buildFunction(
-            BasicStructuralModel bsm, BsmMapper mapper, boolean ssq) {
-        SsfData data = new SsfData(m_y, null);
+    private SsfFunction<SsfBsm> buildFunction(
+            BasicStructuralModel bsm, BsmMapping mapping, boolean ssq) {
+        SsfData data = new SsfData(m_y);
         SsfModel<BasicStructuralModel> model = new SsfModel<>(
                 bsm, data, m_x, diffuseItems());
         FastSsfAlgorithm<BasicStructuralModel> alg = new FastSsfAlgorithm<>();
         alg.useSsq(ssq);
-        SsfFunction<BasicStructuralModel> eval = new SsfFunction<>(
-                model, mapper == null ? m_mapper : mapper, alg);
-        return eval;
+        SsfFunction<SsfBsm> fn = new SsfFunction<>(
+                model, mapping== null ? m_mapping : mapping, alg);
+        
+        return fn;
     }
 
     private int[] diffuseItems() {
@@ -194,9 +193,9 @@ public class BsmMonitor {
         // return false;
         double vmin = m_dsmall;
         int imin = -1;
-        BsmMapper mapper = new BsmMapper(model.getSpecification(), m_freq,
-                BsmMapper.Transformation.None);
-        mapper.setFixedComponent(m_mapper.getFixedComponent());
+        BsmMapping mapper = new BsmMapping(model.getSpecification(), m_freq,
+                BsmMapping.Transformation.None);
+        mapper.setFixedComponent(m_mapping.getFixedComponent());
         SsfFunction<BasicStructuralModel> fn = buildFunction(model.clone(),
                 mapper, true);
         IReadDataBlock p = mapper.map(model);
@@ -291,33 +290,33 @@ public class BsmMonitor {
         // m_mapper.setFixedComponent(m_mapper.getComponent(0));
         // return start;
 
-        m_mapper = new BsmMapper(m_spec, m_freq);
+        m_mapping = new BsmMapping(m_spec, m_freq);
         BasicStructuralModel start = new BasicStructuralModel(m_spec, m_freq);
-        if (m_mapper.getDim() == 1) {
-            m_mapper.setFixedComponent(m_mapper.getComponent(0));
+        if (m_mapping.getDim() == 1) {
+            m_mapping.setFixedComponent(m_mapping.getComponent(0));
             return start;
         }
         // m_mapper.setFixedComponent(Component.Noise);
 
-        BsmMapper mapper = new BsmMapper(m_spec, m_freq,
-                BsmMapper.Transformation.None);
-        SsfFunction<BasicStructuralModel> fn = buildFunction(start, mapper,
+        BsmMapping mapping = new BsmMapping(m_spec, m_freq,
+                BsmMapping.Transformation.None);
+        SsfFunction<SsfBsm> fn = buildFunction(start, mapping,
                 true);
 
         SsfFunctionInstance instance = new SsfFunctionInstance(fn, null);
         double lmax = instance.getLikelihood().getLogLikelihood();
         IReadDataBlock p = fn.mapper.map(fn.model.ssf);
         int imax = -1;
-        int nvars= mapper.getVarsCount();
+        int nvars= mapping.getVarsCount();
         for (int i = 0; i < nvars; ++i) {
             DataBlock np = new DataBlock(p);
             np.set(.5);
             np.set(i, 1);
             int ncur=nvars;
-            if (mapper.hasCycleDumpingFactor()){
+            if (mapping.hasCycleDumpingFactor()){
                 np.set(ncur++, .9);
             }
-            if (mapper.hasCycleLength()){
+            if (mapping.hasCycleLength()){
                 np.set(ncur, 1);
             }
             instance = new SsfFunctionInstance(fn, np);
@@ -329,26 +328,26 @@ public class BsmMonitor {
         }
         if (imax < 0) {
             if (m_spec.hasNoise()) {
-                m_mapper.setFixedComponent(Component.Noise);
+                m_mapping.setFixedComponent(Component.Noise);
             } else if (m_spec.hasLevel()) {
-                m_mapper.setFixedComponent(Component.Level);
+                m_mapping.setFixedComponent(Component.Level);
             } else {
-                m_mapper.setFixedComponent(m_mapper.getComponent(0));
+                m_mapping.setFixedComponent(m_mapping.getComponent(0));
             }
             return start;
         } else {
-            Component cmp = mapper.getComponent(imax);
-            m_mapper.setFixedComponent(cmp);
+            Component cmp = mapping.getComponent(imax);
+            m_mapping.setFixedComponent(cmp);
             DataBlock np = new DataBlock(p);
             np.set(.1);
             np.set(imax, 1);
-            if (mapper.hasCycleDumpingFactor()){
+            if (mapping.hasCycleDumpingFactor()){
                 np.set(nvars++, .9);
             }
-            if  (mapper.hasCycleLength()){
+            if  (mapping.hasCycleLength()){
                 np.set(nvars, 1);
             }
-            return mapper.map(np);
+            return mapping.map(np);
         }
     }
 
@@ -414,13 +413,13 @@ public class BsmMonitor {
         m_dregs = spec.isDiffuseRegressors();
         switch (spec.getOptimizer()) {
             case LevenbergMarquardt:
-                m_min = new ProxyMinimizer(new ec.tstoolkit.maths.realfunctions.levmar.LevenbergMarquardtMethod());
+                m_min = new ProxyMinimizer(new ec.demetra.realfunctions.levmar.LevenbergMarquardtMinimzer());
                 break;
             case MinPack:
-                m_min = new ProxyMinimizer(new ec.tstoolkit.maths.realfunctions.minpack.LevenbergMarquardtMinimizer());
+                m_min = new ProxyMinimizer(new ec.demetra.realfunctions.minpack.LevenbergMarquardtMinimizer());
                 break;
             case LBFGS:
-                m_min = new ec.tstoolkit.maths.realfunctions.bfgs.Bfgs();
+                m_min = new ec.demetra.realfunctions.bfgs.Bfgs();
                 break;
             default:
                 m_min = null;
@@ -435,9 +434,9 @@ public class BsmMonitor {
 
     private void updateSpec(BasicStructuralModel bsm) {
         m_spec = bsm.getSpecification();
-        Component fixed = m_mapper.getFixedComponent();
-        m_mapper = new BsmMapper(m_spec, m_freq, m_mapper.transformation);
-        m_mapper.setFixedComponent(fixed);
+        Component fixed = m_mapping.getFixedComponent();
+        m_mapping = new BsmMapping(m_spec, m_freq, m_mapping.transformation);
+        m_mapping.setFixedComponent(fixed);
     }
 
     /**
@@ -449,16 +448,16 @@ public class BsmMonitor {
     }
 
     public IFunction likelihoodFunction() {
-        BsmMapper mapper = new BsmMapper(m_bsm.getSpecification(), m_bsm.freq, Transformation.None);
-        SsfFunction<BasicStructuralModel> fn = buildFunction(m_bsm, mapper, false);
+        BsmMapping mapping = new BsmMapping(m_bsm.getSpecification(), m_bsm.freq, Transformation.None);
+        SsfFunction<BasicStructuralModel> fn = buildFunction(m_bsm, mapping, false);
         double a = (m_ll.getN() - m_ll.getD()) * Math.log(m_factor);
         return new TransformedFunction(fn, TransformedFunction.linearTransformation(-a, 1));
     }
 
     public IFunctionInstance maxLikelihoodFunction() {
-        BsmMapper mapper = new BsmMapper(m_bsm.getSpecification(), m_bsm.freq, Transformation.None);
+        BsmMapping mapping = new BsmMapping(m_bsm.getSpecification(), m_bsm.freq, Transformation.None);
         IFunction ll = likelihoodFunction();
-        return ll.evaluate(mapper.map(m_bsm));
+        return ll.evaluate(mapping.map(m_bsm));
     }
 
 }

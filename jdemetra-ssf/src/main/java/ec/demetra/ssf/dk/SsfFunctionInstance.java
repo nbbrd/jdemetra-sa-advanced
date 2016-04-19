@@ -18,15 +18,15 @@ package ec.demetra.ssf.dk;
 
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
-import ec.tstoolkit.eco.ILikelihood;
+import ec.demetra.eco.ILikelihood;
 import ec.demetra.realfunctions.IFunctionInstance;
 import ec.demetra.realfunctions.ISsqFunctionInstance;
 import ec.tstoolkit.utilities.Arrays2;
-import static ec.demetra.ssf.dk.DkToolkit.likelihoodComputer;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.tstoolkit.data.ReadDataBlock;
 import ec.demetra.realfunctions.IFunction;
 import ec.demetra.realfunctions.ISsqFunction;
+import ec.demetra.ssf.ckms.CkmsToolkit;
 
 /**
  *
@@ -47,7 +47,7 @@ public class SsfFunctionInstance<S extends ISsf> implements
     private final ILikelihood ll;
     private final DataBlock p;
     private final boolean ml, log;
-    private double[] E;
+    private DataBlock E;
     private final SsfFunction<S> fn;
 
     /**
@@ -61,7 +61,11 @@ public class SsfFunctionInstance<S extends ISsf> implements
         this.ml = fn.ml;
         this.log = fn.log;
         current = fn.mapper.map(p);
-        ll = likelihoodComputer(true, true).compute(current, fn.data);
+        if (fn.fast) {
+            ll = CkmsToolkit.likelihoodComputer().compute(current, fn.data);
+        } else {
+            ll = DkToolkit.likelihoodComputer(true, true).compute(current, fn.data);
+        }
     }
 
     public S getSsf() {
@@ -71,20 +75,18 @@ public class SsfFunctionInstance<S extends ISsf> implements
     @Override
     public IReadDataBlock getE() {
         if (E == null) {
-            double[] res = ll.getResiduals();
+            IReadDataBlock res = ll.getResiduals();
             if (res == null) {
                 return null;
             } else {
-                E = Arrays2.compact(res);
+                E = DataBlock.select(res, x->Double.isFinite(x));
                 if (ml) {
                     double factor = Math.sqrt(ll.getFactor());
-                    for (int i = 0; i < E.length; ++i) {
-                        E[i] *= factor;
-                    }
+                    E.mul(factor);
                 }
             }
         }
-        return new ReadDataBlock(E);
+        return E;
     }
 
     /**

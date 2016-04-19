@@ -16,7 +16,9 @@
  */
 package ec.demetra.ssf.akf;
 
-import ec.tstoolkit.eco.ILikelihood;
+import ec.demetra.eco.ILikelihood;
+import ec.tstoolkit.data.DataBlock;
+import ec.tstoolkit.data.IReadDataBlock;
 
 /**
  *
@@ -79,8 +81,8 @@ public class MarginalLikelihood implements ILikelihood {
     }
 
     @Override
-    public double[] getResiduals() {
-        return null;
+    public IReadDataBlock getResiduals() {
+        return DataBlock.EMPTY;
     }
 
     @Override

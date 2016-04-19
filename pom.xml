@@ -39,7 +39,6 @@
         <module>gairline-core</module>
         <module>mairline-core</module>
         <module>mixedfreq-core</module>
-        <module>jdemetra-fn</module>
         <module>jdemetra-ssf</module>
         <module>nbdemetra-mairline</module>
         <module>nbdemetra-gairline</module>
@@ -50,6 +49,7 @@
         <module>bvar-core</module>
         <module>dfm-core</module>
         <module>sutse-core</module>
+        <module>jdemetra-core</module>
     </modules>
 
     <organization>
@@ -105,7 +105,7 @@
             </dependency>
             <dependency>
                 <groupId>be.nbb.demetra</groupId>
-                <artifactId>jdemetra-fn</artifactId>
+                <artifactId>jdemetra-core</artifactId>
                 <version>${nbbdemetra.version}</version>
             </dependency>
             <dependency>

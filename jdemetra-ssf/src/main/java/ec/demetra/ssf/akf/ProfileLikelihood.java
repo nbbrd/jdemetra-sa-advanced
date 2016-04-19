@@ -16,9 +16,9 @@
  */
 package ec.demetra.ssf.akf;
 
+import ec.demetra.eco.ILikelihood;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
-import ec.tstoolkit.eco.ILikelihood;
 import ec.tstoolkit.maths.matrices.Matrix;
 
 /**
@@ -70,8 +70,8 @@ public class ProfileLikelihood implements ILikelihood {
     }
 
     @Override
-    public double[] getResiduals() {
-        return null;
+    public IReadDataBlock getResiduals() {
+        return DataBlock.EMPTY;
     }
 
     @Override

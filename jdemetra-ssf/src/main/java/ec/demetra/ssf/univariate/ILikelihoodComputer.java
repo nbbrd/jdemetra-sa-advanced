@@ -18,12 +18,13 @@
  */
 package ec.demetra.ssf.univariate;
 
-import ec.tstoolkit.eco.ILikelihood;
+import ec.demetra.eco.ILikelihood;
 
 /**
  *
  * @author Jean Palate
+ * @param <L>
  */
-public interface ILikelihoodComputer {
-    ILikelihood compute(ISsf ssf, ISsfData data);
+public interface ILikelihoodComputer<L extends ILikelihood> {
+    L compute(ISsf ssf, ISsfData data);
 }

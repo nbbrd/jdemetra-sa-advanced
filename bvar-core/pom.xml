@@ -8,7 +8,7 @@
     </parent>
     <artifactId>bvar-core</artifactId>
     <packaging>jar</packaging>
-    <name>Demetra - BVar</name>
+    <name>Demetra - BVAR - Core</name>
     <description>Bayesian VAR models</description>
 
     <dependencies>
@@ -37,7 +37,7 @@
        </dependency>
         <dependency>
             <groupId>be.nbb.demetra</groupId>
-            <artifactId>jdemetra-fn</artifactId>
+            <artifactId>jdemetra-core</artifactId>
             <scope>provided</scope>
        </dependency>
         <!-- test only -->

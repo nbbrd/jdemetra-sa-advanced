@@ -17,11 +17,11 @@
 package be.nbb.demetra.sts.document;
 
 import be.nbb.demetra.sts.BasicStructuralModel;
-import be.nbb.demetra.sts.Component;
-import be.nbb.demetra.sts.ComponentUse;
 import be.nbb.demetra.sts.ModelSpecification;
-import be.nbb.demetra.sts.SeasonalModel;
 import be.nbb.demetra.sts.StsEstimation;
+import ec.demetra.ssf.implementations.structural.Component;
+import ec.demetra.ssf.implementations.structural.ComponentUse;
+import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.tss.html.AbstractHtmlElement;
 import ec.tss.html.HtmlStream;
 import ec.tss.html.HtmlStyle;
@@ -167,7 +167,7 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
             stream.newLine();
             stream.write(HtmlTag.HEADER3, h3, "Cycle");
             stream.write("Average length (in years): ");
-            double len=bsm.getCyclicalPeriod()/bsm.freq;
+            double len=bsm.getCyclicalPeriod()/bsm.getFrequency();
             stream.write(new Formatter().format("%.1f", len).toString());
             stream.newLine();
             stream.write("Dumping factor: ");
@@ -214,7 +214,7 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
         }
         T t = new T();
         DiffuseConcentratedLikelihood ll = rslts.getLikelihood();
-        int nhp = bsm.getCmpsCount();
+        int nhp = bsm.getComponentsCount();
         t.setDegreesofFreedom(ll.getDegreesOfFreedom(true, nhp));
         double[] b = ll.getB();
         boolean simple = true;
