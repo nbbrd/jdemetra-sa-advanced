@@ -21,15 +21,9 @@ import be.nbb.demetra.mairline.ssf.MixedAirlineSsf;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.satoolkit.diagnostics.CochranTest;
-import ec.tstoolkit.data.DescriptiveStatistics;
 import ec.tstoolkit.design.Development;
-import ec.tstoolkit.eco.DefaultLikelihoodEvaluation;
-import ec.tstoolkit.eco.DiffuseConcentratedLikelihood;
 import ec.demetra.eco.ILikelihood;
 import ec.tstoolkit.data.IReadDataBlock;
-import ec.tstoolkit.maths.realfunctions.IFunctionMinimizer;
-import ec.tstoolkit.maths.realfunctions.ProxyMinimizer;
-import ec.tstoolkit.maths.realfunctions.levmar.LevenbergMarquardtMethod;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.utilities.Arrays2;
@@ -89,10 +83,10 @@ public class MixedAirlineMonitor {
                 m.setNoisyPeriods(spec.noisyPeriods);
 
             }
-            rslt = estimate(m);
-            if (rslt != null) {
-                m_models.add(rslt);
-                double ll = rslt.ll.getLogLikelihood();
+            MixedEstimation nrslt = estimate(m);
+            if (nrslt != null) {
+                m_models.add(nrslt);
+                double ll = nrslt.ll.getLogLikelihood();
                 if (ll > rslt.ll.getLogLikelihood() + 2) {
                     m_best = 1;
                 } else {
