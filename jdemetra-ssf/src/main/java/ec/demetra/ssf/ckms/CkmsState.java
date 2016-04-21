@@ -24,23 +24,18 @@ import ec.tstoolkit.design.Development;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public class FastState {
+public class CkmsState {
 
     /**
      *
      */
-    final DataBlock a, l, k;
-    double f;
+    final DataBlock a, l;
 
     /**
      * @return the a
      */
     public final DataBlock a() {
         return a;
-    }
-
-    public final DataBlock k() {
-        return k;
     }
 
     public final DataBlock l() {
@@ -50,29 +45,13 @@ public class FastState {
      *
      * @param n
     */
-    public FastState(final int n) {
+    public CkmsState(final int n) {
         a = new DataBlock(n);
         l = new DataBlock(n);
-        k = new DataBlock(n);
     }
 
     public final int getDim(){
         return a.getLength();
     }
 
-    /**
-     * @return the f
-     */
-    public double getF() {
-        return f;
-    }
-
-    /**
-     * @param f the f to set
-     */
-    public void setF(double f) {
-        this.f = f;
-    }
-    
-   
 }

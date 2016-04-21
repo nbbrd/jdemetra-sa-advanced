@@ -20,6 +20,7 @@ import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.demetra.ssf.IStateResults;
+import ec.tstoolkit.data.IReadDataBlock;
 
 /**
  *
@@ -48,7 +49,13 @@ public interface IFilteringResults extends IStateResults {
         return Double.NaN;
     }
 
-    default DataBlock errors(boolean normalized, boolean clean) {
+    /**
+     *
+     * @param normalized
+     * @param clean
+     * @return
+     */
+    default IReadDataBlock errors(boolean normalized, boolean clean) {
         return null;
     }
 

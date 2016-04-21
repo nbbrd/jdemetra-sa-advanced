@@ -39,12 +39,25 @@ public class DkToolkitTest {
     public void testArima() {
         SsfUcarima ssf = SsfUcarima.create(Models.ucmAirline(-.6, -.4));
         SsfData y = new SsfData(Data.P);
+        IConcentratedLikelihoodComputer<DkConcentratedLikelihood> llc = DkToolkit.concentratedLikelihoodComputer(true, false);
+        Matrix X = new Matrix(y.getLength(), 2);
+        X.set(5, 0, 1);
+        X.set(50, 1, 1);
+        SsfRegressionModel model=new SsfRegressionModel(ssf, y, X.all(), null);
+        DkConcentratedLikelihood ll = llc.compute(model);
+        System.out.println(ll.getLogLikelihood());
+    }
+
+    @Test
+    public void testFastArima() {
+        SsfUcarima ssf = SsfUcarima.create(Models.ucmAirline(-.6, -.4));
+        SsfData y = new SsfData(Data.P);
         IConcentratedLikelihoodComputer<DkConcentratedLikelihood> llc = DkToolkit.concentratedLikelihoodComputer(true, true);
         Matrix X = new Matrix(y.getLength(), 2);
         X.set(5, 0, 1);
         X.set(50, 1, 1);
         SsfRegressionModel model=new SsfRegressionModel(ssf, y, X.all(), null);
-        llc.compute(model);
+        DkConcentratedLikelihood ll = llc.compute(model);
+        System.out.println(ll.getLogLikelihood());
     }
-
 }

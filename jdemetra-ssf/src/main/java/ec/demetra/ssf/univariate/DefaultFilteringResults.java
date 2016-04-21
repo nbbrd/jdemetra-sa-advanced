@@ -109,7 +109,7 @@ public class DefaultFilteringResults implements IFilteringResults, IStateResults
     }
 
     @Override
-    public DataBlock errors(boolean normalized, boolean clean) {
+    public IReadDataBlock errors(boolean normalized, boolean clean) {
         DataBlock r = e.all();
         if (normalized) {
             r = r.deepClone();

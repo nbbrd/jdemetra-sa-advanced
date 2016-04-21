@@ -157,7 +157,7 @@ public class BsmMonitor {
         SsfData data = new SsfData(m_y);
         SsfFunction<BasicStructuralModel, SsfBsm> fn = new SsfFunction<>(
                 data, m_x, diffuseItems(), mapping == null ? m_mapping : mapping, (BasicStructuralModel bsm) -> SsfBsm.create(bsm));
-        // fn.setFast(true);
+        fn.setFast(true);
         return fn;
     }
 

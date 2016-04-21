@@ -22,8 +22,9 @@ import ec.demetra.eco.ILikelihood;
 import ec.demetra.realfunctions.IParametricMapping;
 import ec.demetra.ssf.ResultsRange;
 import ec.demetra.ssf.State;
-import ec.demetra.ssf.ckms.FastDiffuseInitializer;
-import ec.demetra.ssf.ckms.FastFilter;
+import ec.demetra.ssf.ckms.CkmsDiffuseInitializer;
+import ec.demetra.ssf.ckms.CkmsFilter;
+import ec.demetra.ssf.ckms.CkmsInitializer;
 import ec.demetra.ssf.dk.sqrt.CompositeDiffuseSquareRootFilteringResults;
 import ec.demetra.ssf.dk.sqrt.DefaultDiffuseSquareRootFilteringResults;
 import ec.demetra.ssf.dk.sqrt.DiffuseSquareRootSmoother;
@@ -37,7 +38,9 @@ import ec.demetra.ssf.univariate.OrdinaryFilter;
 import ec.demetra.ssf.univariate.SsfRegressionModel;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.DataBlockIterator;
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.eco.Determinant;
+import ec.tstoolkit.maths.linearfilters.ILinearProcess;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.tstoolkit.maths.matrices.Householder;
@@ -73,12 +76,12 @@ public class DkToolkit {
         return new CLLComputer(sqr, fast);
     }
 
-    public static <S, F extends ISsf> SsfFunction<S, F> likelihoodFunction(ISsfData data, IParametricMapping<S> mapping, ISsfBuilder<S,F> builder) {
+    public static <S, F extends ISsf> SsfFunction<S, F> likelihoodFunction(ISsfData data, IParametricMapping<S> mapping, ISsfBuilder<S, F> builder) {
         return new SsfFunction<>(data, mapping, builder);
     }
 
     public static <F extends ISsf> SsfFunction<F, F> likelihoodFunction(ISsfData data, IParametricMapping<F> mapping) {
-        return new SsfFunction<>(data, mapping, (F f)->f);
+        return new SsfFunction<>(data, mapping, (F f) -> f);
     }
 
     public static DefaultDiffuseFilteringResults filter(ISsf ssf, ISsfData data, boolean all) {
@@ -197,13 +200,14 @@ public class DkToolkit {
         public DkConcentratedLikelihood compute(SsfRegressionModel model) {
             ISsfData y = model.getY();
             int n = y.getLength();
-            DiffusePredictionErrorDecomposition pe = new DiffusePredictionErrorDecomposition(false);
-            IBaseDiffuseFilteringResults fr = filteringResults(model.getSsf(), y, pe);
+            DiffusePredictionErrorDecomposition pe = new DiffusePredictionErrorDecomposition(true);
+            pe.prepare(model.getSsf(), n);
+            ILinearProcess lp = filteringResults(model.getSsf(), y, pe);
             DkConcentratedLikelihood dcll = new DkConcentratedLikelihood();
             DkLikelihood ll = pe.likelihood();
-            DataBlock yl = fr.errors(true, true);
+            IReadDataBlock yl = pe.errors(true, true);
             int nl = yl.getLength();
-            Matrix xl = xl(model, fr, nl);
+            Matrix xl = xl(model, lp, nl);
             if (xl == null) {
                 dcll.set(ll.getSsqErr(), ll.getLogDeterminant(), ll.getDiffuseCorrection(), ll.getN(), ll.getD());
                 dcll.setResiduals(yl);
@@ -299,52 +303,56 @@ public class DkToolkit {
             return bvar;
         }
 
-        private IBaseDiffuseFilteringResults filteringResults(ISsf ssf, ISsfData data, DiffusePredictionErrorDecomposition pe) {
+        private ILinearProcess filteringResults(ISsf ssf, ISsfData data, DiffusePredictionErrorDecomposition pe) {
             if (sqr) {
                 DefaultDiffuseSquareRootFilteringResults fr = DefaultDiffuseSquareRootFilteringResults.light();
                 fr.prepare(ssf, 0, data.getLength());
                 CompositeDiffuseSquareRootFilteringResults dr = new CompositeDiffuseSquareRootFilteringResults(fr, pe);
                 DiffuseSquareRootInitializer initializer = new DiffuseSquareRootInitializer(dr);
                 if (fast) {
-                    FastDiffuseInitializer ff = new FastDiffuseInitializer(initializer);
-                    FastFilter ffilter = new FastFilter(ff);
+                    CkmsDiffuseInitializer ff = new CkmsDiffuseInitializer(initializer);
+                    CkmsFilter ffilter = new CkmsFilter(ff);
                     ffilter.process(ssf, data, dr);
+                    ResultsRange range = new ResultsRange(0, data.getLength());
+                    return new DkFilter(ssf, fr, range);
                 } else {
                     OrdinaryFilter filter = new OrdinaryFilter(initializer);
                     filter.process(ssf, data, dr);
+                    ResultsRange range = new ResultsRange(0, data.getLength());
+                    return new DkFilter(ssf, fr, range);
                 }
-                return fr;
             } else {
                 DefaultDiffuseFilteringResults fr = DefaultDiffuseFilteringResults.light();
                 fr.prepare(ssf, 0, data.getLength());
                 CompositeDiffuseFilteringResults dr = new CompositeDiffuseFilteringResults(fr, pe);
                 DurbinKoopmanInitializer initializer = new DurbinKoopmanInitializer(dr);
                 if (fast) {
-                    FastDiffuseInitializer ff = new FastDiffuseInitializer(initializer);
-                    FastFilter ffilter = new FastFilter(ff);
+                    CkmsDiffuseInitializer ff = new CkmsDiffuseInitializer(initializer);
+                    CkmsFilter ffilter = new CkmsFilter(ff);
                     ffilter.process(ssf, data, dr);
+                    ResultsRange range = new ResultsRange(0, data.getLength());
+                    return new DkFilter(ssf, fr, range);
                 } else {
                     OrdinaryFilter filter = new OrdinaryFilter(initializer);
                     filter.process(ssf, data, dr);
+                    ResultsRange range = new ResultsRange(0, data.getLength());
+                    return new DkFilter(ssf, fr, range);
                 }
-                return fr;
             }
         }
 
-        private Matrix xl(SsfRegressionModel model, IBaseDiffuseFilteringResults fr, int nl) {
+        private Matrix xl(SsfRegressionModel model, ILinearProcess lp, int nl) {
             SubMatrix x = model.getX();
             if (x == null) {
                 return null;
             }
-            ResultsRange range = new ResultsRange(0, model.getY().getLength());
-            DkFilter filter = new DkFilter(model.getSsf(), fr, range);
             Matrix xl = new Matrix(nl, x.getColumnsCount());
             DataBlockIterator lcols = xl.columns();
             DataBlockIterator cols = x.columns();
             DataBlock lcol = lcols.getData();
             DataBlock col = cols.getData();
             do {
-                filter.transform(col, lcol);
+                lp.transform(col, lcol);
             } while (cols.next() && lcols.next());
             return xl;
         }

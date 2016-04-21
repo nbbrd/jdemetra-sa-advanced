@@ -35,8 +35,8 @@ public class CkmsToolkit {
     public static ILikelihoodComputer<DkLikelihood> likelihoodComputer() {
         return (ISsf ssf, ISsfData data) -> {
             DiffusePredictionErrorDecomposition decomp = new DiffusePredictionErrorDecomposition(false);
-            FastDiffuseInitializer ff = new FastDiffuseInitializer(new DiffuseSquareRootInitializer(decomp));
-            FastFilter ffilter = new FastFilter(ff);
+            CkmsDiffuseInitializer ff = new CkmsDiffuseInitializer(new DiffuseSquareRootInitializer(decomp));
+            CkmsFilter ffilter = new CkmsFilter(ff);
             ffilter.process(ssf, data, decomp);
             return decomp.likelihood();
         };
