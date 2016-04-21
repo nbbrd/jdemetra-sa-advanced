@@ -19,6 +19,8 @@ package be.nbb.demetra.sts.document;
 import be.nbb.demetra.sts.BasicStructuralModel;
 import be.nbb.demetra.sts.ModelSpecification;
 import be.nbb.demetra.sts.StsEstimation;
+import ec.demetra.eco.JointRegressionTest;
+import ec.demetra.ssf.dk.DkConcentratedLikelihood;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.implementations.structural.ComponentUse;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
@@ -29,9 +31,8 @@ import ec.tss.html.HtmlTable;
 import ec.tss.html.HtmlTableCell;
 import ec.tss.html.HtmlTag;
 import ec.tss.html.IHtmlElement;
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.dstats.T;
-import ec.tstoolkit.eco.DiffuseConcentratedLikelihood;
-import ec.tstoolkit.modelling.arima.JointRegressionTest;
 import ec.tstoolkit.timeseries.regression.ILengthOfPeriodVariable;
 import ec.tstoolkit.timeseries.regression.IMovingHolidayVariable;
 import ec.tstoolkit.timeseries.regression.IOutlierVariable;
@@ -178,15 +179,15 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
 
     private void writeLikelihood(HtmlStream stream) throws IOException {
         stream.write(HtmlTag.HEADER2, h2, "Diffuse likelihood statistics");
-        DiffuseConcentratedLikelihood ll = rslts.getLikelihood();
+        DkConcentratedLikelihood ll = rslts.getLikelihood();
         stream.write("Number of effective observations = ").write(
                 ll.getN() - ll.getD()).newLine();
         int np = bsm.getSpecification().getParametersCount();
         stream.write("Number of estimated parameters = ").write(
-                np + 1 + (ll.getB() != null ? ll.getB().length : 0)).newLines(2);
+                np + 1 + (ll.getCoefficients() != null ? ll.getCoefficients().getLength() : 0)).newLines(2);
         //stream.write("BIC = ").write(stats.BIC).newLine();
         stream.write("Diffuse likelihood = ").write(ll.getLogLikelihood()).newLine();
-        stream.write("\"Uncorrected\" likelihood = ").write(ll.getUncorrectedLogLikelihood()).newLine();
+        stream.write("SSQ = ").write(ll.getSsqErr()).newLine();
         stream.write("AIC = ").write(ll.AIC(np)).newLine();
         stream.newLines(2);
         stream.write(HtmlTag.LINEBREAK);
@@ -213,10 +214,10 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
             return;
         }
         T t = new T();
-        DiffuseConcentratedLikelihood ll = rslts.getLikelihood();
+        DkConcentratedLikelihood ll = rslts.getLikelihood();
         int nhp = bsm.getComponentsCount();
         t.setDegreesofFreedom(ll.getDegreesOfFreedom(true, nhp));
-        double[] b = ll.getB();
+        IReadDataBlock b = ll.getCoefficients();
         boolean simple = true;
         for (TsVariableSelection.Item<ITsVariable> reg : regs.elements()) {
             if (reg.variable.getDim() > 1) {
@@ -241,7 +242,7 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
                     } else {
                         stream.write(new HtmlTableCell("", 100));
                     }
-                    stream.write(new HtmlTableCell(df4.format(b[j + reg.position]), 100));
+                    stream.write(new HtmlTableCell(df4.format(b.get(j + reg.position)), 100));
                     double tval = ll.getTStat(j + reg.position, true, nhp);
                     stream.write(new HtmlTableCell(formatT(tval), 100));
                     double prob = 1 - t.getProbabilityForInterval(-tval, tval);
@@ -278,7 +279,7 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
             for (TsVariableSelection.Item<ITsVariable> reg : regs.elements()) {
                 stream.open(HtmlTag.TABLEROW);
                 stream.write(new HtmlTableCell(reg.variable.getDescription(), 100));
-                stream.write(new HtmlTableCell(df4.format(b[reg.position]), 100));
+                stream.write(new HtmlTableCell(df4.format(b.get(reg.position)), 100));
                 double tval = ll.getTStat(reg.position, true, nhp);
                 stream.write(new HtmlTableCell(formatT(tval), 100));
                 double prob = 1 - t.getProbabilityForInterval(-tval, tval);

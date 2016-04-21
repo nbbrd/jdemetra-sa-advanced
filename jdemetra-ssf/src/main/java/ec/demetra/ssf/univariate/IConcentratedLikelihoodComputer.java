@@ -14,34 +14,21 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package ec.demetra.ssf.dk;
+package ec.demetra.ssf.univariate;
 
-import ec.demetra.ssf.StateInfo;
-import ec.tstoolkit.maths.matrices.SubMatrix;
+import ec.demetra.eco.IConcentratedLikelihood;
 
 /**
  *
- * @author Jean Palate
+ * @author Jean Palate <jean.palate@nbb.be>
+ * @param <L>
  */
-public interface IDiffuseFilteringResults extends IBaseDiffuseFilteringResults{
-
-    /**
-     *
-     * @param t
-     * @param pe 
-     */
-    void save(int t, DiffuseUpdateInformation pe);
+public interface IConcentratedLikelihoodComputer<L extends IConcentratedLikelihood> extends ILikelihoodComputer<L>{
+    L compute(SsfRegressionModel model);
     
-    /**
-     *
-     * @param t
-     * @param state 
-     * @param info 
-     */
-    void save(int t, DiffuseState state, StateInfo info);
-    
-    default SubMatrix Pi(int pos) {
-        return null;
+    @Override
+    default L compute(ISsf ssf, ISsfData data){
+        SsfRegressionModel model=new SsfRegressionModel(ssf, data);
+        return compute(model);
     }
-    
 }

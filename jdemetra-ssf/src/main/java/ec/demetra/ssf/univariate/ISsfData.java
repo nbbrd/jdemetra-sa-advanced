@@ -47,5 +47,22 @@ public interface ISsfData {
      * @return
      */
     int getLength();
+    
+    default int getObsCount(){
+        int nm=0, n=getLength();
+        for (int i=0; i<n; ++i){
+            if (isMissing(i))
+                ++nm;
+        }
+        return n-nm;
+    }
  
+    default boolean hasMissingValues(){
+        int nm=0, n=getLength();
+        for (int i=0; i<n; ++i){
+            if (isMissing(i))
+                return true;
+        }
+        return false;
+    }
 }

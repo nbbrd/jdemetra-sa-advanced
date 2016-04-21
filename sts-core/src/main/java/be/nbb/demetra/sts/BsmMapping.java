@@ -445,7 +445,40 @@ public class BsmMapping implements IParametricMapping<BasicStructuralModel> {
 
     @Override
     public IReadDataBlock getDefault() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // creates the parameters array corresponding to the given model.
+        BasicStructuralModel model=new BasicStructuralModel(spec, freq);
+        return map(model);
     }
-
+    
+    public IReadDataBlock map(BasicStructuralModel t) {
+        double[] p = new double[getDim()];
+        int idx = 0;
+        if (_hasLevel()) {
+            p[idx++] = outparam(t.lVar);
+        }
+        if (_hasSlope()) {
+            p[idx++] = outparam(t.sVar);
+        }
+        if (_hasSeas()) {
+            p[idx++] = outparam(t.seasVar);
+        }
+        if (_hasNoise()) {
+            p[idx++] = outparam(t.nVar);
+        }
+        if (_hasCycle()) {
+            p[idx++] = outparam(t.cVar);
+        }
+        if (spec.cUse != ComponentUse.Unused) {
+            double cdump, clen;
+            Parameter pm = spec.getCyclicalDumpingFactor();
+            if (pm == null || !pm.isFixed()) {
+                p[idx++] = t.getCyclicalDumpingFactor();
+            }
+            pm = spec.getCyclicalPeriod();
+            if (pm == null || !pm.isFixed()) {
+                p[idx++] = t.getCyclicalPeriod() / (6 * freq);
+            }
+        }
+        return new ReadDataBlock(p);
+    }
 }

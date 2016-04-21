@@ -24,19 +24,25 @@ import ec.demetra.realfunctions.IParametricMapping;
 import ec.demetra.realfunctions.ISsqFunction;
 import ec.demetra.realfunctions.ISsqFunctionInstance;
 import ec.demetra.ssf.univariate.ISsf;
+import ec.demetra.ssf.univariate.ISsfBuilder;
 import ec.demetra.ssf.univariate.ISsfData;
+import ec.tstoolkit.maths.matrices.SubMatrix;
 
 /**
  *
  * @author Jean Palate
  * @param <S>
+ * @param <F>
  */
-public class SsfFunction<S extends ISsf> implements IFunction, ISsqFunction {
+public class SsfFunction<S, F extends ISsf> implements IFunction, ISsqFunction {
 
-    private final boolean mt, sym;
-    final IParametricMapping<S> mapper;
-    final ISsfData data;
-    boolean ml = true, log=false, fast=false;
+    private final IParametricMapping<S> mapping; // mapping from an array of double to an object S
+    private final ISsfBuilder<S, F> builder; // mapping from an object S to a given ssf
+    private final ISsfData data;
+    private final boolean missing;
+    private final SubMatrix X;
+    private final int[] diffuseX;
+    private boolean ml = true, log = false, fast = false, mt, sym;
 
     /**
      *
@@ -46,11 +52,22 @@ public class SsfFunction<S extends ISsf> implements IFunction, ISsqFunction {
      * @param mt
      * @param mapper
      */
-    public SsfFunction(ISsfData data, IParametricMapping<S> mapper, boolean symderivatives, boolean mt) {
+    public SsfFunction(ISsfData data, IParametricMapping<S> mapper, ISsfBuilder<S, F> builder) {
+        this(data, null, null, mapper, builder);
+    }
+
+    public SsfFunction(ISsfData data, SubMatrix X, int[] diffuseX, IParametricMapping<S> mapper, ISsfBuilder<S, F> builder) {
         this.data = data;
-        this.mapper = mapper;
+        this.mapping = mapper;
+        this.builder=builder;
         this.mt = mt;
-        this.sym = symderivatives;
+        this.X = X;
+        this.diffuseX = diffuseX;
+        missing = data.hasMissingValues();
+    }
+
+    public IParametricMapping<S> getMapping() {
+        return mapping;
     }
 
     public boolean isMaximumLikelihood() {
@@ -76,7 +93,7 @@ public class SsfFunction<S extends ISsf> implements IFunction, ISsqFunction {
     public void setFast(boolean fast) {
         this.fast = fast;
     }
-    
+
     @Override
     public IFunctionInstance evaluate(IReadDataBlock parameters) {
         return new SsfFunctionInstance<>(this, parameters);
@@ -88,11 +105,88 @@ public class SsfFunction<S extends ISsf> implements IFunction, ISsqFunction {
      */
     @Override
     public IParametersDomain getDomain() {
-        return mapper;
+        return mapping;
     }
 
     @Override
     public ISsqFunctionInstance ssqEvaluate(IReadDataBlock parameters) {
         return new SsfFunctionInstance<>(this, parameters);
+    }
+
+    /**
+     * @return the builder
+     */
+    public ISsfBuilder<S, F> getBuilder() {
+        return builder;
+    }
+
+    /**
+     * @return the data
+     */
+    public ISsfData getData() {
+        return data;
+    }
+
+    /**
+     * @return the missing
+     */
+    public boolean isMissing() {
+        return missing;
+    }
+
+    /**
+     * @return the X
+     */
+    public SubMatrix getX() {
+        return X;
+    }
+
+    /**
+     * @return the diffuseX
+     */
+    public int[] getDiffuseX() {
+        return diffuseX;
+    }
+
+    /**
+     * @return the ml
+     */
+    public boolean isMl() {
+        return ml;
+    }
+
+    /**
+     * @param ml the ml to set
+     */
+    public void setMl(boolean ml) {
+        this.ml = ml;
+    }
+
+    /**
+     * @return the mt
+     */
+    public boolean isMtisMultiThtreaded() {
+        return mt;
+    }
+
+    /**
+     * @param mt the mt to set
+     */
+    public void setMultiThreaded(boolean mt) {
+        this.mt = mt;
+    }
+
+    /**
+     * @return the sym
+     */
+    public boolean isSymmetric() {
+        return sym;
+    }
+
+    /**
+     * @param sym the sym to set
+     */
+    public void setSymmetric(boolean sym) {
+        this.sym = sym;
     }
 }

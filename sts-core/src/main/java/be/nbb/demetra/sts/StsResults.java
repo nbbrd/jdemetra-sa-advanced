@@ -18,6 +18,7 @@ package be.nbb.demetra.sts;
 
 import ec.demetra.realfunctions.IFunction;
 import ec.demetra.realfunctions.IFunctionInstance;
+import ec.demetra.ssf.dk.DkConcentratedLikelihood;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.univariate.DefaultSmoothingResults;
@@ -28,7 +29,7 @@ import ec.satoolkit.DefaultSeriesDecomposition;
 import ec.satoolkit.ISaResults;
 import ec.satoolkit.ISeriesDecomposition;
 import ec.tstoolkit.algorithm.ProcessingInformation;
-import ec.tstoolkit.eco.DiffuseConcentratedLikelihood;
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.information.InformationMapper;
 import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.modelling.ComponentInformation;
@@ -248,11 +249,11 @@ public class StsResults implements ISaResults {
 
     public TsData getResiduals() {
         TsDomain domain = y_.getDomain();
-        double[] res = monitor_.getLikelihood().getResiduals();
-        return new TsData(domain.getStart().plus(domain.getLength() - res.length), res, false);
+        IReadDataBlock res = monitor_.getLikelihood().getResiduals();
+        return new TsData(domain.getStart().plus(domain.getLength() - res.getLength()), res);
     }
 
-    public DiffuseConcentratedLikelihood getLikelihood() {
+    public DkConcentratedLikelihood getLikelihood() {
         return monitor_.getLikelihood();
     }
 

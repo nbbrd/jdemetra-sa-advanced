@@ -304,6 +304,95 @@ public class BasicStructuralModel {
         }
     }
 
+    /**
+     *
+     * @param val
+     * @return
+     */
+    public Component fixMaxVariance(double val) {
+        Component max = getMaxVariance();
+        if (max != Component.Undefined) {
+            double vmax = getVariance(max);
+            if (vmax != val) {
+                scaleVariances(val / vmax);
+            }
+        }
+        return max;
+    }
+
+    /**
+     *
+     * @param eps
+     * @return
+     */
+    public boolean fixSmallVariance(double eps) {
+        Component min = getMinVariance();
+        if (min != Component.Undefined && getVariance(min) < eps) {
+            setVariance(min, 0);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public Component getMaxVariance() {
+        Component cmp = Component.Undefined;
+        double vmax = 0;
+        if (lVar > vmax) {
+            vmax = lVar;
+            cmp = Component.Level;
+        }
+        if (sVar > vmax) {
+            vmax = sVar;
+            cmp = Component.Slope;
+        }
+        if (seasVar > vmax) {
+            vmax = seasVar;
+            cmp = Component.Seasonal;
+        }
+        if (cVar > vmax) {
+            vmax = cVar;
+            cmp = Component.Cycle;
+        }
+        if (nVar > vmax) {
+            cmp = Component.Noise;
+        }
+        return cmp;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Component getMinVariance() {
+        Component cmp = Component.Undefined;
+        double vmin = Double.MAX_VALUE;
+        if (lVar > 0 && lVar < vmin) {
+            vmin = lVar;
+            cmp = Component.Level;
+        }
+        if (sVar > 0 && sVar < vmin) {
+            vmin = sVar;
+            cmp = Component.Slope;
+        }
+        if (seasVar > 0 && seasVar < vmin) {
+            vmin = seasVar;
+            cmp = Component.Seasonal;
+        }
+        if (cVar > 0 && cVar < vmin) {
+            vmin = cVar;
+            cmp = Component.Cycle;
+        }
+        if (nVar > 0 && nVar < vmin) {
+            cmp = Component.Noise;
+        }
+        return cmp;
+    }
+
     public int getComponentsCount() {
         int n = 0;
         if (nVar > 0) {

@@ -45,4 +45,14 @@ public class DkConcentratedLikelihood extends DkLikelihood implements IConcentra
         this.coeff = DataBlock.of(coeff);
     }
 
+    @Override
+    public void rescale(double yfactor) {
+        super.rescale(yfactor);
+        if (coeff == null) {
+            return;
+        }
+        coeff.div(yfactor);
+        double yfactor2=yfactor*yfactor;
+        var.mul(1/yfactor2);
+    }
 }

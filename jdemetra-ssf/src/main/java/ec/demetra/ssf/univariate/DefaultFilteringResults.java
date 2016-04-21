@@ -108,6 +108,7 @@ public class DefaultFilteringResults implements IFilteringResults, IStateResults
         return f.get(pos);
     }
 
+    @Override
     public DataBlock errors(boolean normalized, boolean clean) {
         DataBlock r = e.all();
         if (normalized) {
