@@ -24,6 +24,7 @@ import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfData;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
 import ec.demetra.ssf.univariate.OrdinaryFilter;
+import ec.demetra.ssf.univariate.UpdateInformation;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.maths.matrices.Matrix;
@@ -39,11 +40,11 @@ import ec.tstoolkit.maths.matrices.SubMatrix;
  * @author Jean Palate <jean.palate@nbb.be>
  */
 @Development(status = Development.Status.Alpha)
-public class FastDiffuseInitializer<S extends ISsf> implements FastFilter.IFastInitializer<S> {
+public class CkmsDiffuseInitializer<S extends ISsf> implements CkmsFilter.IFastInitializer<S> {
 
     private final OrdinaryFilter.Initializer initializer;
 
-    public FastDiffuseInitializer() {
+    public CkmsDiffuseInitializer() {
         initializer = null;
     }
 
@@ -51,12 +52,12 @@ public class FastDiffuseInitializer<S extends ISsf> implements FastFilter.IFastI
      *
      * @param initializer
      */
-    public FastDiffuseInitializer(OrdinaryFilter.Initializer initializer) {
+    public CkmsDiffuseInitializer(OrdinaryFilter.Initializer initializer) {
         this.initializer = initializer;
     }
 
     @Override
-    public int initialize(FastState fstate, S ssf, ISsfData data) {
+    public int initialize(CkmsState fstate, final UpdateInformation upd, S ssf, ISsfData data) {
         State state = new State(ssf.getStateDim());
         int t=0;
         if (initializer != null) {
@@ -76,19 +77,22 @@ public class FastDiffuseInitializer<S extends ISsf> implements FastFilter.IFastI
         ISsfDynamics dynamics = ssf.getDynamics();
         ISsfMeasurement measurement = ssf.getMeasurement();
         SubMatrix P = state.P().all();
-        DataBlock k = fstate.k();
-        fstate.f = measurement.ZVZ(0, P) + measurement.errorVariance(0);
+        DataBlock k = upd.M();
+        double f = measurement.ZVZ(0, P) + measurement.errorVariance(0);
+        upd.setVariance(f);
         // K0 = TPZ' / var
         measurement.ZM(0, P, k);
-        dynamics.TX(0, fstate.k());
+        DataBlock l = fstate.l();
+        l.copy(k);
+        dynamics.TX(0, l);
 
         // L0: computes next iteration. TVT'-KK'*var + Q -V = - L(var)^-1 L'
         SubMatrix TVT = new Matrix(P).all();
         dynamics.TVT(0, TVT);
         dynamics.addV(0, TVT);
         TVT.sub(P);
-        TVT.addXaXt(-1 / fstate.f, k);
-        TVT.mul(-fstate.f);
+        TVT.addXaXt(-1 / f, l);
+        TVT.mul(-f);
         int imax = 0;
         double lmax = TVT.get(0, 0);
         for (int i = 1; i < dim; ++i) {
@@ -98,7 +102,6 @@ public class FastDiffuseInitializer<S extends ISsf> implements FastFilter.IFastI
                 lmax = lcur;
             }
         }
-        DataBlock l = fstate.l();
         if (lmax > 0) {
             l.copy(TVT.column(imax));
             l.mul(Math.sqrt(1 / lmax));

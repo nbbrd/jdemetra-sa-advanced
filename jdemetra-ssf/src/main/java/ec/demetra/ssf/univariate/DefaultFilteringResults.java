@@ -108,7 +108,8 @@ public class DefaultFilteringResults implements IFilteringResults, IStateResults
         return f.get(pos);
     }
 
-    public DataBlock errors(boolean normalized, boolean clean) {
+    @Override
+    public IReadDataBlock errors(boolean normalized, boolean clean) {
         DataBlock r = e.all();
         if (normalized) {
             r = r.deepClone();

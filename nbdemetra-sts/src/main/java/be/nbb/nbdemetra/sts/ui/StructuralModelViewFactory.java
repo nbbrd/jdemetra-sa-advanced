@@ -529,7 +529,8 @@ public class StructuralModelViewFactory extends SaDocumentViewFactory<StsSpecifi
             if (stm == null) {
                 return null;
             } else {
-                return Functions.create(stm.likelihoodFunction(), stm.maxLikelihoodFunction());
+                return null;
+//                return Functions.create(stm.likelihoodFunction(), stm.maxLikelihoodFunction());
             }
         }
     };

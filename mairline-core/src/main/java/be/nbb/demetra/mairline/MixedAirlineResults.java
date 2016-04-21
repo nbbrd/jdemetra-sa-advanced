@@ -29,6 +29,7 @@ import ec.satoolkit.ISeriesDecomposition;
 import ec.satoolkit.seats.SeatsResults;
 import ec.satoolkit.seats.SeatsToolkit;
 import ec.tstoolkit.algorithm.ProcessingInformation;
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.information.InformationMapper;
 import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.modelling.ComponentType;
@@ -196,8 +197,8 @@ public class MixedAirlineResults implements ISaResults {
 
     public TsData getResiduals() {
         TsDomain domain = y_.getDomain();
-        double[] res = monitor_.getBestModel().ll.getResiduals();
-        return new TsData(domain.getStart().plus(domain.getLength() - res.length), res, false);
+        IReadDataBlock res = monitor_.getBestModel().ll.getResiduals();
+        return new TsData(domain.getStart().plus(domain.getLength() - res.getLength()), res);
 
     }
 

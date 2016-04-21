@@ -20,6 +20,7 @@ import ec.satoolkit.IDefaultSeriesDecomposer;
 import ec.satoolkit.IPreprocessingFilter;
 import ec.tstoolkit.arima.estimation.RegArimaModel;
 import ec.tstoolkit.data.DataBlock;
+import ec.tstoolkit.data.ReadDataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.modelling.DefaultTransformationType;
 import ec.tstoolkit.modelling.arima.PreprocessingModel;
@@ -65,7 +66,7 @@ public class StsDecomposer implements IDefaultSeriesDecomposer<StsResults> {
         } else {
             M = null;
         }
-        if (!monitor.process(yo,M== null ? null : M.subMatrix(), y.getFrequency().intValue())) {
+        if (!monitor.process(new ReadDataBlock(yo),M== null ? null : M.all(), y.getFrequency().intValue())) {
             //if (!monitor.process(y.getValues().internalStorage(), y.getFrequency().intValue())) {
             return false;
         } else {
@@ -79,7 +80,7 @@ public class StsDecomposer implements IDefaultSeriesDecomposer<StsResults> {
     public boolean decompose(TsData y) {
         BsmMonitor monitor = new BsmMonitor();
         monitor.setSpecification(spec_);
-        if (!monitor.process(y.internalStorage(), y.getFrequency().intValue())) {
+        if (!monitor.process(y, y.getFrequency().intValue())) {
             return false;
         } else {
             results_ = new StsResults(y,new TsVariableList(), monitor, false);

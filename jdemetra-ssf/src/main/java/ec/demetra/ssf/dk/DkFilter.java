@@ -32,7 +32,7 @@ import ec.tstoolkit.maths.linearfilters.ILinearProcess;
  *
  * @author Jean Palate
  */
-public class FastDiffuseFilter implements ILinearProcess {
+public class DkFilter implements ILinearProcess {
 
     private final IBaseDiffuseFilteringResults frslts;
     private final ISsfMeasurement measurement;
@@ -60,7 +60,7 @@ public class FastDiffuseFilter implements ILinearProcess {
         return new FastDiffuseFilter1().filter(x, normalized);
     }
 
-    public FastDiffuseFilter(ISsf ssf, IBaseDiffuseFilteringResults frslts, ResultsRange range) {
+    public DkFilter(ISsf ssf, IBaseDiffuseFilteringResults frslts, ResultsRange range) {
         this.frslts = frslts;
         measurement = ssf.getMeasurement();
         dynamics = ssf.getDynamics();

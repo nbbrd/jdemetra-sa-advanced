@@ -23,6 +23,7 @@ import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfData;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
 import ec.demetra.ssf.univariate.UpdateInformation;
+import ec.tstoolkit.data.DataBlock;
 
 /**
  * Chandrasekhar recursions
@@ -31,17 +32,16 @@ import ec.demetra.ssf.univariate.UpdateInformation;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public class FastFilter<F extends ISsf> {
+public class CkmsFilter<F extends ISsf> {
 
     public static interface IFastInitializer<F> {
 
-        int initialize(FastState state, F ssf, ISsfData data);
+        int initialize(CkmsState state, UpdateInformation upd, F ssf, ISsfData data);
     }
 
-    private double eps = 1e-12;
+    private double eps = 0;
     private double neps;
 
-    private UpdateInformation pe;
 
     private final IFastInitializer<F> initializer;
     private ISsfMeasurement measurement;
@@ -49,18 +49,19 @@ public class FastFilter<F extends ISsf> {
 
     private ISsfData data;
 
-    private FastState state;
-    private double[] L, K;
+    private CkmsState state;
+    private UpdateInformation pe;
+    private double[] L, M;
     private int steadypos;
 
     /**
      *
      */
-    public FastFilter() {
-        initializer = new FastInitializer();
+    public CkmsFilter() {
+        initializer = new CkmsInitializer();
     }
 
-    public FastFilter(IFastInitializer<F> initializer) {
+    public CkmsFilter(IFastInitializer<F> initializer) {
         this.initializer = initializer;
     }
 
@@ -69,7 +70,7 @@ public class FastFilter<F extends ISsf> {
      *
      * @return
      */
-    public FastState getFinalState() {
+    public CkmsState getFinalState() {
         return state;
     }
 
@@ -89,16 +90,16 @@ public class FastFilter<F extends ISsf> {
         steadypos = -1;
         dynamics = ssf.getDynamics();
         measurement = ssf.getMeasurement();
-        state = new FastState(dynamics.getStateDim());
-        
-        int t=initializer.initialize(state, ssf, data);
-        if (t <0) {
+        state = new CkmsState(dynamics.getStateDim());
+        pe = new UpdateInformation(dynamics.getStateDim());
+
+        int t = initializer.initialize(state, pe, ssf, data);
+        if (t < 0) {
             return -1;
         }
-        pe = new UpdateInformation(dynamics.getStateDim());
-        K = state.k.getData();
+        M = pe.M().getData();
         L = state.l.getData();
-        neps = eps * state.f;
+        neps = eps * pe.getVariance();
         return t;
     }
 
@@ -112,8 +113,8 @@ public class FastFilter<F extends ISsf> {
     public boolean process(final F ssf, final ISsfData data,
             final IFilteringResults rslts) {
         this.data = data;
-        int t=initialize(ssf);
-        if (t<0){
+        int t = initialize(ssf);
+        if (t < 0) {
             return false;
         }
         int end = this.data.getLength();
@@ -121,53 +122,52 @@ public class FastFilter<F extends ISsf> {
             error(t);
             if (rslts != null) {
                 rslts.save(t, pe);
+                DataBlock tmp = rslts.M(t);
+                if (tmp != null) {
+                    rslts.M(t).copyFrom(M, 0);
+                }
             }
-            update();
+            update(t);
             next(t++);
             //
-            ;
         }
         return true;
     }
 
     private void next(int t) {
-        if (steadypos >= 0 ) {
-            return;
-        }
-        // K(i+1) = K(i) - T L(i) * (Z*L(i))/V(i)
-        // L(i+1) = T L(i) - K(i) * (Z*L(i))/V(i)
-        // F(i+1) = F(i) - (Z*L(i))^2/V(i)
+        if (steadypos < 0) {
+         // M(i+1) = M(i) - L(i) * (Z*L(i))/V(i)
+            // L(i+1) = T (L(i) - M(i) * (Z*L(i))/V(i))
+            // F(i+1) = F(i) - (Z*L(i))^2/V(i)
 
-        // ZLi, V(i+1)
-        double zl = measurement.ZX(0, state.l);
+            // ZLi, V(i+1)
+            double zl = measurement.ZX(0, state.l);
 
-        // TL(i)
-        dynamics.TX(0, state.l);
-
-        if (Math.abs(zl) > neps) {
-            // C, L
-            double zlv = zl / state.f;
-            state.f -= zl * zlv;
-            for (int i = 0; i < L.length; ++i) {
-                double tl = L[i];
-                L[i] -= K[i] * zlv;
-                K[i] -= tl * zlv;
+            if (Math.abs(zl) > neps) {
+                // C, L
+                double f=pe.getVariance();
+                double zlv = zl / f;
+                f -= zl * zlv;
+                for (int i = 0; i < L.length; ++i) {
+                    double l = L[i];
+                    L[i] -= M[i] * zlv;
+                    M[i] -= l * zlv;
+                }
+                pe.setVariance(f);
+            } else if (state.l.nrm2() < eps) {
+                steadypos = t;
             }
-        } else if (state.l.nrm2() < eps) {
-            steadypos = t;
         }
-
+        dynamics.TX(t, state.l);
+        dynamics.TX(t, state.a);
     }
 
-    private void update() {
-        dynamics.TX(0, state.a);
-        state.a.addAY(pe.get() / pe.getVariance(), state.k);
+    private void update(int t) {
+        state.a.addAY(pe.get() / pe.getVariance(), pe.M());
     }
 
     private void error(int t) {
         double y = data.get(t);
-        pe.set(y - measurement.ZX(0, state.a));
-        pe.setVariance(state.f);
-
+        pe.set(y - measurement.ZX(t, state.a));
     }
 }

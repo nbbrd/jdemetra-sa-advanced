@@ -18,73 +18,78 @@ package ec.demetra.ssf.dk;
 
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
-import ec.tstoolkit.eco.ILikelihood;
+import ec.demetra.eco.ILikelihood;
 import ec.demetra.realfunctions.IFunctionInstance;
 import ec.demetra.realfunctions.ISsqFunctionInstance;
-import ec.tstoolkit.utilities.Arrays2;
-import static ec.demetra.ssf.dk.DkToolkit.likelihoodComputer;
 import ec.demetra.ssf.univariate.ISsf;
-import ec.tstoolkit.data.ReadDataBlock;
 import ec.demetra.realfunctions.IFunction;
 import ec.demetra.realfunctions.ISsqFunction;
+import ec.demetra.ssf.univariate.IConcentratedLikelihoodComputer;
+import ec.demetra.ssf.univariate.SsfRegressionModel;
 
 /**
  *
  * @author Jean Palate
  * @param <S>
  */
-public class SsfFunctionInstance<S extends ISsf> implements
+public class SsfFunctionInstance<S, F extends ISsf> implements
         ISsqFunctionInstance, IFunctionInstance {
 
     /**
      *
      */
+    private final F currentSsf;
     private final S current;
 
     /**
      *
      */
-    private final ILikelihood ll;
+    private final DkConcentratedLikelihood ll;
     private final DataBlock p;
-    private final boolean ml, log;
-    private double[] E;
-    private final SsfFunction<S> fn;
+    private DataBlock E;
+    private final SsfFunction<S, F> fn;
 
     /**
      *
      * @param fn
      * @param p
      */
-    public SsfFunctionInstance(SsfFunction<S> fn, IReadDataBlock p) {
+    public SsfFunctionInstance(SsfFunction<S, F> fn, IReadDataBlock p) {
         this.fn = fn;
         this.p = new DataBlock(p);
-        this.ml = fn.ml;
-        this.log = fn.log;
-        current = fn.mapper.map(p);
-        ll = likelihoodComputer(true, true).compute(current, fn.data);
+        current=fn.getMapping().map(p);
+        currentSsf = fn.getBuilder().buildSsf(current);
+        boolean fastcomputer=fn.isFast() && !fn.isMissing() && currentSsf.isTimeInvariant();
+        IConcentratedLikelihoodComputer<DkConcentratedLikelihood> computer= DkToolkit.concentratedLikelihoodComputer(true, fastcomputer);
+        if (fn.getX() == null)
+            ll=computer.compute(currentSsf, fn.getData());
+        else
+            ll=computer.compute(new SsfRegressionModel(currentSsf, fn.getData(), fn.getX(), fn.getDiffuseX()));
     }
 
-    public S getSsf() {
+    public F getSsf() {
+        return currentSsf;
+    }
+
+    public S getCore() {
         return current;
     }
 
     @Override
     public IReadDataBlock getE() {
         if (E == null) {
-            double[] res = ll.getResiduals();
+            IReadDataBlock res = ll.getResiduals();
             if (res == null) {
                 return null;
             } else {
-                E = Arrays2.compact(res);
-                if (ml) {
+                E = DataBlock.select(res, x->Double.isFinite(x));
+                if (fn.isMaximumLikelihood()) {
                     double factor = Math.sqrt(ll.getFactor());
-                    for (int i = 0; i < E.length; ++i) {
-                        E[i] *= factor;
-                    }
+                    E.mul(factor);
                 }
             }
         }
-        return new ReadDataBlock(E);
+        return E;
     }
 
     /**
@@ -105,7 +110,7 @@ public class SsfFunctionInstance<S extends ISsf> implements
         if (ll == null) {
             return Double.NaN;
         }
-        return ml ? ll.getSsqErr() * ll.getFactor() : ll.getSsqErr();
+        return fn.isMaximumLikelihood() ? ll.getSsqErr() * ll.getFactor() : ll.getSsqErr();
     }
 
     @Override
@@ -113,10 +118,10 @@ public class SsfFunctionInstance<S extends ISsf> implements
         if (ll == null) {
             return Double.NaN;
         }
-        if (log) {
-            return ml ? -ll.getLogLikelihood() : Math.log(ll.getSsqErr());
+        if (fn.isLog()) {
+            return fn.isMaximumLikelihood() ? -ll.getLogLikelihood() : Math.log(ll.getSsqErr());
         } else {
-            return ml ? ll.getSsqErr() * ll.getFactor() : ll
+            return fn.isMaximumLikelihood() ? ll.getSsqErr() * ll.getFactor() : ll
                     .getSsqErr();
         }
     }

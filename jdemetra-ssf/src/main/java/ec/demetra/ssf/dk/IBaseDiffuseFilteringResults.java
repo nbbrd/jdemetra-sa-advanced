@@ -38,8 +38,7 @@ public interface IBaseDiffuseFilteringResults extends IFilteringResults{
     default DataBlock Mi(int pos) {
         return null;
     }
- 
-    
+   
     default int getEndDiffusePosition(){
         return -1;
     };

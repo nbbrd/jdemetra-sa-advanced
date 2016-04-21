@@ -14,24 +14,21 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package ec.demetra.ssf.ckms;
+package ec.demetra.ssf.univariate;
 
-import ec.tstoolkit.design.Development;
-import ec.demetra.ssf.univariate.ISsf;
+import ec.demetra.eco.IConcentratedLikelihood;
 
 /**
- * 
- * @param <F>
- * @author Jean Palate
+ *
+ * @author Jean Palate <jean.palate@nbb.be>
+ * @param <L>
  */
-@Development(status = Development.Status.Alpha)
-public interface IFastArrayInitializer<F extends ISsf> {
-
-    /**
-     *
-     * @param ssf
-     * @param state
-     * @return
-     */
-    boolean initialize(final F ssf, final FastState state);
+public interface IConcentratedLikelihoodComputer<L extends IConcentratedLikelihood> extends ILikelihoodComputer<L>{
+    L compute(SsfRegressionModel model);
+    
+    @Override
+    default L compute(ISsf ssf, ISsfData data){
+        SsfRegressionModel model=new SsfRegressionModel(ssf, data);
+        return compute(model);
+    }
 }

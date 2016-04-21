@@ -116,7 +116,7 @@ public class DefaultDiffuseSquareRootFilteringResults extends DefaultFilteringRe
     }
 
     @Override
-    public DataBlock errors(boolean normalized, boolean clean) {
+    public IReadDataBlock errors(boolean normalized, boolean clean) {
         DataBlock r = new DataBlock(errors());
         // set diffuse elements to Double.NaN
         r.range(0, enddiffuse).apply((x, y) -> y != 0 ? Double.NaN : x, fi.rextract(0, enddiffuse));

@@ -27,69 +27,57 @@ import ec.tstoolkit.data.ReadDataBlock;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.sarima.SarimaModelBuilder;
+import ec.tstoolkit.sarima.estimation.SarimaMapping;
 
 /**
  *
  * @author Jean Palate
  */
 @Development(status = Development.Status.Exploratory)
-public abstract class MixedAirlineMapper implements IParametricMapping<ISsf> {
+public abstract class MixedAirlineMapping implements IParametricMapping<MixedAirlineModel> {
 
-      final int freq;
-        final int[] noisyPeriods;
-        final double th, bth, nvar;
+    final int freq;
+    final int[] noisyPeriods;
+    final double th, bth, nvar;
 
-    MixedAirlineMapper(MixedAirlineModel m) {
-        freq=m.getFrequency();
-        noisyPeriods=m.getNoisyPeriods();
-        th=m.getTheta();
-        bth=m.getBTheta();
-        nvar=m.getNoisyPeriodsVariance();
+    MixedAirlineMapping(MixedAirlineModel m) {
+        freq = m.getFrequency();
+        noisyPeriods = m.getNoisyPeriods();
+        th = m.getTheta();
+        bth = m.getBTheta();
+        nvar = m.getNoisyPeriodsVariance();
     }
 
-    public abstract MixedAirlineModel toModel(IReadDataBlock p);
-
-    public static MixedAirlineMapper all(MixedAirlineModel m) {
+    public static MixedAirlineMapping all(MixedAirlineModel m) {
         return new All(m);
     }
 
-    public static MixedAirlineMapper airline(MixedAirlineModel m) {
+    public static MixedAirlineMapping airline(MixedAirlineModel m) {
         return new Airline(m);
     }
 
-    public static MixedAirlineMapper noise(MixedAirlineModel m) {
+    public static MixedAirlineMapping noise(MixedAirlineModel m) {
         return new Noise(m);
     }
 
     public static final String TH = "th", BTH = "bth", NVAR = "noise var";
 
-    private static class All extends MixedAirlineMapper {
+    private static class All extends MixedAirlineMapping {
 
         All(MixedAirlineModel m) {
             super(m);
         }
 
-
         @Override
-        public MixedAirlineModel toModel(IReadDataBlock p) {
+        public MixedAirlineModel map(IReadDataBlock p) {
             SarimaModelBuilder builder = new SarimaModelBuilder();
             SarimaModel airline = builder.createAirlineModel(freq, p.get(0), p.get(1));
+            SarimaMapping.stabilize(airline);
             MixedAirlineModel m = new MixedAirlineModel();
             m.setAirline(airline);
             m.setNoisyPeriods(noisyPeriods);
-            m.setNoisyPeriodsVariance(p.get(2)*p.get(2));
+            m.setNoisyPeriodsVariance(p.get(2) * p.get(2));
             return m;
-        }
-
-        @Override
-        public ISsf map(IReadDataBlock p) {
-            SarimaModelBuilder builder = new SarimaModelBuilder();
-            SarimaModel airline = builder.createAirlineModel(freq, p.get(0), p.get(1));
-            MixedAirlineModel m = new MixedAirlineModel();
-            m.setAirline(airline);
-            m.setNoisyPeriods(noisyPeriods);
-            m.setNoisyPeriodsVariance(p.get(2)*p.get(2));
-            return MixedAirlineSsf.of(m);
         }
 
         @Override
@@ -147,14 +135,14 @@ public abstract class MixedAirlineMapper implements IParametricMapping<ISsf> {
         }
     }
 
-    private static class Airline extends MixedAirlineMapper {
+    private static class Airline extends MixedAirlineMapping {
 
         Airline(MixedAirlineModel m) {
             super(m);
         }
 
         @Override
-        public MixedAirlineModel toModel(IReadDataBlock p) {
+        public MixedAirlineModel map(IReadDataBlock p) {
             SarimaModelBuilder builder = new SarimaModelBuilder();
             SarimaModel airline = builder.createAirlineModel(freq, p.get(0), p.get(1));
             MixedAirlineModel m = new MixedAirlineModel();
@@ -162,17 +150,6 @@ public abstract class MixedAirlineMapper implements IParametricMapping<ISsf> {
             m.setNoisyPeriods(noisyPeriods);
             m.setNoisyPeriodsVariance(nvar);
             return m;
-        }
-
-        @Override
-        public ISsf map(IReadDataBlock p) {
-            SarimaModelBuilder builder = new SarimaModelBuilder();
-            SarimaModel airline = builder.createAirlineModel(freq, p.get(0), p.get(1));
-            MixedAirlineModel m = new MixedAirlineModel();
-            m.setAirline(airline);
-            m.setNoisyPeriods(noisyPeriods);
-            m.setNoisyPeriodsVariance(nvar);
-            return MixedAirlineSsf.of(m);
         }
 
         @Override
@@ -228,33 +205,21 @@ public abstract class MixedAirlineMapper implements IParametricMapping<ISsf> {
         }
     }
 
-    private static class Noise extends MixedAirlineMapper {
+    private static class Noise extends MixedAirlineMapping {
 
         Noise(MixedAirlineModel m) {
             super(m);
-         }
-
-  
-        @Override
-        public MixedAirlineModel toModel(IReadDataBlock p) {
-            SarimaModelBuilder builder = new SarimaModelBuilder();
-            SarimaModel airline = builder.createAirlineModel(freq, th, bth);
-            MixedAirlineModel model = new MixedAirlineModel();
-            model.setAirline(airline);
-            model.setNoisyPeriods(noisyPeriods);
-            model.setNoisyPeriodsVariance(p.get(0)*p.get(0));
-            return model;
         }
 
         @Override
-        public ISsf map(IReadDataBlock p) {
+        public MixedAirlineModel map(IReadDataBlock p) {
             SarimaModelBuilder builder = new SarimaModelBuilder();
             SarimaModel airline = builder.createAirlineModel(freq, th, bth);
             MixedAirlineModel model = new MixedAirlineModel();
             model.setAirline(airline);
             model.setNoisyPeriods(noisyPeriods);
-            model.setNoisyPeriodsVariance(p.get(0)*p.get(0));
-            return MixedAirlineSsf.of(model);
+            model.setNoisyPeriodsVariance(p.get(0) * p.get(0));
+            return model;
         }
 
         @Override

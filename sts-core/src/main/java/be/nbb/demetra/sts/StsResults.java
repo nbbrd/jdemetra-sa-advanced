@@ -16,24 +16,26 @@
  */
 package be.nbb.demetra.sts;
 
+import ec.demetra.realfunctions.IFunction;
+import ec.demetra.realfunctions.IFunctionInstance;
+import ec.demetra.ssf.dk.DkConcentratedLikelihood;
+import ec.demetra.ssf.dk.DkToolkit;
+import ec.demetra.ssf.implementations.structural.Component;
+import ec.demetra.ssf.univariate.DefaultSmoothingResults;
+import ec.demetra.ssf.univariate.ExtendedSsfData;
+import ec.demetra.ssf.univariate.SsfData;
 import ec.satoolkit.DecompositionMode;
 import ec.satoolkit.DefaultSeriesDecomposition;
 import ec.satoolkit.ISaResults;
 import ec.satoolkit.ISeriesDecomposition;
 import ec.tstoolkit.algorithm.ProcessingInformation;
-import ec.tstoolkit.eco.DiffuseConcentratedLikelihood;
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.information.InformationMapper;
 import ec.tstoolkit.information.InformationSet;
-import ec.tstoolkit.maths.realfunctions.IFunction;
-import ec.tstoolkit.maths.realfunctions.IFunctionInstance;
 import ec.tstoolkit.modelling.ComponentInformation;
 import ec.tstoolkit.modelling.ComponentType;
 import ec.tstoolkit.modelling.ModellingDictionary;
 import ec.tstoolkit.modelling.SeriesInfo;
-import ec.tstoolkit.ssf.ExtendedSsfData;
-import ec.tstoolkit.ssf.Smoother;
-import ec.tstoolkit.ssf.SmoothingResults;
-import ec.tstoolkit.ssf.SsfData;
 import ec.tstoolkit.timeseries.regression.TsVariableList;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
@@ -53,7 +55,7 @@ public class StsResults implements ISaResults {
     public static final String MODEL = "model";
     public static final String SERIES = "series", LEVEL = "level", CYCLE = "cycle", SLOPE = "slope", NOISE = "noise", SEASONAL = "seasonal";
     private final BsmMonitor monitor_;
-    private final SmoothingResults srslts_;
+    private final DefaultSmoothingResults srslts_;
     private final InformationSet info_ = new InformationSet();
     private final TsData y_, yf_, t_, sa_, s_, i_, c_;
     private UcarimaModel reduced_;
@@ -68,48 +70,49 @@ public class StsResults implements ISaResults {
         x_ = x;
         mul_ = mul;
         BasicStructuralModel model = monitor.getResult();
-        Smoother smoother = new Smoother();
-        smoother.setSsf(model);
-        ExtendedSsfData data = new ExtendedSsfData(new SsfData(y.internalStorage(), null));
+        SsfBsm ssf=SsfBsm.create(model);
+        ExtendedSsfData data = new ExtendedSsfData(new SsfData(y));
         data.setForecastsCount(y.getFrequency().intValue());
-        srslts_ = new SmoothingResults();
-        smoother.process(data, srslts_);
+        srslts_ = DkToolkit.sqrtSmooth(ssf, data, true);
 //        DisturbanceSmoother smoother = new DisturbanceSmoother();
 //        smoother.setSsf(model);
 //        SsfData data = new SsfData(y.getValues().internalStorage(), null);
 //        smoother.process(data);
 //        srslts_ = smoother.calcSmoothedStates();
         InformationSet minfo = info_.subSet(MODEL);
-        int[] cmps = model.getCmpPositions();
-        int cur = 0;
         TsData noise, level, slope, seasonal = null, cycle = null;
-        if (model.getSpecification().hasNoise()) {
-            noise = new TsData(y.getStart(), srslts_.component(cmps[cur++]), false);
+        int pos = SsfBsm.searchPosition(model, Component.Noise);
+        if (pos >= 0) {
+            noise = new TsData(y.getStart(), srslts_.getComponent(pos));
             minfo.add(NOISE, noise);
             i_ = noise;
         } else {
             i_ = new TsData(y.getDomain(), 0);
         }
-        if (model.getSpecification().hasCycle()) {
-            cycle = new TsData(y.getStart(), srslts_.component(cmps[cur++]), false);
+        pos = SsfBsm.searchPosition(model, Component.Cycle);
+        if (pos >= 0) {
+            cycle = new TsData(y.getStart(), srslts_.getComponent(pos));
             minfo.add(CYCLE, cycle);
             c_ = cycle;
         } else {
-            c_ = new TsData(y.getDomain(), 0);
+            c_ = null;
         }
-        if (model.getSpecification().hasLevel()) {
-            level = new TsData(y.getStart(), srslts_.component(cmps[cur++]), false);
+        pos = SsfBsm.searchPosition(model, Component.Level);
+        if (pos >= 0) {
+            level = new TsData(y.getStart(), srslts_.getComponent(pos));
             minfo.add(LEVEL, level);
             t_ = TsData.add(level, cycle);
-            if (model.getSpecification().hasSlope()) {
-                slope = new TsData(y.getStart(), srslts_.component(cmps[cur++]), false);
-                minfo.add(SLOPE, slope);
-            }
         } else {
             t_ = c_; //new TsData(y.getDomain(), 0);
         }
-        if (model.getSpecification().hasSeasonal()) {
-            seasonal = new TsData(y.getStart(), srslts_.component(cmps[cur++]), false);
+        pos = SsfBsm.searchPosition(model, Component.Slope);
+        if (pos >= 0) {
+            slope = new TsData(y.getStart(), srslts_.getComponent(pos));
+            minfo.add(SLOPE, slope);
+        }
+        pos = SsfBsm.searchPosition(model, Component.Seasonal);
+        if (pos >= 0) {
+            seasonal = new TsData(y.getStart(), srslts_.getComponent(pos));
             minfo.add(SEASONAL, seasonal);
             s_ = seasonal;
         } else {
@@ -246,11 +249,11 @@ public class StsResults implements ISaResults {
 
     public TsData getResiduals() {
         TsDomain domain = y_.getDomain();
-        double[] res = monitor_.getLikelihood().getResiduals();
-        return new TsData(domain.getStart().plus(domain.getLength() - res.length), res, false);
+        IReadDataBlock res = monitor_.getLikelihood().getResiduals();
+        return new TsData(domain.getStart().plus(domain.getLength() - res.getLength()), res);
     }
 
-    public DiffuseConcentratedLikelihood getLikelihood() {
+    public DkConcentratedLikelihood getLikelihood() {
         return monitor_.getLikelihood();
     }
 

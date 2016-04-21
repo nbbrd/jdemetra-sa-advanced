@@ -21,11 +21,8 @@ import be.nbb.demetra.mairline.data.ssf.Data;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.SsfData;
-import ec.tstoolkit.eco.DiffuseLikelihood;
-import ec.tstoolkit.eco.ILikelihood;
-import ec.tstoolkit.ssf.LikelihoodEvaluation;
+import ec.demetra.eco.ILikelihood;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Ignore;
 
 /**
@@ -76,7 +73,7 @@ public class MixedAirlineSsfTest {
         long t1 = System.currentTimeMillis();
         System.out.println("estimate 1 " + (t1 - t0));
         ISsf ssf = MixedAirlineSsf.of(rslt);
-        ILikelihood ll = DkToolkit.likelihoodComputer().compute(ssf, new SsfData(Data.P));
+        ILikelihood ll = DkToolkit.likelihoodComputer(true, true).compute(ssf, new SsfData(Data.P));
         System.out.println(ll.getLogLikelihood());
         System.out.println(rslt.getAirline());
 //        System.out.println(rslt.getNoisyPeriodsVariance());

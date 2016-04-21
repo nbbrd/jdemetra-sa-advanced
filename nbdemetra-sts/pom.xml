@@ -72,12 +72,24 @@
                     <groupId>eu.europa.ec.joinup.sat</groupId>
                     <artifactId>demetra-tss</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>be.nbb.demetra</groupId>
+                    <artifactId>jdemetra-ssf</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>be.nbb.demetra</groupId>
+                    <artifactId>jdemetra-core</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
        <!-- NbDemetra -->
         <dependency>
             <groupId>eu.europa.ec.joinup.sat</groupId>
             <artifactId>nbdemetra-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>be.nbb.demetra</groupId>
+            <artifactId>nbdemetra-ncore</artifactId>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sat</groupId>

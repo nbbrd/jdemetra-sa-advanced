@@ -16,10 +16,13 @@
  */
 package be.nbb.demetra.sts;
 
+import ec.demetra.ssf.implementations.structural.Component;
+import ec.demetra.ssf.implementations.structural.ComponentUse;
+import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.tstoolkit.Parameter;
-import ec.tstoolkit.algorithm.IProcSpecification;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.information.InformationSet;
+import ec.tstoolkit.information.InformationSetSerializable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -28,7 +31,7 @@ import java.util.Objects;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Preliminary)
-public class ModelSpecification implements IProcSpecification, Cloneable {
+public class ModelSpecification implements InformationSetSerializable,  Cloneable {
 
     public static final String LUSE = "luse", SUSE = "suse", NUSE = "nuse", SEASMODEL = "seasmodel", CUSE = "cuse", CDUMP = "cdump", CLENGTH = "clength";
 
@@ -155,7 +158,40 @@ public class ModelSpecification implements IProcSpecification, Cloneable {
     public ComponentUse getSlopeUse() {
         return sUse;
     }
+    
+    public boolean hasComponent(Component cmp){
+        switch (cmp){
+            case Noise:
+                return hasNoise();
+            case Level:
+                return hasLevel();
+            case Cycle:
+                return hasCycle();
+            case Slope:
+                return hasSlope();
+            case Seasonal:
+                return hasSeasonal();
+            default:
+                return false;
+        }
+    }
 
+    public boolean hasFreeComponent(Component cmp){
+        switch (cmp){
+            case Noise:
+                return nUse == ComponentUse.Free;
+            case Level:
+                return lUse == ComponentUse.Free;
+            case Cycle:
+                return cUse == ComponentUse.Free;
+            case Slope:
+                return sUse == ComponentUse.Free;
+            case Seasonal:
+                 return seasModel != SeasonalModel.Fixed && seasModel != SeasonalModel.Unused;
+           default:
+                return false;
+        }
+    }
     /**
      *
      * @return
@@ -282,7 +318,7 @@ public class ModelSpecification implements IProcSpecification, Cloneable {
     }
 
     @Override
-    public boolean read(InformationSet info) {
+     public boolean read(InformationSet info) {
         String s = info.get(LUSE, String.class);
         if (s != null) {
             lUse = ComponentUse.valueOf(s);

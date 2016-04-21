@@ -30,15 +30,16 @@ import ec.tstoolkit.maths.polynomials.RationalFunction;
 import ec.demetra.ssf.ISsfDynamics;
 import ec.demetra.ssf.SsfException;
 import ec.demetra.ssf.State;
-import ec.demetra.ssf.ckms.FastDiffuseInitializer;
-import ec.demetra.ssf.ckms.FastFilter;
-import ec.demetra.ssf.ckms.FastState;
+import ec.demetra.ssf.ckms.CkmsDiffuseInitializer;
+import ec.demetra.ssf.ckms.CkmsFilter;
+import ec.demetra.ssf.ckms.CkmsState;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfData;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
 import ec.demetra.ssf.univariate.OrdinaryFilter;
 import ec.demetra.ssf.univariate.Ssf;
 import ec.demetra.ssf.implementations.Measurement;
+import ec.demetra.ssf.univariate.UpdateInformation;
 
 /**
  *
@@ -50,29 +51,30 @@ public class SsfArima extends Ssf {
 //    public static IParametricMapping<SsfArima> mapping(final SarimaSpecification spec) {
 //        return new Mapping(spec);
 //    }
-    public static FastFilter.IFastInitializer<SsfArima> fastInitializer() {
-        return (FastState state, SsfArima ssf, ISsfData data) -> {
+    public static CkmsFilter.IFastInitializer<SsfArima> fastInitializer() {
+        return (CkmsState state, UpdateInformation upd, SsfArima ssf, ISsfData data) -> {
             if (ssf.model.isStationary()) {
-                return stInitialize(state, ssf, data);
+                return stInitialize(state, upd, ssf, data);
             } else {
-                return dInitialize(state, ssf, data);
+                return dInitialize(state, upd, ssf, data);
             }
         };
     }
 
-    private static int stInitialize(FastState state, SsfArima ssf1, ISsfData data) {
+    private static int stInitialize(CkmsState state, UpdateInformation upd, SsfArima ssf1, ISsfData data) {
         int n = ssf1.getStateDim();
         double[] values = ssf1.model.getAutoCovarianceFunction().values(n);
-        state.k().copyFrom(values, 0);
-        ssf1.dynamics.TX(0, state.k());
-        state.l().copy(state.k());
-        state.setF(values[0]);
+        DataBlock M=upd.M(), L=state.l();
+        upd.M().copyFrom(values, 0);
+        L.copy(M);
+        ssf1.dynamics.TX(0, L);
+        upd.setVariance(values[0]);
         return 0;
 
     }
 
-    private static int dInitialize(FastState state, SsfArima ssf1, ISsfData data) {
-        return new FastDiffuseInitializer<SsfArima>(diffuseInitializer()).initialize(state, ssf1, data);
+    private static int dInitialize(CkmsState state, UpdateInformation upd, SsfArima ssf1, ISsfData data) {
+        return new CkmsDiffuseInitializer<SsfArima>(diffuseInitializer()).initialize(state, upd, ssf1, data);
     }
 
     public static OrdinaryFilter.Initializer diffuseInitializer() {

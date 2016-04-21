@@ -66,36 +66,30 @@ public class MixedAirlineEstimation {
     }
 
     private MixedAirlineModel searchAirline(MixedAirlineModel model, TsData s) {
-        MixedAirlineMapper mapper = MixedAirlineMapper.airline(model);
+        MixedAirlineMapping mapper = MixedAirlineMapping.airline(model);
         minimizer.setConvergenceCriterion(1e-6);
-        SsfFunction<ISsf> fn = new SsfFunction<>(new SsfData(s), mapper, false, false);
+        SsfFunction<MixedAirlineModel, ISsf> fn = new SsfFunction<>(new SsfData(s), mapper, (MixedAirlineModel m) -> MixedAirlineSsf.of(m));
         boolean converged = minimizer.minimize(fn);
-        SsfFunctionInstance<ISsf> rfn = (SsfFunctionInstance<ISsf>) minimizer.getResult();
-        return mapper.toModel(rfn.getParameters());
+        SsfFunctionInstance<MixedAirlineModel, ISsf> rfn = (SsfFunctionInstance<MixedAirlineModel, ISsf>) minimizer.getResult();
+        return rfn.getCore();
     }
 
     private MixedAirlineModel searchAll(MixedAirlineModel model, TsData s, double eps) {
-        MixedAirlineMapper mapper = MixedAirlineMapper.all(model);
+        MixedAirlineMapping mapper = MixedAirlineMapping.all(model);
         minimizer.setConvergenceCriterion(eps);
-        SsfFunction<ISsf> fn = new SsfFunction<>(new SsfData(s), mapper, false, false);
+        SsfFunction<MixedAirlineModel, ISsf> fn = new SsfFunction<>(new SsfData(s), mapper, (MixedAirlineModel m) -> MixedAirlineSsf.of(m));
         boolean converged = minimizer.minimize(fn);
-        SsfFunctionInstance<ISsf> rfn = (SsfFunctionInstance<ISsf>) minimizer.getResult();
-        return mapper.toModel(rfn.getParameters());
+        SsfFunctionInstance<MixedAirlineModel, ISsf> rfn = (SsfFunctionInstance<MixedAirlineModel, ISsf>) minimizer.getResult();
+        return rfn.getCore();
     }
 
     private MixedAirlineModel searchNoise(MixedAirlineModel model, TsData s) {
-        MixedAirlineMapper mapper = MixedAirlineMapper.noise(model);
-        SsfFunction<ISsf> fn = new SsfFunction<>(new SsfData(s), mapper, false, false);
-//        GridSearch grid = new GridSearch();
-//        grid.setConvergenceCriterion(1e-6);
-//        double a=Math.max(0, model.getNoisyPeriodsVariance()-.5);
-//        double b=Math.max(0, model.getNoisyPeriodsVariance()+.5);
-//        grid.setBounds(a, b);
-//        boolean converged = grid.minimize(fn.evaluate(s));
+        MixedAirlineMapping mapper = MixedAirlineMapping.noise(model);
+        SsfFunction<MixedAirlineModel, ISsf> fn = new SsfFunction<>(new SsfData(s), mapper, (MixedAirlineModel m) -> MixedAirlineSsf.of(m));
         minimizer.setConvergenceCriterion(1e-6);
         minimizer.minimize(fn);
-        SsfFunctionInstance<ISsf> rfn = (SsfFunctionInstance<ISsf>) minimizer.getResult();
-        return mapper.toModel(rfn.getParameters());
+        SsfFunctionInstance<MixedAirlineModel, ISsf> rfn = (SsfFunctionInstance<MixedAirlineModel, ISsf>) minimizer.getResult();
+        return rfn.getCore();
     }
 
 }

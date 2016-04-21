@@ -16,7 +16,7 @@
  */
 package ec.demetra.ssf;
 
-import ec.tstoolkit.eco.ILikelihood;
+import ec.demetra.eco.ILikelihood;
 
 /**
  *

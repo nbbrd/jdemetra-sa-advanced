@@ -81,7 +81,7 @@ public class QRFilter {
         ISsfDynamics dynamics = ssf.getDynamics();
         X = new Matrix(data.getLength(), dynamics.getNonStationaryDim());
         ssf.diffuseEffects(X.all());
-        yl = fr.errors(true, true);
+        yl = new DataBlock(fr.errors(true, true));
         FastFilter ffilter = new FastFilter(ssf, fr, new ResultsRange(0, data.getLength()));
         int n = ffilter.getOutputLength(X.getRowsCount());
         Xl = new Matrix(n, X.getColumnsCount());

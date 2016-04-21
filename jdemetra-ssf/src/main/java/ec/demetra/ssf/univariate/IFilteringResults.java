@@ -13,21 +13,22 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the Licence for the specific language governing permissions and 
 * limitations under the Licence.
-*/
+ */
 package ec.demetra.ssf.univariate;
 
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.demetra.ssf.IStateResults;
+import ec.tstoolkit.data.IReadDataBlock;
 
 /**
- * 
+ *
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public interface IFilteringResults extends IStateResults{
-   
+public interface IFilteringResults extends IStateResults {
+
     /**
      *
      * @param t
@@ -39,14 +40,23 @@ public interface IFilteringResults extends IStateResults{
      *
      */
     void clear();
-    
-    
+
     default double error(int pos) {
         return Double.NaN;
     }
 
     default double errorVariance(int pos) {
         return Double.NaN;
+    }
+
+    /**
+     *
+     * @param normalized
+     * @param clean
+     * @return
+     */
+    default IReadDataBlock errors(boolean normalized, boolean clean) {
+        return null;
     }
 
     default DataBlock a(int pos) {

@@ -18,8 +18,8 @@ package ec.demetra.ssf.univariate;
 
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.design.Development;
-import ec.tstoolkit.eco.ILikelihood;
-import ec.tstoolkit.eco.Likelihood;
+import ec.demetra.eco.ILikelihood;
+import ec.demetra.eco.Likelihood;
 import ec.demetra.ssf.IPredictionErrorDecomposition;
 import ec.demetra.ssf.ResidualsCumulator;
 import ec.demetra.ssf.State;
@@ -35,7 +35,7 @@ import ec.tstoolkit.data.ReadDataBlock;
 public class PredictionErrorDecomposition implements
         IPredictionErrorDecomposition, IFilteringResults {
 
-    protected final ResidualsCumulator cumulator=new ResidualsCumulator();
+    protected final ResidualsCumulator cumulator = new ResidualsCumulator();
     protected DataBlock res;
     protected final boolean bres;
 
@@ -55,14 +55,22 @@ public class PredictionErrorDecomposition implements
         return bres;
     }
 
-    public IReadDataBlock allResiduals() {
-        return bres ? new ReadDataBlock(res.getData()) : null;
+    @Override
+    public IReadDataBlock errors(boolean normalized, boolean clean) {
+        if (!bres || ! normalized) {
+            return null;
+        }
+        if (!clean || res.check(x -> Double.isFinite(x))) {
+            return res;
+        } else {
+            return DataBlock.select(res, x -> Double.isFinite(x));
+        }
     }
 
     public void prepare(final ISsf ssf, final int n) {
         clear();
-        if (bres){
-            res=DataBlock.create(n);
+        if (bres) {
+            res = DataBlock.create(n);
             res.set(Double.NaN);
         }
     }
@@ -88,26 +96,27 @@ public class PredictionErrorDecomposition implements
 //        DataBlock err = pe.getPredictionError();
 //        add(err, cov);
 //    }
-
     @Override
     public void save(final int t, final UpdateInformation pe) {
-        if (pe == null || pe.isMissing())
+        if (pe == null || pe.isMissing()) {
             return;
+        }
         double e = pe.get();
         cumulator.add(e, pe.getVariance());
-        if (bres)
-            res.set(t, e/pe.getStandardDeviation());
-    }
-    
-    @Override
-    public void clear(){
-        cumulator.clear();
-        res=null;
+        if (bres) {
+            res.set(t, e / pe.getStandardDeviation());
+        }
     }
 
     @Override
-    public ILikelihood likelihood(){
-        Likelihood ll=new Likelihood();
+    public void clear() {
+        cumulator.clear();
+        res = null;
+    }
+
+    @Override
+    public ILikelihood likelihood() {
+        Likelihood ll = new Likelihood();
         ll.set(cumulator.getSsqErr(), cumulator.getLogDeterminant(), cumulator.getObsCount());
         return ll;
     }

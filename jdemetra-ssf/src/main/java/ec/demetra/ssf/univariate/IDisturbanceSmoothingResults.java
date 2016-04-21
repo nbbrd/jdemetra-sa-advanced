@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 National Bank of Belgium
+ * Copyright 2016 National Bank of Belgium
  *  
  * Licensed under the EUPL, Version 1.1 or – as soon they will be approved 
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -14,18 +14,14 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-/*
- */
 package ec.demetra.ssf.univariate;
 
 import ec.tstoolkit.data.DataBlock;
-import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.maths.matrices.SubMatrix;
-import ec.demetra.ssf.IStateResults;
 
 /**
  *
- * @author PCUser
+ * @author Jean Palate
  */
 public interface IDisturbanceSmoothingResults {
 

@@ -5,12 +5,13 @@
  */
 package be.nbb.demetra.sts;
 
+import ec.demetra.realfunctions.IFunction;
+import ec.demetra.realfunctions.IFunctionInstance;
+import ec.demetra.ssf.dk.DkConcentratedLikelihood;
 import ec.tstoolkit.algorithm.IProcResults;
 import ec.tstoolkit.algorithm.ProcessingInformation;
-import ec.tstoolkit.eco.DiffuseConcentratedLikelihood;
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.information.InformationMapper;
-import ec.tstoolkit.maths.realfunctions.IFunction;
-import ec.tstoolkit.maths.realfunctions.IFunctionInstance;
 import ec.tstoolkit.timeseries.regression.TsVariableList;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
@@ -77,12 +78,12 @@ public class StsEstimation implements IProcResults{
     }
 
     public TsData getResiduals() {
-        double[] res = monitor_.getLikelihood().getResiduals();
+        IReadDataBlock res = monitor_.getLikelihood().getResiduals();
         TsDomain edom=y_.getDomain();
-        return new TsData(edom.getStart().plus(edom.getLength() - res.length), res, false);
+        return new TsData(edom.getStart().plus(edom.getLength() - res.getLength()), res);
     }
 
-    public DiffuseConcentratedLikelihood getLikelihood() {
+    public DkConcentratedLikelihood getLikelihood() {
         return monitor_.getLikelihood();
     }
 

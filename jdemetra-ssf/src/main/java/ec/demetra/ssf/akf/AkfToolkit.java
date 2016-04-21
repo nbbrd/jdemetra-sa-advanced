@@ -16,7 +16,7 @@
  */
 package ec.demetra.ssf.akf;
 
-import ec.tstoolkit.eco.ILikelihood;
+import ec.demetra.eco.ILikelihood;
 import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.demetra.ssf.univariate.ILikelihoodComputer;
 import ec.demetra.ssf.univariate.ISsf;
@@ -28,21 +28,23 @@ import ec.demetra.ssf.univariate.OrdinaryFilter;
  * @author Jean Palate
  */
 public class AkfToolkit {
-    private AkfToolkit(){}
 
-    public static ILikelihoodComputer likelihoodComputer() {
+    private AkfToolkit() {
+    }
+
+    public static ILikelihoodComputer<DiffuseLikelihood> likelihoodComputer() {
         return likelihoodComputer(true);
     }
 
-    public static ILikelihoodComputer marginalLikelihoodComputer() {
-        return likelihoodComputer(true);
+    public static ILikelihoodComputer<MarginalLikelihood> marginalLikelihoodComputer() {
+        return new MLLComputer();
     }
 
-    public static ILikelihoodComputer profileLikelihoodComputer() {
-        return likelihoodComputer(true);
+    public static ILikelihoodComputer<ProfileLikelihood> profileLikelihoodComputer() {
+        return new PLLComputer();
     }
 
-    public static ILikelihoodComputer likelihoodComputer(boolean collapsing) {
+    public static ILikelihoodComputer<DiffuseLikelihood> likelihoodComputer(boolean collapsing) {
         return collapsing ? new LLComputer2() : new LLComputer1();
     }
 
@@ -55,7 +57,7 @@ public class AkfToolkit {
         filter.process(ssf, data, frslts);
         return frslts;
     }
-    
+
     public static DefaultSmoothingResults smooth(ISsf ssf, ISsfData data, boolean all) {
         AugmentedSmoother smoother = new AugmentedSmoother();
         smoother.setCalcVariances(all);
@@ -71,10 +73,11 @@ public class AkfToolkit {
             return null;
         }
     }
-    private static class LLComputer1 implements ILikelihoodComputer {
+
+    private static class LLComputer1 implements ILikelihoodComputer<DiffuseLikelihood> {
 
         @Override
-        public ILikelihood compute(ISsf ssf, ISsfData data) {
+        public DiffuseLikelihood compute(ISsf ssf, ISsfData data) {
             AugmentedFilter akf = new AugmentedFilter();
             AugmentedPredictionErrorDecomposition pe = new AugmentedPredictionErrorDecomposition(false);
             pe.prepare(ssf, data.getLength());
@@ -86,10 +89,10 @@ public class AkfToolkit {
 
     }
 
-    private static class LLComputer2 implements ILikelihoodComputer {
+    private static class LLComputer2 implements ILikelihoodComputer<DiffuseLikelihood> {
 
         @Override
-        public ILikelihood compute(ISsf ssf, ISsfData data) {
+        public DiffuseLikelihood compute(ISsf ssf, ISsfData data) {
             AugmentedPredictionErrorDecomposition pe = new AugmentedPredictionErrorDecomposition(false);
             pe.prepare(ssf, data.getLength());
             AugmentedFilterInitializer initializer = new AugmentedFilterInitializer(pe);
@@ -98,11 +101,34 @@ public class AkfToolkit {
             return pe.likelihood();
         }
     }
-    
-        public static double var(int n, IAugmentedFilteringResults frslts) {
+
+    private static class MLLComputer implements ILikelihoodComputer<MarginalLikelihood> {
+
+        @Override
+        public MarginalLikelihood compute(ISsf ssf, ISsfData data) {
+            QRFilter qr = new QRFilter();
+            if (!qr.process(ssf, data)) {
+                return null;
+            }
+            return qr.getMarginalLikelihood();
+        }
+    }
+
+    private static class PLLComputer implements ILikelihoodComputer<ProfileLikelihood> {
+
+        @Override
+        public ProfileLikelihood compute(ISsf ssf, ISsfData data) {
+            QRFilter qr = new QRFilter();
+            if (!qr.process(ssf, data)) {
+                return null;
+            }
+            return qr.getProfileLikelihood();
+        }
+    }
+    public static double var(int n, IAugmentedFilteringResults frslts) {
         double c = frslts.getAugmentation().c();
-        double ssq=c*c;
-        int nd=frslts.getCollapsingPosition();
+        double ssq = c * c;
+        int nd = frslts.getCollapsingPosition();
         int m = frslts.getAugmentation().getDegreesofFreedom();
         for (int i = nd; i < n; ++i) {
             double e = frslts.error(i);

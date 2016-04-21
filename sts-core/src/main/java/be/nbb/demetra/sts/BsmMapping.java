@@ -16,20 +16,22 @@
  */
 package be.nbb.demetra.sts;
 
+import ec.demetra.realfunctions.IParametricMapping;
+import ec.demetra.realfunctions.ParamValidation;
+import ec.demetra.ssf.implementations.structural.Component;
+import ec.demetra.ssf.implementations.structural.ComponentUse;
 import ec.tstoolkit.Parameter;
 import ec.tstoolkit.data.IDataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.data.ReadDataBlock;
 import ec.tstoolkit.design.Development;
-import ec.tstoolkit.maths.realfunctions.IParametricMapping;
-import ec.tstoolkit.maths.realfunctions.ParamValidation;
 
 /**
  *
  * @author Jean Palate
  */
 @Development(status = Development.Status.Preliminary)
-public class BsmMapper implements IParametricMapping<BasicStructuralModel> {
+public class BsmMapping implements IParametricMapping<BasicStructuralModel> {
 
     static final double STEP = 1e-6, STEP2 = 1e-4;
     private static double RMIN = 0, RMAX = 0.999, RDEF = 0.5;
@@ -76,7 +78,7 @@ public class BsmMapper implements IParametricMapping<BasicStructuralModel> {
      * @param spec
      * @param freq
      */
-    public BsmMapper(ModelSpecification spec, int freq) {
+    public BsmMapping(ModelSpecification spec, int freq) {
         transformation = Transformation.Square;
         this.spec = spec;
         this.freq = freq;
@@ -88,7 +90,7 @@ public class BsmMapper implements IParametricMapping<BasicStructuralModel> {
      * @param freq
      * @param tr
      */
-    public BsmMapper(ModelSpecification spec, int freq, Transformation tr) {
+    public BsmMapping(ModelSpecification spec, int freq, Transformation tr) {
         this.transformation = tr;
         this.spec = spec;
         this.freq = freq;
@@ -310,39 +312,6 @@ public class BsmMapper implements IParametricMapping<BasicStructuralModel> {
     }
 
     @Override
-    public IReadDataBlock map(BasicStructuralModel t) {
-        double[] p = new double[getDim()];
-        int idx = 0;
-        if (_hasLevel()) {
-            p[idx++] = outparam(t.lVar);
-        }
-        if (_hasSlope()) {
-            p[idx++] = outparam(t.sVar);
-        }
-        if (_hasSeas()) {
-            p[idx++] = outparam(t.seasVar);
-        }
-        if (_hasNoise()) {
-            p[idx++] = outparam(t.nVar);
-        }
-        if (_hasCycle()) {
-            p[idx++] = outparam(t.cVar);
-        }
-        if (spec.cUse != ComponentUse.Unused) {
-            double cdump, clen;
-            Parameter pm = spec.getCyclicalDumpingFactor();
-            if (pm == null || !pm.isFixed()) {
-                p[idx++] = t.getCyclicalDumpingFactor();
-            }
-            pm = spec.getCyclicalPeriod();
-            if (pm == null || !pm.isFixed()) {
-                p[idx++] = t.getCyclicalPeriod() / (6 * freq);
-            }
-        }
-        return new ReadDataBlock(p);
-    }
-
-    @Override
     public BasicStructuralModel map(IReadDataBlock p) {
         BasicStructuralModel t = new BasicStructuralModel(spec, freq);
         int idx = 0;
@@ -474,4 +443,42 @@ public class BsmMapper implements IParametricMapping<BasicStructuralModel> {
         }
     }
 
+    @Override
+    public IReadDataBlock getDefault() {
+        // creates the parameters array corresponding to the given model.
+        BasicStructuralModel model=new BasicStructuralModel(spec, freq);
+        return map(model);
+    }
+    
+    public IReadDataBlock map(BasicStructuralModel t) {
+        double[] p = new double[getDim()];
+        int idx = 0;
+        if (_hasLevel()) {
+            p[idx++] = outparam(t.lVar);
+        }
+        if (_hasSlope()) {
+            p[idx++] = outparam(t.sVar);
+        }
+        if (_hasSeas()) {
+            p[idx++] = outparam(t.seasVar);
+        }
+        if (_hasNoise()) {
+            p[idx++] = outparam(t.nVar);
+        }
+        if (_hasCycle()) {
+            p[idx++] = outparam(t.cVar);
+        }
+        if (spec.cUse != ComponentUse.Unused) {
+            double cdump, clen;
+            Parameter pm = spec.getCyclicalDumpingFactor();
+            if (pm == null || !pm.isFixed()) {
+                p[idx++] = t.getCyclicalDumpingFactor();
+            }
+            pm = spec.getCyclicalPeriod();
+            if (pm == null || !pm.isFixed()) {
+                p[idx++] = t.getCyclicalPeriod() / (6 * freq);
+            }
+        }
+        return new ReadDataBlock(p);
+    }
 }

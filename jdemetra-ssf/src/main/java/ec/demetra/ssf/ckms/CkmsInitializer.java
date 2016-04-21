@@ -23,6 +23,8 @@ import ec.demetra.ssf.ISsfDynamics;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfData;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
+import ec.demetra.ssf.univariate.UpdateInformation;
+import ec.tstoolkit.data.DataBlock;
 
 /**
  *
@@ -30,7 +32,7 @@ import ec.demetra.ssf.univariate.ISsfMeasurement;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public class FastInitializer<S extends ISsf> implements FastFilter.IFastInitializer<S> {
+public class CkmsInitializer<S extends ISsf> implements CkmsFilter.IFastInitializer<S> {
 
     /**
      * K = TPZ', L=K, F=ZPZ'+H
@@ -41,32 +43,33 @@ public class FastInitializer<S extends ISsf> implements FastFilter.IFastInitiali
      * @return
      */
     @Override
-    public int initialize(final FastState fstate, final S ssf, ISsfData data) {
+    public int initialize(final CkmsState fstate, final UpdateInformation upd, final S ssf, ISsfData data) {
         if (!ssf.isTimeInvariant()) {
             return -1;
         }
         ISsfDynamics dynamics = ssf.getDynamics();
         if (dynamics.isDiffuse()) {
-            return initializeDiffuse(fstate, ssf, data);
+            return initializeDiffuse(fstate, upd, ssf, data);
         } else {
-            return initializeStationary(fstate, ssf, data);
+            return initializeStationary(fstate, upd, ssf, data);
         }
     }
 
-    public int initializeStationary(final FastState fstate, final S ssf, ISsfData data) {
+    public int initializeStationary(final CkmsState fstate, final UpdateInformation upd, final S ssf, ISsfData data) {
         ISsfDynamics dynamics = ssf.getDynamics();
         ISsfMeasurement measurement = ssf.getMeasurement();
         SubMatrix P0 = Matrix.square(dynamics.getStateDim()).all();
         dynamics.Pf0(P0);
-        measurement.ZM(0, P0, fstate.l);
+        DataBlock m=upd.M();
+        measurement.ZM(0, P0, m);
+        fstate.l.copy(m);
         dynamics.TX(0, fstate.l());
-        fstate.l.copy(fstate.k);
-        fstate.f = measurement.ZX(0, fstate.k)+ measurement.errorVariance(0);
+        upd.setVariance(measurement.ZX(0, fstate.l)+ measurement.errorVariance(0));
         return 0;
     }
     
-    public int initializeDiffuse(final FastState fstate, final S ssf, ISsfData data) {
-        FastDiffuseInitializer initializer=new FastDiffuseInitializer();
-        return initializer.initialize(fstate, ssf, data);
+    public int initializeDiffuse(final CkmsState fstate, final UpdateInformation upd, final S ssf, ISsfData data) {
+        CkmsDiffuseInitializer initializer=new CkmsDiffuseInitializer();
+        return initializer.initialize(fstate, upd, ssf, data);
     }
 }

@@ -144,19 +144,19 @@ public class StsProcessingFactory extends GenericSaProcessingFactory implements 
                 BsmMonitor monitor = new BsmMonitor();
                 monitor.setSpecification(decompositionSpec);
                 if (model == null) {
-                    if (monitor.process(input.internalStorage(), input.getFrequency().intValue())) {
+                    if (monitor.process(input, input.getFrequency().intValue())) {
                         estimation = new StsEstimation(input, new TsVariableList(), monitor);
                     }
                 } else {
                     TsData y = model.description.transformedOriginal();
                     TsVariableList x = model.description.buildRegressionVariables();
                     if (x.isEmpty()) {
-                        if (monitor.process(y.internalStorage(), input.getFrequency().intValue())) {
+                        if (monitor.process(y, input.getFrequency().intValue())) {
                             estimation = new StsEstimation(y, x, monitor);
                         }
                     } else {
                         Matrix mx = x.all().matrix(y.getDomain());
-                        if (monitor.process(y.internalStorage(), mx.subMatrix(), y.getFrequency().intValue())) {
+                        if (monitor.process(y, mx.all(), y.getFrequency().intValue())) {
                             estimation = new StsEstimation(y, x, monitor);
                         }
                     }
@@ -199,7 +199,7 @@ public class StsProcessingFactory extends GenericSaProcessingFactory implements 
                     return IProcessing.Status.Invalid;
                 }
                 DeterministicComponent det = model.getDeterministicComponent();
-                det.setCoefficients(new ReadDataBlock(estimation.getLikelihood().getB()));
+                det.setCoefficients(estimation.getLikelihood().getCoefficients());
                 results.put(DETERMINISTIC, det);
                 return IProcessing.Status.Valid;
             }

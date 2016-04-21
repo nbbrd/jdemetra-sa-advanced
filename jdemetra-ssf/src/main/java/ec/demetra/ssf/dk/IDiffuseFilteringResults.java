@@ -34,7 +34,9 @@ public interface IDiffuseFilteringResults extends IBaseDiffuseFilteringResults{
     
     /**
      *
+     * @param t
      * @param state 
+     * @param info 
      */
     void save(int t, DiffuseState state, StateInfo info);
     

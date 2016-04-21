@@ -28,6 +28,14 @@
             <groupId>eu.europa.ec.joinup.sat</groupId>
             <artifactId>demetra-tstoolkit</artifactId>
        </dependency>
+        <dependency>
+            <groupId>be.nbb.demetra</groupId>
+            <artifactId>jdemetra-ssf</artifactId>
+       </dependency>
+        <dependency>
+            <groupId>be.nbb.demetra</groupId>
+            <artifactId>jdemetra-core</artifactId>
+       </dependency>
         <!-- test only -->
         <dependency>
             <groupId>junit</groupId>
