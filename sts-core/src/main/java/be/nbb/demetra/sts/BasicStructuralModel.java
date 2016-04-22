@@ -30,12 +30,14 @@ import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.tstoolkit.maths.matrices.SymmetricMatrix;
 import ec.tstoolkit.maths.polynomials.UnitRoots;
 import ec.tstoolkit.ucarima.UcarimaModel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Jean Palate
  */
-public class BasicStructuralModel {
+public class BasicStructuralModel implements Cloneable {
 
     private static ComponentUse getUse(double var) {
         if (var < 0) {
@@ -113,8 +115,6 @@ public class BasicStructuralModel {
      *
      */
     final int freq;
-    private int[] m_cmps;
-    private Matrix m_tsvar;
     double lVar, sVar, seasVar, cVar, nVar;
     double cDump, cPeriod;
     double ccos, csin;
@@ -135,6 +135,15 @@ public class BasicStructuralModel {
         nVar = getVar(spec.nUse);
         if (spec.cUse != ComponentUse.Unused) {
             cycle(.5, freq * 2);
+        }
+    }
+    
+    @Override
+    public BasicStructuralModel clone(){
+        try {
+            return (BasicStructuralModel) super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
         }
     }
 
@@ -259,9 +268,6 @@ public class BasicStructuralModel {
         if (nVar > 0) {
             nVar *= factor;
         }
-        if (factor == 0) {
-            m_cmps = null;
-        }
     }
 
     /**
@@ -270,9 +276,6 @@ public class BasicStructuralModel {
      * @param var
      */
     public void setVariance(Component cmp, double var) {
-        if (var == 0) {
-            m_cmps = null;
-        }
         switch (cmp) {
             case Noise:
                 if (nVar > 0) {
@@ -334,7 +337,7 @@ public class BasicStructuralModel {
             return false;
         }
     }
-    
+
     /**
      *
      * @return

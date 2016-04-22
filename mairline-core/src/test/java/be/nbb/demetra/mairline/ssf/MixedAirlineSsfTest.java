@@ -17,7 +17,7 @@
 package be.nbb.demetra.mairline.ssf;
 
 import be.nbb.demetra.mairline.MixedAirlineModel;
-import be.nbb.demetra.mairline.data.ssf.Data;
+import data.Data;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.SsfData;
@@ -43,7 +43,7 @@ public class MixedAirlineSsfTest {
 
         ISsf ssf = MixedAirlineSsf.of(model);
         ILikelihood ll = DkToolkit.likelihoodComputer().compute(ssf, new SsfData(Data.P));
-        System.out.println(ll.getSsqErr());
+//        System.out.println(ll.getSsqErr());
     }
 
     @Test
@@ -55,7 +55,7 @@ public class MixedAirlineSsfTest {
 
         ISsf ssf = MixedAirlineSsf.of2(model);
         ILikelihood ll = DkToolkit.likelihoodComputer().compute(ssf, new SsfData(Data.P));
-        System.out.println(ll.getSsqErr());
+//        System.out.println(ll.getSsqErr());
     }
 
     @Test
@@ -71,11 +71,11 @@ public class MixedAirlineSsfTest {
             rslt = estimation.compute(model.getAirline(), model.getNoisyPeriods(), Data.P);
         }
         long t1 = System.currentTimeMillis();
-        System.out.println("estimate 1 " + (t1 - t0));
+//        System.out.println("estimate 1 " + (t1 - t0));
         ISsf ssf = MixedAirlineSsf.of(rslt);
         ILikelihood ll = DkToolkit.likelihoodComputer(true, true).compute(ssf, new SsfData(Data.P));
-        System.out.println(ll.getLogLikelihood());
-        System.out.println(rslt.getAirline());
+//        System.out.println(ll.getLogLikelihood());
+//        System.out.println(rslt.getAirline());
 //        System.out.println(rslt.getNoisyPeriodsVariance());
     }
 
@@ -95,7 +95,7 @@ public class MixedAirlineSsfTest {
         System.out.println("estimate 2 " + (t1 - t0));
         ISsf ssf = MixedAirlineSsf.of(rslt);
         ILikelihood ll = DkToolkit.likelihoodComputer().compute(ssf, new SsfData(Data.P));
-        System.out.println(ll.getLogLikelihood());
+//        System.out.println(ll.getLogLikelihood());
 //        System.out.println(rslt.getAirline());
 //        System.out.println(rslt.getNoisyPeriodsVariance());
     }

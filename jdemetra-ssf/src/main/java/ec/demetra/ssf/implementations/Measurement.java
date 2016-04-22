@@ -60,7 +60,11 @@ public class Measurement {
     }
 
     public static ISsfMeasurement cyclical(final int period) {
-        return new CyclicalMeasurement(period);
+        return new CyclicalMeasurement(period, 0);
+    }
+
+    public static ISsfMeasurement cyclical(final int period, final int pstart) {
+        return new CyclicalMeasurement(period, pstart);
     }
 
     private static class Proxy implements ISsfMeasurement {
@@ -403,10 +407,11 @@ public class Measurement {
 
     static class CyclicalMeasurement implements ISsfMeasurement {
 
-        private final int period;
+        private final int period, start;
 
-        public CyclicalMeasurement(int period) {
+        public CyclicalMeasurement(int period, int start) {
             this.period = period;
+            this.start = start;
         }
 
         @Override
@@ -416,7 +421,7 @@ public class Measurement {
 
         @Override
         public void Z(int pos, DataBlock z) {
-            int spos = pos % period;
+            int spos = (start + pos) % period;
             if (spos == period - 1) {
                 z.set(-1);
             } else {
@@ -441,7 +446,7 @@ public class Measurement {
 
         @Override
         public double ZX(int pos, DataBlock x) {
-            int spos = pos % period;
+            int spos = (start + pos) % period;
             if (spos == period - 1) {
                 return -x.sum();
             } else {
@@ -451,7 +456,7 @@ public class Measurement {
 
         @Override
         public void ZM(int pos, SubMatrix m, DataBlock x) {
-            int spos = pos % period;
+            int spos = (start + pos) % period;
             if (spos == period - 1) {
                 for (int i = 0; i < x.getLength(); ++i) {
                     x.set(i, -m.column(i).sum());
@@ -463,7 +468,7 @@ public class Measurement {
 
         @Override
         public double ZVZ(int pos, SubMatrix vm) {
-            int spos = pos % period;
+            int spos = (start + pos) % period;
             if (spos == period - 1) {
                 return vm.sum();
             } else {
@@ -476,7 +481,7 @@ public class Measurement {
             if (d == 0) {
                 return;
             }
-            int spos = pos % period;
+            int spos = (start + pos) % period;
             if (spos == period - 1) {
                 vm.add(d);
             } else {
@@ -489,7 +494,7 @@ public class Measurement {
             if (d == 0) {
                 return;
             }
-            int spos = pos % period;
+            int spos = (start + pos) % period;
             if (spos == period - 1) {
                 x.add(-d);
             } else {
@@ -499,12 +504,12 @@ public class Measurement {
 
         @Override
         public int getStateDim() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return period-1;
         }
 
         @Override
         public boolean isValid() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return true;
         }
 
     }

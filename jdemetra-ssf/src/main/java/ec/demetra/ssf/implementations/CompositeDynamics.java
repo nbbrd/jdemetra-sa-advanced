@@ -156,7 +156,7 @@ public class CompositeDynamics implements ISsfDynamics {
             }
         }
     }
-    
+
     @Override
     public void XS(int pos, DataBlock x, DataBlock xs) {
         DataBlock xcur = x.start(), ycur = xs.start();
@@ -170,7 +170,6 @@ public class CompositeDynamics implements ISsfDynamics {
             }
         }
     }
-    
 
     @Override
     public void T(int pos, SubMatrix tr
@@ -202,8 +201,7 @@ public class CompositeDynamics implements ISsfDynamics {
     }
 
     @Override
-    public void diffuseConstraints(SubMatrix b
-    ) {
+    public void diffuseConstraints(SubMatrix b) {
         // statedim * diffusedim
         SubMatrix cur = b.topLeft();
         for (int i = 0, j = 0; i < dyn.length; ++i) {
@@ -212,6 +210,8 @@ public class CompositeDynamics implements ISsfDynamics {
                 cur.next(dim[i], nst);
                 dyn[i].diffuseConstraints(cur);
                 j += nst;
+            } else {
+                cur.vnext(dim[i]);
             }
         }
     }
@@ -229,7 +229,7 @@ public class CompositeDynamics implements ISsfDynamics {
     }
 
     @Override
-    public boolean Pf0(SubMatrix p ) {
+    public boolean Pf0(SubMatrix p) {
         SubMatrix cur = p.topLeft();
         for (int i = 0; i < dyn.length; ++i) {
             cur.next(dim[i], dim[i]);

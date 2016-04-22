@@ -55,8 +55,8 @@ public class MixedAirlineEstimation {
             model.setNoisyPeriodsVariance(1);
 
             for (int i = 0; i < 5; ++i) {
-                model = searchAirline(model, s);
                 model = searchNoise(model, s);
+                model = searchAirline(model, s);
             }
             return searchAll(model, s, 1e-12);
 
