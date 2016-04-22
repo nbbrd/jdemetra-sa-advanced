@@ -51,6 +51,9 @@ public class MaSpecification implements Cloneable {
             if (airline != null) {
                 spec.airline = airline.clone();
             }
+            if (noisyPeriods != null) {
+                spec.noisyPeriods = noisyPeriods.clone();
+            }
             return spec;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();

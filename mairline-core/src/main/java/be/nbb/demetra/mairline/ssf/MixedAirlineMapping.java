@@ -72,11 +72,11 @@ public abstract class MixedAirlineMapping implements IParametricMapping<MixedAir
         public MixedAirlineModel map(IReadDataBlock p) {
             SarimaModelBuilder builder = new SarimaModelBuilder();
             SarimaModel airline = builder.createAirlineModel(freq, p.get(0), p.get(1));
-            SarimaMapping.stabilize(airline);
             MixedAirlineModel m = new MixedAirlineModel();
             m.setAirline(airline);
             m.setNoisyPeriods(noisyPeriods);
             m.setNoisyPeriodsVariance(p.get(2) * p.get(2));
+            m.stabilize();
             return m;
         }
 

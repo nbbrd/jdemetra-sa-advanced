@@ -411,7 +411,7 @@ public class ModelSpecification implements InformationSetSerializable,  Cloneabl
         return hash;
     }
 
-    private boolean equals(ModelSpecification spec) {
+    public boolean equals(ModelSpecification spec) {
         return spec.lUse == lUse && spec.sUse == sUse && spec.nUse == nUse && spec.cUse == cUse
                 && spec.seasModel == seasModel && Objects.deepEquals(spec.cdump, cdump)
                 && Objects.deepEquals(spec.clength, clength);
