@@ -16,8 +16,10 @@
 */
 
 
-package be.nbb.demetra.mairline;
+package be.nbb.demetra.sssts;
 
+import be.nbb.demetra.sts.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.Component;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.sarima.SarimaModel;
 import java.util.Arrays;
@@ -28,7 +30,7 @@ import java.util.Objects;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Exploratory)
-public class MaSpecification implements Cloneable {
+public class SeasonalSpecification implements Cloneable {
 
     public static enum EstimationMethod{
         Iterative,
@@ -36,21 +38,17 @@ public class MaSpecification implements Cloneable {
         LikelihoodGradient
     }
 
-    public SarimaModel airline;
-    // search method
     public int[] noisyPeriods; // pre-specified periods
-    public boolean allPeriods;
+    public Component noisyComponent=Component.Noise;
+    // search method
     public double step=.1;
     
     public EstimationMethod method=EstimationMethod.LikelihoodGradient;
 
     @Override
-    public MaSpecification clone(){
+    public SeasonalSpecification clone(){
         try {
-            MaSpecification spec = (MaSpecification) super.clone();
-            if (airline != null) {
-                spec.airline = airline.clone();
-            }
+            SeasonalSpecification spec = (SeasonalSpecification) super.clone();
             if (noisyPeriods != null) {
                 spec.noisyPeriods = noisyPeriods.clone();
             }
@@ -62,21 +60,20 @@ public class MaSpecification implements Cloneable {
     
     @Override
     public boolean equals(Object obj) {
-        return this == obj || (obj instanceof MaSpecification && equals((MaSpecification) obj));
+        return this == obj || (obj instanceof SeasonalSpecification && equals((SeasonalSpecification) obj));
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
         hash = 67 * hash + Arrays.hashCode(this.noisyPeriods);
-        hash = 67 * hash + (this.allPeriods ? 1 : 0);
         hash = 67 * hash + Objects.hashCode(this.method);
         return hash;
     }
 
-    private boolean equals(MaSpecification other) {
-        return allPeriods == other.allPeriods && method == other.method && step == other.step
-                && Arrays.equals(noisyPeriods, other.noisyPeriods);
+    private boolean equals(SeasonalSpecification other) {
+        return method == other.method && step == other.step
+                && Arrays.equals(noisyPeriods, other.noisyPeriods) && noisyComponent.equals(other.noisyComponent);
     }
 
 }

@@ -287,11 +287,11 @@ public class TimeInvariantDynamics implements ISsfDynamics {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("T:\r\n").append(T.toString(FMT));
-        builder.append("V:\r\n").append(V.toString(FMT));
-        builder.append("a0:\r\n").append(a0 == null ? "0\r\n" : a0.toString(FMT));
-        builder.append("P0:\r\n").append(Pf0 == null ? "0\r\n" : Pf0.toString(FMT));
-        builder.append("B0:\r\n").append(B0 == null ? "0\r\n" : B0.toString(FMT));
+        builder.append("T:\r\n").append(T.toString(FMT)).append("\r\n");
+        builder.append("V:\r\n").append(V.toString(FMT)).append("\r\n");
+        builder.append("a0:\r\n").append(a0 == null ? "0" : a0.toString(FMT)).append("\r\n");
+        builder.append("P0:\r\n").append(Pf0 == null ? "0" : Pf0.toString(FMT)).append("\r\n");
+        builder.append("B0:\r\n").append(B0 == null ? "0" : B0.toString(FMT)).append("\r\n");
         return builder.toString();
     }
     

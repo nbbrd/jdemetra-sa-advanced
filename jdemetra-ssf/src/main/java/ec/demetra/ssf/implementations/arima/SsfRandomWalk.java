@@ -55,6 +55,11 @@ public class SsfRandomWalk extends Ssf {
         private final boolean zeroinit;
         private final double var;
 
+        public Dynamics(double var) {
+            this.var = var;
+            this.zeroinit = false;
+        }
+        
         public Dynamics(double var, boolean zeroinit) {
             this.var = var;
             this.zeroinit = zeroinit;

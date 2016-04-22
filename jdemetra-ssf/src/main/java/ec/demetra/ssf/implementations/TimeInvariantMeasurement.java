@@ -117,8 +117,8 @@ public class TimeInvariantMeasurement implements ISsfMeasurement {
     @Override
     public String toString(){
         StringBuilder builder=new StringBuilder();
-        builder.append("Z:\r\n").append(Z.toString(FMT));
-        builder.append("H:\r\n").append(new DecimalFormat(FMT).format(var)).append("\r\n");
+        builder.append("Z:\r\n").append(Z.toString(FMT)).append("\r\n");
+        builder.append("H:\r\n").append(new DecimalFormat(FMT).format(var)).append("\r\n\r\n");
         return builder.toString();
     }
     private static final String FMT="0.#####";

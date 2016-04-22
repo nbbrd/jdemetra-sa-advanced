@@ -14,7 +14,7 @@
 * See the Licence for the specific language governing permissions and 
 * limitations under the Licence.
  */
-package be.nbb.demetra.mairline.data.ssf;
+package data;
 
 import ec.tstoolkit.arima.ArimaModelBuilder;
 import ec.tstoolkit.sarima.SarimaModel;
@@ -134,6 +134,30 @@ public class Data {
         649, 846, 812, 742, 801, 1040, 860, 874, 848, 890, 744, 749, 838, 1050, 918, 986, 797, 923,
         975, 815, 1020, 906, 901, 1170, 912, 746, 919, 718, 714, 740};
 
+    private static final double[] g_housMW = new double[]{
+        13.2, 19.1, 24.2, 33.0, 37.9, 40.3, 31.7, 33.2, 29.3, 36.7, 26.1, 15.0,
+        11.6, 11.0, 22.6, 38.2, 39.4, 43.6, 39.5, 31.7, 32.9, 35.6, 30.0, 25.4,
+        13.9, 13.5, 27.3, 38.8, 34.4, 32.5, 24.2, 28.1, 24.8, 21.3, 16.1, 13.4,
+        10.8, 9.8, 20.9, 30.9, 39.4, 36.4, 32.4, 36.8, 29.3, 38.6, 32.1, 19.8,
+        14.9, 14.5, 29.4, 45.0, 35.5, 38.1, 35.8, 32.9, 32.9, 37.5, 31.3, 20.6,
+        20.7, 20.7, 30.5, 40.6, 37.8, 33.7, 27.5, 37.2, 34.9, 28.8, 20.6, 15.8,
+        11.0, 8.9, 22.4, 29.7, 24.3, 32.3, 29.0, 28.4, 24.6, 31.9, 28.5, 22.4,
+        13.8, 12.4, 34.2, 53.2, 38.5, 40.9, 40.5, 49.2, 40.1, 41.2, 41.6, 28.6,
+        18.5, 20.5, 30.1, 40.6, 52.1, 47.3, 41.3, 50.9, 43.1, 45.9, 33.4, 19.2,
+        25.5, 21.8, 33.5, 41.5, 55.8, 49.6, 45.7, 51.1, 35.7, 37.7, 25.8, 16.2,
+        13.3, 15.4, 22.8, 37.7, 33.1, 38.3, 34.5, 32.8, 25.6, 26.9, 23.2, 13.6,
+        11.6, 8.3, 16.8, 22.1, 29.1, 31.2, 32.8, 35.5, 29.9, 36.3, 24.1, 16.5,
+        9.4, 15.5, 27.1, 38.9, 44.9, 43.2, 38.7, 42.8, 44.2, 42.7, 30.7, 21.9,
+        7.1, 16.0, 34.5, 45.3, 57.2, 56.6, 46.6, 45.7, 42.9, 52.3, 38.5, 22.1,
+        10.4, 15.0, 30.0, 43.2, 53.9, 56.3, 47.4, 43.4, 42.0, 47.2, 42.8, 19.4,
+        6.7, 7.3, 25.7, 33.9, 48.8, 43.9, 36.6, 38.1, 37.8, 35.6, 19.9, 14.9,
+        5.6, 7.7, 11.8, 15.0, 14.8, 20.8, 20.3, 20.9, 30.6, 33.3, 24.4, 12.8,
+        8.3, 6.2, 15.0, 18.5, 19.2, 18.2, 17.2, 14.6, 13.0, 18.3, 10.4, 6.4,
+        3.2, 2.6, 6.6, 14.7, 15.7, 17.9, 15.1, 16.4, 14.6, 19.4, 15.7, 7.3,
+        6.0, 7.8, 13.1, 18.0, 25.1, 24.9, 23.3, 25.0, 23.3, 23.1, 18.3, 9.9,
+        8.8, 11.1, 14.5, 21.4, 26.9, 32.3, 24.9, 23.5, 23.2, 26.3, 19.8, 10.4
+    };
+
     public static final TsData X = new TsData(TsFrequency.Monthly, 1995, 0, g_exports, false);
     public static final TsData P = new TsData(TsFrequency.Monthly, 1967, 0, g_prod, false);
     public static final TsData M1 = new TsData(TsFrequency.Monthly, 1995, 0, g_m1, false);
@@ -142,6 +166,7 @@ public class Data {
     public static final TsData Y = new TsData(TsFrequency.Yearly, 1977, 0, PCRA, true);
     public static final TsData Q = new TsData(TsFrequency.Quarterly, 1977, 0, IND_PCR, true);
     public static final TsData Nile = new TsData(TsFrequency.Yearly, 1871, 0, g_nile, false);
+    public static final TsData Hous_MW = new TsData(TsFrequency.Monthly, 1964, 0, g_housMW, false);
 
     /**
      * *

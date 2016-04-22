@@ -55,8 +55,8 @@ public class MixedAirlineEstimation {
             model.setNoisyPeriodsVariance(1);
 
             for (int i = 0; i < 5; ++i) {
-                model = searchAirline(model, s);
                 model = searchNoise(model, s);
+                model = searchAirline(model, s);
             }
             return searchAll(model, s, 1e-12);
 
@@ -71,7 +71,9 @@ public class MixedAirlineEstimation {
         SsfFunction<MixedAirlineModel, ISsf> fn = new SsfFunction<>(new SsfData(s), mapper, (MixedAirlineModel m) -> MixedAirlineSsf.of(m));
         boolean converged = minimizer.minimize(fn);
         SsfFunctionInstance<MixedAirlineModel, ISsf> rfn = (SsfFunctionInstance<MixedAirlineModel, ISsf>) minimizer.getResult();
-        return rfn.getCore();
+        MixedAirlineModel core = rfn.getCore();
+        core.stabilize();
+        return core;
     }
 
     private MixedAirlineModel searchAll(MixedAirlineModel model, TsData s, double eps) {
@@ -80,7 +82,9 @@ public class MixedAirlineEstimation {
         SsfFunction<MixedAirlineModel, ISsf> fn = new SsfFunction<>(new SsfData(s), mapper, (MixedAirlineModel m) -> MixedAirlineSsf.of(m));
         boolean converged = minimizer.minimize(fn);
         SsfFunctionInstance<MixedAirlineModel, ISsf> rfn = (SsfFunctionInstance<MixedAirlineModel, ISsf>) minimizer.getResult();
-        return rfn.getCore();
+        MixedAirlineModel core = rfn.getCore();
+        core.stabilize();
+        return core;
     }
 
     private MixedAirlineModel searchNoise(MixedAirlineModel model, TsData s) {
@@ -89,7 +93,9 @@ public class MixedAirlineEstimation {
         minimizer.setConvergenceCriterion(1e-6);
         minimizer.minimize(fn);
         SsfFunctionInstance<MixedAirlineModel, ISsf> rfn = (SsfFunctionInstance<MixedAirlineModel, ISsf>) minimizer.getResult();
-        return rfn.getCore();
+        MixedAirlineModel core = rfn.getCore();
+        core.stabilize();
+        return core;
     }
 
 }

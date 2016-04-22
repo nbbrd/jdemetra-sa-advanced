@@ -14,13 +14,14 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.demetra.mairline.ssf;
+package be.nbb.demetra.sssts.ssf;
 
-import be.nbb.demetra.mairline.*;
+import be.nbb.demetra.sssts.SSHSModel;
+import be.nbb.demetra.sts.BasicStructuralModel;
+import be.nbb.demetra.sts.BsmMapping;
 import static ec.demetra.realfunctions.IParametersDomain.PARAM;
 import ec.demetra.realfunctions.IParametricMapping;
 import ec.demetra.realfunctions.ParamValidation;
-import ec.demetra.ssf.univariate.ISsf;
 import ec.tstoolkit.data.IDataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.data.ReadDataBlock;
@@ -34,63 +35,59 @@ import ec.tstoolkit.sarima.estimation.SarimaMapping;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Exploratory)
-public abstract class MixedAirlineMapping implements IParametricMapping<MixedAirlineModel> {
+public abstract class SSHSMapping implements IParametricMapping<SSHSModel> {
 
-    final int freq;
     final int[] noisyPeriods;
-    final double th, bth, nvar;
+    final double nvarRef;
+    final BsmMapping bsmMapping;
+    final IReadDataBlock bsmRef;
 
-    MixedAirlineMapping(MixedAirlineModel m) {
-        freq = m.getFrequency();
+    SSHSMapping(SSHSModel m) {
         noisyPeriods = m.getNoisyPeriods();
-        th = m.getTheta();
-        bth = m.getBTheta();
-        nvar = m.getNoisyPeriodsVariance();
+        nvarRef = m.getNoisyPeriodsVariance();
+        BasicStructuralModel bsm = m.getBasicStructuralModel();
+        bsmMapping = new BsmMapping(bsm.getSpecification(), bsm.getFrequency());
+        bsmMapping.setFixedComponent(bsm.getMaxVariance());
+        bsmRef = bsmMapping.map(bsm);
     }
 
-    public static MixedAirlineMapping all(MixedAirlineModel m) {
+    public static SSHSMapping all(SSHSModel m) {
         return new All(m);
     }
 
-    public static MixedAirlineMapping airline(MixedAirlineModel m) {
-        return new Airline(m);
+    public static SSHSMapping bsm(SSHSModel m) {
+        return new Bsm(m);
     }
 
-    public static MixedAirlineMapping noise(MixedAirlineModel m) {
+    public static SSHSMapping noise(SSHSModel m) {
         return new Noise(m);
     }
 
     public static final String TH = "th", BTH = "bth", NVAR = "noise var";
 
-    private static class All extends MixedAirlineMapping {
+    private static class All extends SSHSMapping {
 
-        All(MixedAirlineModel m) {
+        All(SSHSModel m) {
             super(m);
         }
 
         @Override
-        public MixedAirlineModel map(IReadDataBlock p) {
-            SarimaModelBuilder builder = new SarimaModelBuilder();
-            SarimaModel airline = builder.createAirlineModel(freq, p.get(0), p.get(1));
-            MixedAirlineModel m = new MixedAirlineModel();
-            m.setAirline(airline);
+        public SSHSModel map(IReadDataBlock p) {
+            SSHSModel m = new SSHSModel();
+            BasicStructuralModel bsm = bsmMapping.map(p.rextract(1, p.getLength() - 1));
+            m.setBasicStructuralMode(bsm);
             m.setNoisyPeriods(noisyPeriods);
-            m.setNoisyPeriodsVariance(p.get(2) * p.get(2));
-            m.stabilize();
+            m.setNoisyPeriodsVariance(p.get(0) * p.get(0));
             return m;
         }
 
         @Override
         public String getDescription(int idx) {
-            switch (idx) {
-                case 0:
-                    return TH;
-                case 1:
-                    return BTH;
-                case 2:
-                    return NVAR;
+            if (idx == 0) {
+                return NVAR;
+            } else {
+                return bsmMapping.getDescription(idx - 1);
             }
-            return PARAM + idx;
         }
 
         @Override
@@ -107,7 +104,7 @@ public abstract class MixedAirlineMapping implements IParametricMapping<MixedAir
 
         @Override
         public int getDim() {
-            return 3;
+            return 1 + bsmMapping.getDim();
         }
 
         @Override
@@ -131,36 +128,32 @@ public abstract class MixedAirlineMapping implements IParametricMapping<MixedAir
 
         @Override
         public IReadDataBlock getDefault() {
-            return new ReadDataBlock(new double[]{th, bth, Math.sqrt(nvar)});
+            double[] def = new double[bsmRef.getLength() + 1];
+            def[0] = Math.sqrt(nvarRef);
+            bsmRef.copyTo(def, 1);
+            return new ReadDataBlock(def);
         }
     }
 
-    private static class Airline extends MixedAirlineMapping {
+    private static class Bsm extends SSHSMapping {
 
-        Airline(MixedAirlineModel m) {
+        Bsm(SSHSModel m) {
             super(m);
         }
 
         @Override
-        public MixedAirlineModel map(IReadDataBlock p) {
-            SarimaModelBuilder builder = new SarimaModelBuilder();
-            SarimaModel airline = builder.createAirlineModel(freq, p.get(0), p.get(1));
-            MixedAirlineModel m = new MixedAirlineModel();
-            m.setAirline(airline);
+        public SSHSModel map(IReadDataBlock p) {
+            SSHSModel m = new SSHSModel();
+            BasicStructuralModel bsm = bsmMapping.map(p);
+            m.setBasicStructuralMode(bsm);
             m.setNoisyPeriods(noisyPeriods);
-            m.setNoisyPeriodsVariance(nvar);
+            m.setNoisyPeriodsVariance(nvarRef);
             return m;
         }
 
         @Override
         public String getDescription(int idx) {
-            switch (idx) {
-                case 0:
-                    return TH;
-                case 1:
-                    return BTH;
-            }
-            return PARAM + idx;
+            return bsmMapping.getDescription(idx);
         }
 
         @Override
@@ -177,7 +170,7 @@ public abstract class MixedAirlineMapping implements IParametricMapping<MixedAir
 
         @Override
         public int getDim() {
-            return 2;
+            return bsmMapping.getDim();
         }
 
         @Override
@@ -201,22 +194,21 @@ public abstract class MixedAirlineMapping implements IParametricMapping<MixedAir
 
         @Override
         public IReadDataBlock getDefault() {
-            return new ReadDataBlock(new double[]{th, bth});
+            return bsmRef;
         }
     }
 
-    private static class Noise extends MixedAirlineMapping {
+    private static class Noise extends SSHSMapping {
 
-        Noise(MixedAirlineModel m) {
+        Noise(SSHSModel m) {
             super(m);
         }
 
         @Override
-        public MixedAirlineModel map(IReadDataBlock p) {
-            SarimaModelBuilder builder = new SarimaModelBuilder();
-            SarimaModel airline = builder.createAirlineModel(freq, th, bth);
-            MixedAirlineModel model = new MixedAirlineModel();
-            model.setAirline(airline);
+        public SSHSModel map(IReadDataBlock p) {
+            SSHSModel model = new SSHSModel();
+            BasicStructuralModel bsm = bsmMapping.map(bsmRef);
+            model.setBasicStructuralMode(bsm);
             model.setNoisyPeriods(noisyPeriods);
             model.setNoisyPeriodsVariance(p.get(0) * p.get(0));
             return model;
@@ -240,7 +232,7 @@ public abstract class MixedAirlineMapping implements IParametricMapping<MixedAir
 
         @Override
         public double epsilon(IReadDataBlock inparams, int idx) {
-            return 1e-6;
+            return 1e-3;
         }
 
         @Override
@@ -269,7 +261,7 @@ public abstract class MixedAirlineMapping implements IParametricMapping<MixedAir
 
         @Override
         public IReadDataBlock getDefault() {
-            return new ReadDataBlock(new double[]{Math.sqrt(nvar)});
+            return new ReadDataBlock(new double[]{Math.sqrt(nvarRef)});
         }
     }
 }
