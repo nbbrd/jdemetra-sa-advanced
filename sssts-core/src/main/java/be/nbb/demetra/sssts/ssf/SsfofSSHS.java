@@ -91,7 +91,49 @@ public class SsfofSSHS {
         return new Ssf(cdyn, NoisyMeasurement.of(m, noise));
     }
 
-    public static ISsf ofSeasonal(final SSHSModel model) {
+   public static ISsf ofNoise2(final SSHSModel model, final int pstart) {
+        BasicStructuralModel bsm = model.getBasicStructuralModel();
+        List<ISsfDynamics> dyn = new ArrayList<>();
+         List<ISsfMeasurement> m = new ArrayList<>();
+        // cycle ?
+        double cvar = bsm.getVariance(Component.Cycle);
+        if (cvar >= 0) {
+            CyclicalComponent.Dynamics cdyn = new CyclicalComponent.Dynamics(bsm.getCyclicalDumpingFactor(), bsm.getCyclicalPeriod(), cvar);
+            dyn.add(cdyn);
+            m.add(Measurement.create(cdyn.getStateDim(), 0));
+        }
+        double lvar = bsm.getVariance(Component.Level), svar = bsm.getVariance(Component.Slope);
+        if (lvar >= 0 && svar >= 0) {
+            LocalLinearTrend.Dynamics lltdyn = new LocalLinearTrend.Dynamics(lvar, svar);
+            dyn.add(lltdyn);
+            m.add(Measurement.create(lltdyn.getStateDim(), 0));
+        } else if (lvar >= 0) {
+            ISsfDynamics lldyn = new SsfRandomWalk.Dynamics(lvar);
+            dyn.add(lldyn);
+            m.add(Measurement.create(lldyn.getStateDim(), 0));
+        }
+        double seasvar = bsm.getVariance(Component.Seasonal);
+        if (seasvar >= 0) {
+            SeasonalComponent.Dynamics sdyn = new SeasonalComponent.Dynamics(bsm.getSpecification().getSeasonalModel(), seasvar, bsm.getFrequency());
+            dyn.add(sdyn);
+              m.add(Measurement.create(sdyn.getStateDim(), 0));
+      }
+        CompositeDynamics cdyn = new CompositeDynamics(dyn.toArray(new ISsfDynamics[dyn.size()]));
+        CompositeMeasurement cm = new CompositeMeasurement(m.toArray(new ISsfMeasurement[m.size()]), 0);
+        int[] np = model.getNoisyPeriods();
+        final boolean[] noisy = new boolean[bsm.getFrequency()];
+        final double nvar = model.getNoisyPeriodsVariance();
+        final double evar = bsm.getVariance(Component.Noise);
+        for (int i = 0; i < np.length; ++i) {
+            noisy[np[i]] = true;
+        }
+        NoisyMeasurement.INoise noise = (int pos) -> {
+            return noisy[(pstart + pos) % noisy.length] ? evar + nvar : evar;
+        };
+        return new Ssf(cdyn, NoisyMeasurement.of(cm, noise));
+    }
+
+   public static ISsf ofSeasonal(final SSHSModel model) {
         return SsfofSSHS.ofSeasonal(model, 0);
     }
 

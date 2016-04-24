@@ -18,8 +18,12 @@ package be.nbb.demetra.sssts;
 
 import be.nbb.demetra.sssts.ssf.SsfofSSHS;
 import ec.demetra.ssf.dk.DkToolkit;
+import ec.demetra.ssf.implementations.CompositeMeasurement;
+import ec.demetra.ssf.implementations.NoisyMeasurement;
 import ec.demetra.ssf.univariate.DefaultSmoothingResults;
+import ec.demetra.ssf.univariate.ExtendedSsfData;
 import ec.demetra.ssf.univariate.ISsf;
+import ec.demetra.ssf.univariate.ISsfData;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.modelling.ComponentInformation;
 import ec.satoolkit.DecompositionMode;
@@ -29,9 +33,11 @@ import ec.satoolkit.ISeriesDecomposition;
 import ec.satoolkit.seats.SeatsResults;
 import ec.satoolkit.seats.SeatsToolkit;
 import ec.tstoolkit.algorithm.ProcessingInformation;
+import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.information.InformationMapper;
 import ec.tstoolkit.information.InformationSet;
+import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.modelling.ComponentType;
 import ec.tstoolkit.modelling.ModellingDictionary;
 import ec.tstoolkit.timeseries.simplets.TsData;
@@ -49,13 +55,13 @@ import java.util.Map;
  */
 public class SSHSResults implements ISaResults {
 
-    SSHSResults(TsData y, SSHSMonitor monitor, boolean b) {
+    SSHSResults(TsData y, SSHSMonitor monitor, boolean noise, boolean b) {
         this.y = y;
         mul = b;
         this.monitor = monitor;
         SSHSMonitor.MixedEstimation rslt = monitor.getBestModel();
         if (rslt != null) {
-            computeDecomposition(rslt.model);
+            computeDecomposition(rslt.model, noise);
         }
     }
     public static final String NOISE = "noisecomponent", NOISE_DATA = "noise", IRREGULAR = "irregular", NOISE_LBOUND = "lbound", NOISE_UBOUND = "ubound";
@@ -63,14 +69,40 @@ public class SSHSResults implements ISaResults {
     private final boolean mul;
     private final TsData y;
     private DefaultSmoothingResults srslts;
-    private TsData yc, t, sa, s, noise, level, slope, cycle;
+    private TsData t, sa, s, irr, level, slope, cycle, fy, ft, fsa, fs;
 
-    private void computeDecomposition(SSHSModel model) {
-        SsfData data = new SsfData(y);
-        ISsf ssf = SsfofSSHS.ofNoise(model, y.getStart().getPosition());
-        srslts = DkToolkit.sqrtSmooth(ssf, data, true);
+    private void computeDecomposition(SSHSModel model, boolean noise) {
+        int nf = y.getFrequency().intValue();
+        ISsfData data = new ExtendedSsfData(y, nf);
+        int start = y.getStart().getPosition();
+        Matrix cmps;
+        if (noise) {
+            ISsf ssf = SsfofSSHS.ofNoise2(model, start);
+            srslts = DkToolkit.sqrtSmooth(ssf, data, true);
+            NoisyMeasurement m = (NoisyMeasurement) ssf.getMeasurement();
+            CompositeMeasurement cm = (CompositeMeasurement) m.getMeasurement();
+            cmps = new Matrix(data.getLength(), cm.getComponentsCount());
+            for (int i = 0; i < cmps.getRowsCount(); ++i) {
+                cm.ZX(i, srslts.a(i), cmps.row(i));
+            }
+
+        } else {
+            ISsf ssf = SsfofSSHS.ofSeasonal(model, start);
+            srslts = DkToolkit.sqrtSmooth(ssf, data, true);
+            CompositeMeasurement cm = (CompositeMeasurement) ssf.getMeasurement();
+            cmps = new Matrix(data.getLength(), cm.getComponentsCount());
+            for (int i = 0; i < cmps.getRowsCount(); ++i) {
+                cm.ZX(i, srslts.a(i), cmps.row(i));
+            }
+        }
+        t = new TsData(y.getStart(), cmps.column(0).drop(0, nf));
+        ft = new TsData(y.getEnd(), cmps.column(0).drop(y.getLength(), 0));
+        s = new TsData(y.getStart(), cmps.column(1).drop(0, nf));
+        fs = new TsData(y.getEnd(), cmps.column(1).drop(y.getLength(), 0));
+        irr=TsData.subtract(y, TsData.add(t, s));
+        sa=TsData.subtract(y, s);
     }
-
+    
     @Override
     public Map<String, Class> getDictionary() {
         // TODO
@@ -100,13 +132,13 @@ public class SSHSResults implements ISaResults {
             decomposition.add(sa.exp(), ComponentType.SeasonallyAdjusted);
             decomposition.add(t.exp(), ComponentType.Trend);
             decomposition.add(s.exp(), ComponentType.Seasonal);
-            decomposition.add(noise.exp(), ComponentType.Irregular);
+            decomposition.add(irr.exp(), ComponentType.Irregular);
         } else {
             decomposition.add(y, ComponentType.Series);
             decomposition.add(sa, ComponentType.SeasonallyAdjusted);
             decomposition.add(t, ComponentType.Trend);
             decomposition.add(s, ComponentType.Seasonal);
-            decomposition.add(noise, ComponentType.Irregular);
+            decomposition.add(irr, ComponentType.Irregular);
         }
         return decomposition;
     }
@@ -136,7 +168,7 @@ public class SSHSResults implements ISaResults {
     }
 
     public TsData getNoise() {
-        return noise;
+        return irr;
     }
 
     // MAPPERS
@@ -180,7 +212,7 @@ public class SSHSResults implements ISaResults {
 
             @Override
             public TsData retrieve(SSHSResults source) {
-                return source.mul ? source.noise.exp() : source.noise;
+                return source.mul ? source.irr.exp() : source.irr;
             }
         });
         mapper.add(ModellingDictionary.Y_LIN, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
@@ -215,14 +247,14 @@ public class SSHSResults implements ISaResults {
 
             @Override
             public TsData retrieve(SSHSResults source) {
-                return source.noise;
+                return source.irr;
             }
         });
         mapper.add(ModellingDictionary.SI_CMP, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
 
             @Override
             public TsData retrieve(SSHSResults source) {
-                TsData si = TsData.add(source.s, source.noise);
+                TsData si = TsData.add(source.s, source.irr);
                 if (si == null) {
                     return null;
                 }

@@ -21,7 +21,10 @@ import ec.tstoolkit.data.DataBlockIterator;
 import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -43,10 +46,11 @@ public class CompositeMeasurement implements ISsfMeasurement {
         }
         return new CompositeMeasurement(l, var);
     }
+
     public static ISsfMeasurement of(ISsfMeasurement... m) {
         return of(0, m);
     }
-    
+
     public static ISsfMeasurement of(double var, ISsfMeasurement... m) {
         for (int i = 0; i < m.length; ++i) {
             if (m[i].hasErrors()) {
@@ -79,18 +83,34 @@ public class CompositeMeasurement implements ISsfMeasurement {
     private final double var;
     private final DataBlock tmp;
 
-    CompositeMeasurement(final ISsfMeasurement[] ms, double var) {
+    public CompositeMeasurement(final ISsfMeasurement[] ms, double var) {
         this.measurements = ms;
         int n = ms.length;
-        dim=new int[n];
+        dim = new int[n];
         int tdim = 0;
         for (int i = 0; i < n; ++i) {
-            dim[i]=ms[i].getStateDim();
+            dim[i] = ms[i].getStateDim();
             tdim += dim[i];
         }
         fdim = tdim;
         this.var = var;
         tmp = new DataBlock(fdim);
+    }
+
+    public List<ISsfMeasurement> getMeasurements() {
+        return Arrays.asList(measurements);
+    }
+
+    public int getComponentsCount() {
+        return measurements.length;
+    }
+
+    public void ZX(int pos, DataBlock x, DataBlock zx) {
+        DataBlock cur = x.start();
+        for (int i = 0; i < measurements.length; ++i) {
+            cur.next(dim[i]);
+            zx.set(i, measurements[i].ZX(pos, cur));
+        }
     }
 
     @Override
@@ -190,7 +210,7 @@ public class CompositeMeasurement implements ISsfMeasurement {
 
     @Override
     public boolean isValid() {
-       for (int i = 0; i < measurements.length; ++i) {
+        for (int i = 0; i < measurements.length; ++i) {
             if (!measurements[i].isValid()) {
                 return false;
             }

@@ -6,11 +6,10 @@
         <artifactId>demetra-sa-advanced-aggregator</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>nbdemetra-sts</artifactId>
+    <artifactId>nbdemetra-sssts</artifactId>
     <packaging>nbm</packaging>
-
-    <name>NbDemetra - Structural time series</name>
-    <description>Basic structural time series</description>
+    <name>NbDemetra - SSSTS</name>
+    <description>Seasonal specific structural time series</description>
 
     <dependencies>
         <!-- NetBeans -->
@@ -59,9 +58,10 @@
             <artifactId>org-openide-nodes</artifactId>
         </dependency>
         <!-- Specific -->
-        <!--dependency>
+        <dependency>
             <groupId>be.nbb.demetra</groupId>
-            <artifactId>sts-core</artifactId>
+            <artifactId>sssts-core</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>eu.europa.ec.joinup.sat</groupId>
@@ -78,6 +78,37 @@
                 <exclusion>
                     <groupId>be.nbb.demetra</groupId>
                     <artifactId>jdemetra-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>be.nbb.demetra</groupId>
+                    <artifactId>sts-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--dependency>
+            <groupId>be.nbb.demetra</groupId>
+            <artifactId>sssts-core</artifactId>
+            <version>$(nbbdemetra.version)</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>eu.europa.ec.joinup.sat</groupId>
+                    <artifactId>demetra-tstoolkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>eu.europa.ec.joinup.sat</groupId>
+                    <artifactId>demetra-tss</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>be.nbb.demetra</groupId>
+                    <artifactId>jdemetra-ssf</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>be.nbb.demetra</groupId>
+                    <artifactId>jdemetra-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>be.nbb.demetra</groupId>
+                    <artifactId>sts-core</artifactId>
                 </exclusion>
             </exclusions>
         </dependency-->

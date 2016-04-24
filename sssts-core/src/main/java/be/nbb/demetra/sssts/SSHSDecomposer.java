@@ -18,6 +18,7 @@
 package be.nbb.demetra.sssts;
 
 import be.nbb.demetra.sts.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.Component;
 import ec.satoolkit.IDefaultSeriesDecomposer;
 import ec.satoolkit.IPreprocessingFilter;
 import ec.tstoolkit.modelling.DefaultTransformationType;
@@ -33,6 +34,10 @@ public class SSHSDecomposer implements IDefaultSeriesDecomposer<SSHSResults> {
     private final SeasonalSpecification sspec;
     private final ModelSpecification mspec;
     private SSHSResults results;
+    
+    private boolean isNoise(){
+        return sspec.noisyComponent == Component.Noise;
+    }
 
     public SSHSDecomposer(ModelSpecification mspec, SeasonalSpecification sspec) {
         this.mspec=mspec;
@@ -47,7 +52,7 @@ public class SSHSDecomposer implements IDefaultSeriesDecomposer<SSHSResults> {
             return false;
         }
         else {
-            results = new SSHSResults(y, monitor, model.description.getTransformation() == DefaultTransformationType.Log);
+            results = new SSHSResults(y, monitor, isNoise(), model.description.getTransformation() == DefaultTransformationType.Log);
             return true;
         }
     }
@@ -59,7 +64,7 @@ public class SSHSDecomposer implements IDefaultSeriesDecomposer<SSHSResults> {
             return false;
         }
         else {
-            results = new SSHSResults(y, monitor, false);
+            results = new SSHSResults(y, monitor, isNoise(), false);
             return true;
         }
     }

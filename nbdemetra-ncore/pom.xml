@@ -32,6 +32,11 @@
                 <artifactId>jdemetra-core</artifactId>
                 <version>${nbbdemetra.version}</version>
             </dependency>
+            <dependency>
+                <groupId>be.nbb.demetra</groupId>
+                <artifactId>sts-core</artifactId>
+                <version>${nbbdemetra.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -64,6 +69,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>jdemetra-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sts-core</artifactId>
+        </dependency>
         
     </dependencies>
 
@@ -76,6 +85,7 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>ec.demetra.*</publicPackage>
+                        <publicPackage>be.nbb.demetra.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

@@ -43,6 +43,14 @@ public class NoisyMeasurement implements ISsfMeasurement {
         this.measurement = m;
         this.noise = n;
     }
+    
+    public ISsfMeasurement getMeasurement(){
+        return measurement;
+    }
+
+    public INoise getNoise(){
+        return noise;
+    }
 
     @Override
     public void Z(int pos, DataBlock z) {

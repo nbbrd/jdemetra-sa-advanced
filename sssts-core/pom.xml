@@ -23,12 +23,10 @@
         <dependency>
             <groupId>eu.europa.ec.joinup.sat</groupId>
             <artifactId>demetra-tss</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sat</groupId>
             <artifactId>demetra-tstoolkit</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>be.nbb.demetra</groupId>
@@ -41,7 +39,6 @@
         <dependency>
             <groupId>be.nbb.demetra</groupId>
             <artifactId>sts-core</artifactId>
-            <version>${nbbdemetra.version}</version>
         </dependency>
         <!-- test only -->
         <dependency>

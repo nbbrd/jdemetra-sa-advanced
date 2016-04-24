@@ -37,7 +37,7 @@ import java.util.Map;
 @Development(status = Development.Status.Alpha)
 public class SSHSProcessingFactory extends GenericSaProcessingFactory implements IProcessingFactory<SSHSSpecification, TsData, CompositeResults> {
     
-    public static final AlgorithmDescriptor DESCRIPTOR = new AlgorithmDescriptor(FAMILY, "Mixed airline model", null);
+    public static final AlgorithmDescriptor DESCRIPTOR = new AlgorithmDescriptor(FAMILY, "SSSTS", null);
     
     private static SequentialProcessing<TsData> create(SSHSSpecification xspec, ProcessingContext context) {
         SequentialProcessing processing = new SequentialProcessing();
