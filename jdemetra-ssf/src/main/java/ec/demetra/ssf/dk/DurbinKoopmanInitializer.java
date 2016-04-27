@@ -144,7 +144,7 @@ public class DurbinKoopmanInitializer implements OrdinaryFilter.Initializer {
                 results.save(t, pe);
             }
             if (results != null) {
-                results.save(t, state, StateInfo.Forecast);
+                results.save(t, state, StateInfo.Concurrent);
             }
             pred(t++);
         }
