@@ -380,6 +380,26 @@ public class SsfBsm2 extends Ssf {
                 p.set(i, i, q);
                 ++i;
                 p.set(i, i, q);
+                ++i;
+            }
+            if (lVar >= 0) {
+                if (lVar != 0) {
+                    p.set(i, i, lVar);
+                }
+                ++i;
+            }
+            if (sVar >= 0) {
+                if (sVar != 0) {
+                    p.set(i, i, sVar);
+                }
+                ++i;
+            }
+            if (seasVar > 0) {
+                if (seasModel == SeasonalModel.Dummy) {
+                    p.set(i, i, seasVar);
+                } else {
+                    tsvar.copyTo(p, i, i);
+                }
             }
             return true;
         }

@@ -205,6 +205,7 @@ public class LocalLinearTrend extends Ssf {
 
         @Override
         public boolean Pf0(SubMatrix pf0) {
+            V(0,pf0);
             return true;
         }
 

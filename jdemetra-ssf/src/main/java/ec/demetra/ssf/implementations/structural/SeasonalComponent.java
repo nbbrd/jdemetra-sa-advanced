@@ -409,6 +409,7 @@ public class SeasonalComponent {
 
         @Override
         public boolean Pf0(SubMatrix p) {
+            V(0, p);
             return true;
         }
 
@@ -571,6 +572,7 @@ public class SeasonalComponent {
 
         @Override
         public boolean Pf0(SubMatrix pf0) {
+            V(0,pf0);
             return true;
         }
 
