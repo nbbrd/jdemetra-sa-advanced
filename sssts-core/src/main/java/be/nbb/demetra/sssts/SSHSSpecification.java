@@ -18,6 +18,7 @@
 package be.nbb.demetra.sssts;
 
 import be.nbb.demetra.sts.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.satoolkit.ISaSpecification;
 import ec.satoolkit.benchmarking.SaBenchmarkingSpec;
 import ec.tstoolkit.algorithm.ProcessingContext;
@@ -44,6 +45,7 @@ public class SSHSSpecification implements ISaSpecification, Cloneable {
         preprocessingSpec.dtype = TradingDaysType.TradingDays;
         preprocessingSpec.ltype = LengthOfPeriodType.LeapYear;
         bsmSpec=new ModelSpecification();
+        bsmSpec.setSeasonalModel(SeasonalModel.HarrisonStevens);
         decompositionSpec = new SeasonalSpecification();
         benchmarkingSpec = new SaBenchmarkingSpec();
     }

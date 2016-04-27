@@ -29,6 +29,7 @@ import ec.demetra.ssf.implementations.structural.CyclicalComponent;
 import ec.demetra.ssf.implementations.structural.LocalLinearTrend;
 import ec.demetra.ssf.implementations.structural.SeasonalComponent;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
+import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
 import ec.demetra.ssf.univariate.Ssf;
 import static org.junit.Assert.assertEquals;
@@ -175,4 +176,36 @@ public class SsfBsmTest {
         System.out.println(t1 - t0);
         System.out.println(l);
     }
+    
+    @Test
+    public void testNoNoise(){
+        ModelSpecification spec = new ModelSpecification();
+        spec.useLevel(ComponentUse.Free);
+        spec.useSlope(ComponentUse.Free);
+        spec.useNoise(ComponentUse.Unused);
+        spec.setSeasonalModel(SeasonalModel.HarrisonStevens);
+
+        BasicStructuralModel model = new BasicStructuralModel(spec, 12);
+        model.setVariance(Component.Level, .1);
+        model.setVariance(Component.Slope, .2);
+        model.setVariance(Component.Seasonal, 2);
+       
+        SsfBsm ssf=SsfBsm.create(model);
+        
+        DefaultSmoothingResults sr1 = DkToolkit.smooth(ssf, Models.ssfProd, false);
+        System.out.println(sr1.getComponent(0));
+//        SsfBsm2 ssf2=SsfBsm2.create(model);
+        
+        DefaultSmoothingResults sr2 = DkToolkit.sqrtSmooth(ssf, Models.ssfProd, false);
+        System.out.println(sr2.getComponent(0));
+        //System.out.println(ssf);
+        
+        CompositeDynamics dyn = new CompositeDynamics(new LocalLinearTrend.Dynamics(.1, .2),
+                new SeasonalComponent.Dynamics(SeasonalModel.HarrisonStevens, 2.0, 12));
+        ISsfMeasurement m = Measurement.create(dyn.getStateDim(), new int[]{0, 2}, 0);
+        Ssf ssf3 = new Ssf(dyn, m);
+        //System.out.println(ssf3); 
+        DefaultSmoothingResults sr3 = DkToolkit.smooth(ssf3, Models.ssfProd, false);
+        System.out.println(sr3.getComponent(0));
+   }
 }

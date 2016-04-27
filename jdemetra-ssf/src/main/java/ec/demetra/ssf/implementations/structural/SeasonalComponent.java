@@ -333,7 +333,7 @@ public class SeasonalComponent {
 
         @Override
         public boolean hasInnovations(int pos) {
-            return true;
+            return seasModel != SeasonalModel.Fixed;
         }
 
         @Override
@@ -430,10 +430,15 @@ public class SeasonalComponent {
 
         @Override
         public void addV(int pos, SubMatrix p) {
-            if (seasModel == SeasonalModel.Dummy) {
-                p.add(0, 0, seasVar);
-            } else {
-                p.add(tsvar);
+            switch (seasModel) {
+                case Fixed:
+                    return;
+                case Dummy:
+                    p.add(0, 0, seasVar);
+                    break;
+                default:
+                    p.add(tsvar);
+                    break;
             }
         }
 
@@ -490,7 +495,9 @@ public class SeasonalComponent {
 
         @Override
         public void V(int pos, SubMatrix qm) {
-            qm.copy(V.all());
+            if (V != null) {
+                qm.copy(V.all());
+            }
         }
 
 //        @Override
@@ -500,7 +507,7 @@ public class SeasonalComponent {
 //
         @Override
         public boolean hasInnovations(int pos) {
-            return true;
+            return V != null;
         }
 
 //        @Override

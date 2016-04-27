@@ -72,7 +72,7 @@ public class SsfBsm2 extends Ssf {
     public static SsfBsm2 create(BasicStructuralModel model) {
         int[] idx = calcCmpsIndexes(model);
         Bsm2Dynamics dynamics = new Bsm2Dynamics(model);
-        ISsfMeasurement measurement = Measurement.create(dynamics.getStateDim(), idx, model.nVar);
+        ISsfMeasurement measurement = Measurement.create(dynamics.getStateDim(), idx, model.nVar<0? 0: model.nVar);
         if (dynamics.isValid()) {
             return new SsfBsm2(dynamics, measurement);
         } else {

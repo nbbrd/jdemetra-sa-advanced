@@ -35,21 +35,21 @@
 
 
     <modules>
+        <module>jdemetra-core</module>
+        <module>jdemetra-ssf</module>
         <module>sts-core</module>
         <module>gairline-core</module>
         <module>mairline-core</module>
         <module>mixedfreq-core</module>
-        <module>jdemetra-ssf</module>
-        <module>nbdemetra-mairline</module>
-        <module>nbdemetra-gairline</module>
-        <module>nbdemetra-sts</module>
-        <module>nbdemetra-ncore</module>
-        <module>nbdemetra-mixedfreq</module>
         <module>sssts-core</module>
         <module>bvar-core</module>
         <module>dfm-core</module>
         <module>sutse-core</module>
-        <module>jdemetra-core</module>
+        <module>nbdemetra-ncore</module>
+        <module>nbdemetra-mairline</module>
+        <module>nbdemetra-gairline</module>
+        <module>nbdemetra-sts</module>
+        <module>nbdemetra-mixedfreq</module>
         <module>nbdemetra-sssts</module>
     </modules>
 
