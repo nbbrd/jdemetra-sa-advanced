@@ -16,14 +16,12 @@
  */
 /*
  */
-package be.nbb.demetra.sts;
+package ec.demetra.ssf.implementations.structural;
 
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.demetra.ssf.ISsfDynamics;
 import ec.demetra.ssf.implementations.Measurement;
-import ec.demetra.ssf.implementations.structural.SeasonalComponent;
-import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
 import ec.demetra.ssf.univariate.Ssf;
 
@@ -72,7 +70,7 @@ public class SsfBsm2 extends Ssf {
     public static SsfBsm2 create(BasicStructuralModel model) {
         int[] idx = calcCmpsIndexes(model);
         Bsm2Dynamics dynamics = new Bsm2Dynamics(model);
-        ISsfMeasurement measurement = Measurement.create(dynamics.getStateDim(), idx, model.nVar);
+        ISsfMeasurement measurement = Measurement.create(dynamics.getStateDim(), idx, model.nVar<0? 0: model.nVar);
         if (dynamics.isValid()) {
             return new SsfBsm2(dynamics, measurement);
         } else {
@@ -380,6 +378,26 @@ public class SsfBsm2 extends Ssf {
                 p.set(i, i, q);
                 ++i;
                 p.set(i, i, q);
+                ++i;
+            }
+            if (lVar >= 0) {
+                if (lVar != 0) {
+                    p.set(i, i, lVar);
+                }
+                ++i;
+            }
+            if (sVar >= 0) {
+                if (sVar != 0) {
+                    p.set(i, i, sVar);
+                }
+                ++i;
+            }
+            if (seasVar > 0) {
+                if (seasModel == SeasonalModel.Dummy) {
+                    p.set(i, i, seasVar);
+                } else {
+                    tsvar.copyTo(p, i, i);
+                }
             }
             return true;
         }

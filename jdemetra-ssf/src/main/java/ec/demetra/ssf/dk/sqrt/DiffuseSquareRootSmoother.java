@@ -56,7 +56,6 @@ public class DiffuseSquareRootSmoother extends BaseDiffuseSmoother{
             if (srslts != null)
             srslts.save(t, state, StateInfo.Smoothed);
         }
-
         return true;
     }
 

@@ -16,6 +16,7 @@
  */
 package be.nbb.demetra.sts;
 
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.tstoolkit.algorithm.IProcSpecification;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.information.InformationSet;

@@ -16,6 +16,7 @@
 */
 package ec.demetra.ssf.univariate;
 
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.design.Development;
 
 /**
@@ -40,6 +41,25 @@ public class ExtendedSsfData implements ISsfData {
 	m_data = data;
     }
 
+    /**
+     * 
+     * @param data
+     */
+    public ExtendedSsfData(final ISsfData data, int fcasts)
+    {
+	m_data = data;
+        m_nfcasts=fcasts;
+    }
+
+    /**
+     * 
+     * @param data
+     */
+    public ExtendedSsfData(final IReadDataBlock data, int fcasts)
+    {
+	m_data = new SsfData(data);
+        m_nfcasts=fcasts;
+    }
     /**
      * 
      * @param n

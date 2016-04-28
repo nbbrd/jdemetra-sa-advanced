@@ -23,6 +23,7 @@ import ec.demetra.ssf.univariate.SsfData;
 import ec.satoolkit.diagnostics.CochranTest;
 import ec.tstoolkit.design.Development;
 import ec.demetra.eco.ILikelihood;
+import ec.demetra.ssf.dk.DkLikelihood;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.timeseries.simplets.TsData;
@@ -305,7 +306,7 @@ public class MixedAirlineMonitor {
 
     public static class MixedEstimation {
 
-        public ILikelihood ll;
+        public DkLikelihood ll;
         public MixedAirlineModel model;
     }
 

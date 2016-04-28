@@ -18,7 +18,7 @@
 
 package be.nbb.demetra.sssts;
 
-import be.nbb.demetra.sts.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.sarima.SarimaModel;
@@ -72,7 +72,7 @@ public class SeasonalSpecification implements Cloneable {
     }
 
     private boolean equals(SeasonalSpecification other) {
-        return method == other.method && step == other.step
+        return method == other.method && step == other.step && noisyComponent == other.noisyComponent
                 && Arrays.equals(noisyPeriods, other.noisyPeriods) && noisyComponent.equals(other.noisyComponent);
     }
 

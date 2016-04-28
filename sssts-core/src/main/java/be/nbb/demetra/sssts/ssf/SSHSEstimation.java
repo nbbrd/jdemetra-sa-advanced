@@ -17,7 +17,7 @@
 package be.nbb.demetra.sssts.ssf;
 
 import be.nbb.demetra.sssts.SSHSModel;
-import be.nbb.demetra.sts.BasicStructuralModel;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import ec.demetra.realfunctions.IFunctionMinimizer;
 import ec.demetra.realfunctions.ProxyMinimizer;
 import ec.demetra.ssf.dk.SsfFunction;

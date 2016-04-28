@@ -22,6 +22,7 @@ import ec.demetra.ssf.dk.DiffusePredictionErrorDecomposition;
 import ec.demetra.ssf.dk.sqrt.DiffuseSquareRootInitializer;
 import ec.demetra.ssf.implementations.arima.SsfUcarima;
 import ec.demetra.ssf.univariate.SsfData;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -43,12 +44,13 @@ public class CkmsFilterTest {
         CkmsDiffuseInitializer ff = new CkmsDiffuseInitializer(initializer);
         CkmsFilter ffilter = new CkmsFilter(ff);
         ffilter.process(ssf, y, pe);
-        System.out.println(pe.likelihood().getLogLikelihood());
-        System.out.println(pe.errors(true, false));
+//        System.out.println(pe.likelihood().getLogLikelihood());
+//        System.out.println(pe.errors(true, false));
     }
 
 
     @Test
+    @Ignore
     public void stressTest() {
         SsfUcarima ssf = SsfUcarima.create(Models.ucmAirline(-.6, -.4));
         SsfData y = new SsfData(Data.P);

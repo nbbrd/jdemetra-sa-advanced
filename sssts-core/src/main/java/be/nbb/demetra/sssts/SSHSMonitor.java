@@ -18,15 +18,16 @@ package be.nbb.demetra.sssts;
 
 import be.nbb.demetra.sssts.ssf.SSHSEstimation;
 import be.nbb.demetra.sssts.ssf.SsfofSSHS;
-import be.nbb.demetra.sts.BasicStructuralModel;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import be.nbb.demetra.sts.BsmMonitor;
-import be.nbb.demetra.sts.ModelSpecification;
-import be.nbb.demetra.sts.SsfBsm;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.SsfBsm;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.satoolkit.diagnostics.CochranTest;
 import ec.tstoolkit.design.Development;
 import ec.demetra.eco.ILikelihood;
+import ec.demetra.ssf.dk.DkLikelihood;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.timeseries.simplets.TsData;
@@ -66,13 +67,15 @@ public class SSHSMonitor {
             return false;
         }
         BasicStructuralModel bsm = bsmMonitor.getResult();
+        if (bsm.getVariance(Component.Noise)<0)
+            bsm.setVariance(Component.Noise, 0);
         m.setBasicStructuralMode(bsm);
         MixedEstimation rslt = new MixedEstimation();
         rslt.model = m;
-        rslt.ll =  DkToolkit.likelihoodComputer().compute(SsfBsm.create(bsm), new SsfData(m_series));
- 
+        rslt.ll = DkToolkit.likelihoodComputer(true, true).compute(SsfBsm.create(bsm), new SsfData(m_series));
+        
         m_models.add(rslt);
-        boolean noise=sspec.noisyComponent == Component.Noise;
+        boolean noise = sspec.noisyComponent == Component.Noise;
         m_best = 0;
         if (sspec.noisyPeriods != null) {
             m = new SSHSModel();
@@ -206,8 +209,8 @@ public class SSHSMonitor {
             m.setNoisyPeriodsVariance(eps);
             SsfData data = new SsfData(m_series);
             // alg.useSsq(ssq);
-            int pstart=m_series.getStart().getPosition();
-            ILikelihood ill = DkToolkit.likelihoodComputer().compute(noise ? SsfofSSHS.ofNoise(m,pstart) : SsfofSSHS.ofSeasonal(m,pstart), data);
+            int pstart = m_series.getStart().getPosition();
+            ILikelihood ill = DkToolkit.likelihoodComputer().compute(noise ? SsfofSSHS.ofNoise(m, pstart) : SsfofSSHS.ofSeasonal(m, pstart), data);
 
             if (ill != null) {
                 ll[i] = ill.getLogLikelihood();
@@ -269,10 +272,10 @@ public class SSHSMonitor {
     private MixedEstimation estimate(SSHSModel model, boolean noise) {
         try {
             MixedEstimation me = new MixedEstimation();
-            int pstart=m_series.getStart().getPosition();
+            int pstart = m_series.getStart().getPosition();
             SSHSEstimation estimation = new SSHSEstimation(noise, pstart);
             me.model = estimation.compute2(model.getBasicStructuralModel(), model.getNoisyPeriods(), m_series);
-           me.ll=DkToolkit.likelihoodComputer().compute(noise ? SsfofSSHS.ofNoise(me.model,pstart) : SsfofSSHS.ofSeasonal(me.model,pstart), new SsfData(m_series));
+            me.ll = DkToolkit.likelihoodComputer(true, true).compute(noise ? SsfofSSHS.ofNoise(me.model, pstart) : SsfofSSHS.ofSeasonal(me.model, pstart), new SsfData(m_series));
             return me;
         } catch (RuntimeException e) {
             return null;
@@ -302,7 +305,7 @@ public class SSHSMonitor {
 
     public static class MixedEstimation {
 
-        public ILikelihood ll;
+        public DkLikelihood ll;
         public SSHSModel model;
     }
 

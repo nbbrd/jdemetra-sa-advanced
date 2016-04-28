@@ -8,6 +8,7 @@ package be.nbb.demetra.sts;
 import ec.demetra.realfunctions.IFunction;
 import ec.demetra.realfunctions.IFunctionInstance;
 import ec.demetra.ssf.dk.DkConcentratedLikelihood;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import ec.tstoolkit.algorithm.IProcResults;
 import ec.tstoolkit.algorithm.ProcessingInformation;
 import ec.tstoolkit.data.IReadDataBlock;

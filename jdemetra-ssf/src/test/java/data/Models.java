@@ -5,19 +5,23 @@
  */
 package data;
 
-import ec.demetra.ssf.implementations.arima.SsfArima;
-import ec.demetra.ssf.implementations.arima.SsfUcarima;
-import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.arima.ArimaModel;
 import ec.tstoolkit.arima.ArimaModelBuilder;
 import ec.tstoolkit.arima.IArimaModel;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.sarima.SarimaModelBuilder;
+import ec.demetra.ssf.implementations.arima.SsfArima;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.ucarima.ModelDecomposer;
 import ec.tstoolkit.ucarima.SeasonalSelector;
 import ec.tstoolkit.ucarima.TrendCycleSelector;
 import ec.tstoolkit.ucarima.UcarimaModel;
+import ec.demetra.ssf.implementations.arima.SsfUcarima;
+import ec.demetra.ssf.univariate.SsfData;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.SeasonalModel;
+import ec.demetra.ssf.implementations.structural.SsfBsm;
 import java.util.Random;
 
 /**
@@ -28,6 +32,7 @@ public class Models {
 
     public final static SsfArima ssfArima, ssfArma;
     public final static SsfUcarima ssfUcarima;
+    public final static SsfBsm ssfBsm;
     public final static SsfData ssfRandom, ssfRandomMissing, ssfProd, ssfX, ssfXRandom;
     public final static TsData xts;
 
@@ -68,6 +73,10 @@ public class Models {
         for (int i = 0; i < M; ++i) {
             xts.setMissing(missing[i]);
         }
+        ModelSpecification mspec = new ModelSpecification();
+        mspec.setSeasonalModel(SeasonalModel.Crude);
+        BasicStructuralModel model = new BasicStructuralModel(mspec, 12);
+        ssfBsm = SsfBsm.create(model);
 
         ssfArima = SsfArima.create(arima);
         ssfArma = SsfArima.create((IArimaModel) arima.stationaryTransformation().stationaryModel);

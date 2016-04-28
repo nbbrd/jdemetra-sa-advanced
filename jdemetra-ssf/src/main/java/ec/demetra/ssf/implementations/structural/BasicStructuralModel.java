@@ -14,9 +14,9 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-/*
+ /*
  */
-package be.nbb.demetra.sts;
+package ec.demetra.ssf.implementations.structural;
 
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.implementations.structural.ComponentUse;
@@ -30,8 +30,6 @@ import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.tstoolkit.maths.matrices.SymmetricMatrix;
 import ec.tstoolkit.maths.polynomials.UnitRoots;
 import ec.tstoolkit.ucarima.UcarimaModel;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -137,9 +135,9 @@ public class BasicStructuralModel implements Cloneable {
             cycle(.5, freq * 2);
         }
     }
-    
+
     @Override
-    public BasicStructuralModel clone(){
+    public BasicStructuralModel clone() {
         try {
             return (BasicStructuralModel) super.clone();
         } catch (CloneNotSupportedException ex) {
@@ -182,12 +180,10 @@ public class BasicStructuralModel implements Cloneable {
             } else {
                 ucm.addComponent(trend);
             }
+        } else if (cycle != null) {
+            ucm.addComponent(cycle);
         } else {
-            if (cycle != null) {
-                ucm.addComponent(cycle);
-            } else {
-                ucm.addComponent(new ArimaModel(null, null, null, 0));
-            }
+            ucm.addComponent(new ArimaModel(null, null, null, 0));
         }
 
         //seasonal
@@ -278,9 +274,7 @@ public class BasicStructuralModel implements Cloneable {
     public void setVariance(Component cmp, double var) {
         switch (cmp) {
             case Noise:
-                if (nVar > 0) {
-                    nVar = var;
-                }
+                nVar = var;
                 return;
             case Cycle:
                 if (cVar >= 0) {

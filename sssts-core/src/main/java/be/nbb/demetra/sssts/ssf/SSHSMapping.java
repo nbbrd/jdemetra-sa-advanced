@@ -17,11 +17,12 @@
 package be.nbb.demetra.sssts.ssf;
 
 import be.nbb.demetra.sssts.SSHSModel;
-import be.nbb.demetra.sts.BasicStructuralModel;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import be.nbb.demetra.sts.BsmMapping;
 import static ec.demetra.realfunctions.IParametersDomain.PARAM;
 import ec.demetra.realfunctions.IParametricMapping;
 import ec.demetra.realfunctions.ParamValidation;
+import ec.demetra.ssf.implementations.structural.Component;
 import ec.tstoolkit.data.IDataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.data.ReadDataBlock;
@@ -75,6 +76,9 @@ public abstract class SSHSMapping implements IParametricMapping<SSHSModel> {
         public SSHSModel map(IReadDataBlock p) {
             SSHSModel m = new SSHSModel();
             BasicStructuralModel bsm = bsmMapping.map(p.rextract(1, p.getLength() - 1));
+            if (bsm.getVariance(Component.Noise) < 0) {
+                bsm.setVariance(Component.Noise, 0);
+            }
             m.setBasicStructuralMode(bsm);
             m.setNoisyPeriods(noisyPeriods);
             m.setNoisyPeriodsVariance(p.get(0) * p.get(0));
@@ -145,6 +149,9 @@ public abstract class SSHSMapping implements IParametricMapping<SSHSModel> {
         public SSHSModel map(IReadDataBlock p) {
             SSHSModel m = new SSHSModel();
             BasicStructuralModel bsm = bsmMapping.map(p);
+            if (bsm.getVariance(Component.Noise) < 0) {
+                bsm.setVariance(Component.Noise, 0);
+            }
             m.setBasicStructuralMode(bsm);
             m.setNoisyPeriods(noisyPeriods);
             m.setNoisyPeriodsVariance(nvarRef);
@@ -208,6 +215,9 @@ public abstract class SSHSMapping implements IParametricMapping<SSHSModel> {
         public SSHSModel map(IReadDataBlock p) {
             SSHSModel model = new SSHSModel();
             BasicStructuralModel bsm = bsmMapping.map(bsmRef);
+            if (bsm.getVariance(Component.Noise) < 0) {
+                bsm.setVariance(Component.Noise, 0);
+            }
             model.setBasicStructuralMode(bsm);
             model.setNoisyPeriods(noisyPeriods);
             model.setNoisyPeriodsVariance(p.get(0) * p.get(0));

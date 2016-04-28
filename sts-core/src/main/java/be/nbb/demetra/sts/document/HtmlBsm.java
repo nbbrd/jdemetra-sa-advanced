@@ -16,8 +16,8 @@
  */
 package be.nbb.demetra.sts.document;
 
-import be.nbb.demetra.sts.BasicStructuralModel;
-import be.nbb.demetra.sts.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import be.nbb.demetra.sts.StsEstimation;
 import ec.demetra.eco.JointRegressionTest;
 import ec.demetra.ssf.dk.DkConcentratedLikelihood;
@@ -188,6 +188,8 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
         //stream.write("BIC = ").write(stats.BIC).newLine();
         stream.write("Diffuse likelihood = ").write(ll.getLogLikelihood()).newLine();
         stream.write("SSQ = ").write(ll.getSsqErr()).newLine();
+        stream.write("Diffuse correction = ").write(ll.getDiffuseCorrection()).newLine();
+        stream.write("Determinantal correction = ").write(ll.getLogDeterminant()).newLine();
         stream.write("AIC = ").write(ll.AIC(np)).newLine();
         stream.newLines(2);
         stream.write(HtmlTag.LINEBREAK);

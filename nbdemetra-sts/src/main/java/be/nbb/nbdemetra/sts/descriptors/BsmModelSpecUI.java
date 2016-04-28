@@ -16,7 +16,7 @@
  */
 package be.nbb.nbdemetra.sts.descriptors;
 
-import be.nbb.demetra.sts.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.demetra.ssf.implementations.structural.ComponentUse;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.tstoolkit.Parameter;
