@@ -81,8 +81,7 @@ public class SsfofSSHS {
         int[] np = model.getNoisyPeriods();
         final boolean[] noisy = new boolean[bsm.getFrequency()];
         final double nvar = model.getNoisyPeriodsVariance();
-        double n=bsm.getVariance(Component.Noise);
-        final double evar = n < 0 ? 0 : n; 
+        final double evar =bsm.getVariance(Component.Noise);
         for (int i = 0; i < np.length; ++i) {
             noisy[np[i]] = true;
         }
@@ -124,8 +123,7 @@ public class SsfofSSHS {
         int[] np = model.getNoisyPeriods();
         final boolean[] noisy = new boolean[bsm.getFrequency()];
         final double nvar = model.getNoisyPeriodsVariance();
-        double n=bsm.getVariance(Component.Noise);
-        final double evar = n < 0 ? 0 : n; 
+        final double evar=bsm.getVariance(Component.Noise);
         for (int i = 0; i < np.length; ++i) {
             noisy[np[i]] = true;
         }
