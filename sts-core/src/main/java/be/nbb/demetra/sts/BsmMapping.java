@@ -18,8 +18,10 @@ package be.nbb.demetra.sts;
 
 import ec.demetra.realfunctions.IParametricMapping;
 import ec.demetra.realfunctions.ParamValidation;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.implementations.structural.ComponentUse;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.tstoolkit.Parameter;
 import ec.tstoolkit.data.IDataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
@@ -117,21 +119,21 @@ public class BsmMapping implements IParametricMapping<BasicStructuralModel> {
     }
 
     public boolean hasCycleDumpingFactor() {
-        return spec.cUse != ComponentUse.Unused && (spec.getCyclicalDumpingFactor() == null
+        return spec.hasCycle() && (spec.getCyclicalDumpingFactor() == null
                 || !spec.getCyclicalDumpingFactor().isFixed());
     }
 
     public boolean hasCycleLength() {
-        return spec.cUse != ComponentUse.Unused && (spec.getCyclicalPeriod() == null
+        return spec.hasCycle() && (spec.getCyclicalPeriod() == null
                 || !spec.getCyclicalPeriod().isFixed());
     }
 
     boolean _hasLevel() {
-        return spec.lUse == ComponentUse.Free && cFixed != Component.Level;
+        return spec.getLevelUse() == ComponentUse.Free && cFixed != Component.Level;
     }
 
     int _pCycle() {
-        if (spec.cUse == ComponentUse.Unused) {
+        if (spec.getCycleUse()== ComponentUse.Unused) {
             return 0;
         }
         int n = 0;
@@ -147,11 +149,11 @@ public class BsmMapping implements IParametricMapping<BasicStructuralModel> {
     }
 
     boolean _hasCycle() {
-        return spec.cUse == ComponentUse.Free && cFixed != Component.Cycle;
+        return spec.getCycleUse() == ComponentUse.Free && cFixed != Component.Cycle;
     }
 
     boolean _hasNoise() {
-        return spec.nUse == ComponentUse.Free && cFixed != Component.Noise;
+        return spec.getNoiseUse() == ComponentUse.Free && cFixed != Component.Noise;
     }
 
     boolean _hasSeas() {
@@ -160,7 +162,7 @@ public class BsmMapping implements IParametricMapping<BasicStructuralModel> {
     }
 
     boolean _hasSlope() {
-        return spec.sUse == ComponentUse.Free && cFixed != Component.Slope;
+        return spec.getSlopeUse() == ComponentUse.Free && cFixed != Component.Slope;
     }
 
     @Override
@@ -316,21 +318,21 @@ public class BsmMapping implements IParametricMapping<BasicStructuralModel> {
         BasicStructuralModel t = new BasicStructuralModel(spec, freq);
         int idx = 0;
         if (_hasLevel()) {
-            t.lVar = inparam(p.get(idx++));
+            t.setVariance(Component.Level, inparam(p.get(idx++)));
         }
         if (_hasSlope()) {
-            t.sVar = inparam(p.get(idx++));
+            t.setVariance(Component.Slope, inparam(p.get(idx++)));
         }
         if (_hasSeas()) {
-            t.seasVar = inparam(p.get(idx++));
+            t.setVariance(Component.Seasonal,  inparam(p.get(idx++)));
         }
         if (_hasNoise()) {
-            t.nVar = inparam(p.get(idx++));
+            t.setVariance(Component.Noise, inparam(p.get(idx++)));
         }
         if (_hasCycle()) {
-            t.cVar = inparam(p.get(idx++));
+            t.setVariance(Component.Cycle, inparam(p.get(idx++)));
         }
-        if (spec.cUse != ComponentUse.Unused) {
+        if (spec.getCycleUse() != ComponentUse.Unused) {
             double cdump, clen;
             Parameter pm = spec.getCyclicalDumpingFactor();
             if (pm == null || !pm.isFixed()) {
@@ -454,21 +456,21 @@ public class BsmMapping implements IParametricMapping<BasicStructuralModel> {
         double[] p = new double[getDim()];
         int idx = 0;
         if (_hasLevel()) {
-            p[idx++] = outparam(t.lVar);
+            p[idx++] = outparam(t.getVariance(Component.Level));
         }
         if (_hasSlope()) {
-            p[idx++] = outparam(t.sVar);
+            p[idx++] = outparam(t.getVariance(Component.Slope));
         }
         if (_hasSeas()) {
-            p[idx++] = outparam(t.seasVar);
+            p[idx++] = outparam(t.getVariance(Component.Seasonal));
         }
         if (_hasNoise()) {
-            p[idx++] = outparam(t.nVar);
+            p[idx++] = outparam(t.getVariance(Component.Noise));
         }
         if (_hasCycle()) {
-            p[idx++] = outparam(t.cVar);
+            p[idx++] = outparam(t.getVariance(Component.Cycle));
         }
-        if (spec.cUse != ComponentUse.Unused) {
+        if (spec.getCycleUse() != ComponentUse.Unused) {
             double cdump, clen;
             Parameter pm = spec.getCyclicalDumpingFactor();
             if (pm == null || !pm.isFixed()) {

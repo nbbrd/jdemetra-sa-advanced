@@ -14,7 +14,7 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.demetra.sts;
+package ec.demetra.ssf.implementations.structural;
 
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.implementations.structural.ComponentUse;

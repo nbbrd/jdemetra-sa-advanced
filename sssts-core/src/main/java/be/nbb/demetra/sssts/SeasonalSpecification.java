@@ -18,7 +18,7 @@
 
 package be.nbb.demetra.sssts;
 
-import be.nbb.demetra.sts.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.sarima.SarimaModel;

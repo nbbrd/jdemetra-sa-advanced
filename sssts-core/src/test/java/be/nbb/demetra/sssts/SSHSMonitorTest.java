@@ -19,7 +19,7 @@ package be.nbb.demetra.sssts;
 import data.Data;
 import be.nbb.demetra.sssts.SSHSMonitor.MixedEstimation;
 import be.nbb.demetra.sssts.SeasonalSpecification.EstimationMethod;
-import be.nbb.demetra.sts.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;

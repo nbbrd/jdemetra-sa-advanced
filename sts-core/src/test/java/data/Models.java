@@ -5,9 +5,9 @@
  */
 package data;
 
-import be.nbb.demetra.sts.BasicStructuralModel;
-import be.nbb.demetra.sts.ModelSpecification;
-import be.nbb.demetra.sts.SsfBsm;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.SsfBsm;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.timeseries.simplets.TsData;

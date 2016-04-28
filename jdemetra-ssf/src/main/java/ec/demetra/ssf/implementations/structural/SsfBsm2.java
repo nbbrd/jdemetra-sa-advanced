@@ -16,14 +16,12 @@
  */
 /*
  */
-package be.nbb.demetra.sts;
+package ec.demetra.ssf.implementations.structural;
 
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.demetra.ssf.ISsfDynamics;
 import ec.demetra.ssf.implementations.Measurement;
-import ec.demetra.ssf.implementations.structural.SeasonalComponent;
-import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
 import ec.demetra.ssf.univariate.Ssf;
 

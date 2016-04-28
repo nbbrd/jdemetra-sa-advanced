@@ -17,7 +17,7 @@
 
 package be.nbb.demetra.sssts;
 
-import be.nbb.demetra.sts.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.satoolkit.ISaSpecification;
 import ec.satoolkit.benchmarking.SaBenchmarkingSpec;

@@ -16,7 +16,7 @@
  */
 /*
  */
-package be.nbb.demetra.sts;
+package ec.demetra.ssf.implementations.structural;
 
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.maths.matrices.SubMatrix;

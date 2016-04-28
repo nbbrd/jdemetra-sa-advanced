@@ -17,7 +17,7 @@
 package be.nbb.demetra.sssts.ssf;
 
 import be.nbb.demetra.sssts.SSHSModel;
-import be.nbb.demetra.sts.BasicStructuralModel;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import ec.demetra.ssf.ISsfDynamics;
 import ec.demetra.ssf.implementations.CompositeDynamics;
 import ec.demetra.ssf.implementations.CompositeMeasurement;
@@ -81,7 +81,8 @@ public class SsfofSSHS {
         int[] np = model.getNoisyPeriods();
         final boolean[] noisy = new boolean[bsm.getFrequency()];
         final double nvar = model.getNoisyPeriodsVariance();
-        final double evar = bsm.getVariance(Component.Noise);
+        double n=bsm.getVariance(Component.Noise);
+        final double evar = n < 0 ? 0 : n; 
         for (int i = 0; i < np.length; ++i) {
             noisy[np[i]] = true;
         }
@@ -123,7 +124,8 @@ public class SsfofSSHS {
         int[] np = model.getNoisyPeriods();
         final boolean[] noisy = new boolean[bsm.getFrequency()];
         final double nvar = model.getNoisyPeriodsVariance();
-        final double evar = bsm.getVariance(Component.Noise);
+        double n=bsm.getVariance(Component.Noise);
+        final double evar = n < 0 ? 0 : n; 
         for (int i = 0; i < np.length; ++i) {
             noisy[np[i]] = true;
         }

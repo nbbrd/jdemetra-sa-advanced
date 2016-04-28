@@ -16,7 +16,7 @@
  */
 /*
  */
-package be.nbb.demetra.sts;
+package ec.demetra.ssf.implementations.structural;
 
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.implementations.structural.ComponentUse;
@@ -30,8 +30,6 @@ import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.tstoolkit.maths.matrices.SymmetricMatrix;
 import ec.tstoolkit.maths.polynomials.UnitRoots;
 import ec.tstoolkit.ucarima.UcarimaModel;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

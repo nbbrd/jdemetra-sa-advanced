@@ -18,10 +18,10 @@ package be.nbb.demetra.sssts;
 
 import be.nbb.demetra.sssts.ssf.SSHSEstimation;
 import be.nbb.demetra.sssts.ssf.SsfofSSHS;
-import be.nbb.demetra.sts.BasicStructuralModel;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import be.nbb.demetra.sts.BsmMonitor;
-import be.nbb.demetra.sts.ModelSpecification;
-import be.nbb.demetra.sts.SsfBsm;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
+import ec.demetra.ssf.implementations.structural.SsfBsm;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.satoolkit.diagnostics.CochranTest;

@@ -17,7 +17,7 @@
 package be.nbb.demetra.sssts.ssf;
 
 import be.nbb.demetra.sssts.SSHSModel;
-import be.nbb.demetra.sts.BasicStructuralModel;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import be.nbb.demetra.sts.BsmMapping;
 import static ec.demetra.realfunctions.IParametersDomain.PARAM;
 import ec.demetra.realfunctions.IParametricMapping;

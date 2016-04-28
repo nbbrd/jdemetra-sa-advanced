@@ -16,6 +16,7 @@
  */
 package be.nbb.demetra.sts;
 
+import ec.demetra.ssf.implementations.structural.SsfBsm;
 import be.nbb.demetra.sts.BsmMapping.Transformation;
 import ec.demetra.realfunctions.IFunction;
 import ec.demetra.realfunctions.IFunctionInstance;
@@ -25,7 +26,9 @@ import ec.demetra.realfunctions.TransformedFunction;
 import ec.demetra.ssf.dk.DkConcentratedLikelihood;
 import ec.demetra.ssf.dk.SsfFunction;
 import ec.demetra.ssf.dk.SsfFunctionInstance;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import ec.demetra.ssf.implementations.structural.Component;
+import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.data.AbsMeanNormalizer;
 import ec.tstoolkit.data.DataBlock;
@@ -440,14 +443,14 @@ public class BsmMonitor {
     }
 
     public IFunction likelihoodFunction() {
-        BsmMapping mapping = new BsmMapping(m_bsm.getSpecification(), m_bsm.freq, Transformation.None);
+        BsmMapping mapping = new BsmMapping(m_bsm.getSpecification(), m_bsm.getFrequency(), Transformation.None);
         SsfFunction<BasicStructuralModel, SsfBsm> fn = buildFunction(mapping);
         double a = (m_ll.getN() - m_ll.getD()) * Math.log(m_factor);
         return new TransformedFunction(fn, TransformedFunction.linearTransformation(-a, 1));
     }
 
     public IFunctionInstance maxLikelihoodFunction() {
-        BsmMapping mapping = new BsmMapping(m_bsm.getSpecification(), m_bsm.freq, Transformation.None);
+        BsmMapping mapping = new BsmMapping(m_bsm.getSpecification(), m_bsm.getFrequency(), Transformation.None);
         IFunction ll = likelihoodFunction();
         return ll.evaluate(mapping.map(m_bsm));
     }

@@ -16,10 +16,12 @@
  */
 package be.nbb.demetra.sts;
 
+import ec.demetra.ssf.implementations.structural.SsfBsm;
 import ec.demetra.realfunctions.IFunction;
 import ec.demetra.realfunctions.IFunctionInstance;
 import ec.demetra.ssf.dk.DkConcentratedLikelihood;
 import ec.demetra.ssf.dk.DkToolkit;
+import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.demetra.ssf.univariate.ExtendedSsfData;
