@@ -150,13 +150,14 @@ public class MixedAirlineMonitor {
                 }
             }
         } while (iter++ <= 5 && switched);
-
     }
+    
+    private static final double DLL=2;
 
     private void compute3(SarimaModel airline, double refll) {
         // we compute the one-step-ahead forecast errors
         int[] np = sortNoisyPeriods2(airline);
-        for (int i = 1; i < np.length - 1; ++i) {
+        for (int i = 1; i < np.length; ++i) {
             MixedAirlineModel m = new MixedAirlineModel();
             m.setAirline(airline.clone());
             int[] noisyPeriods = Arrays.copyOf(np, i);
@@ -170,7 +171,8 @@ public class MixedAirlineMonitor {
                 if (ll > refll) {
                     m_best = m_models.size() - 1;
                     refll = ll;
-                }
+                }else if (ll < refll - DLL)
+                    return;
             }
 
         }
