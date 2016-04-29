@@ -63,7 +63,7 @@ public class Measurements {
         return new Extension(measurements, var.deepClone());
     }
 
-    static ISsfMeasurements create(ISsfMeasurement[] m, int dim) {
+    public static ISsfMeasurements create(ISsfMeasurement[] m, int dim) {
         return new MeasurementsVector(m, dim);
     }
 
@@ -409,7 +409,6 @@ public class Measurements {
             }
             return true;
         }
-
     }
 
     static class MeasurementsVector implements ISsfMeasurements {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 National Bank of Belgium
+ * Copyright 2016 National Bank of Belgium
  * 
  * Licensed under the EUPL, Version 1.1 or – as soon they will be approved 
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -14,27 +14,28 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package ec.demetra.ssf.implementations.var;
+package be.nbb.demetra.bvar.ssf;
 
 import ec.demetra.eco.ILikelihood;
-import ec.demetra.ssf.State;
 import ec.demetra.ssf.akf.AugmentedPredictionErrorsDecomposition;
+import ec.demetra.ssf.akf.AugmentedSmoother;
 import ec.demetra.ssf.akf.MultivariateAugmentedFilter;
-import ec.demetra.ssf.akf.MultivariateAugmentedFilterInitializer;
 import ec.demetra.ssf.dk.DkToolkit;
+import ec.demetra.ssf.dk.sqrt.DefaultDiffuseSquareRootFilteringResults;
 import ec.demetra.ssf.implementations.MultivariateSsfWithIntercept;
 import ec.demetra.ssf.implementations.MultivariateTimeInvariantSsf;
+import ec.demetra.ssf.implementations.var.Var;
+import ec.demetra.ssf.implementations.var.VarDescriptor;
 import ec.demetra.ssf.multivariate.IMultivariateSsf;
-import ec.demetra.ssf.multivariate.IMultivariateSsfData;
 import ec.demetra.ssf.multivariate.M2uAdapter;
-import ec.demetra.ssf.multivariate.MultivariateFilter;
-import ec.demetra.ssf.multivariate.MultivariateOrdinaryFilter;
-import ec.demetra.ssf.multivariate.PredictionErrorsDecomposition;
+import ec.demetra.ssf.multivariate.MultivariateOrdinarySmoother;
 import ec.demetra.ssf.multivariate.SsfMatrix;
+import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfData;
-import ec.demetra.ssf.univariate.OrdinaryFilter;
-import ec.demetra.ssf.univariate.PredictionErrorDecomposition;
+import ec.demetra.ssf.univariate.OrdinarySmoother;
+import ec.tstoolkit.data.DataBlock;
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -44,89 +45,85 @@ import org.junit.Ignore;
  *
  * @author Jean Palate
  */
-public class VarTest {
+public class MixedFrequencySsfTest {
 
-    public VarTest() {
+    public MixedFrequencySsfTest() {
     }
 
     @Test
-    //@Ignore
-    public void stressTestLL() {
-        System.out.println("Without intercept");
-        int Q = 10;
-        for (int K = 4; K <= 12; K += 4) {
-            for (int L = 3; L <= 12; L += 3) {
-                System.out.print("K=");
-                System.out.print(K);
-                System.out.print(",L=");
-                System.out.println(L);
-                VarDescriptor desc = new VarDescriptor(K, L);
-                Matrix a = Matrix.square(K);
-                a.randomize(0);
-                a.sub(.5);
-                a.mul(.25);
-                for (int i = 0; i < L; ++i) {
-                    desc.getA(i + 1).copy(a.all());
-                    a = a.times(a);
-                }
-                Matrix M = new Matrix(500, K);
-                M.randomize(0);
-                for (int i = 0; i < 500; ++i) {
-                    if (i % 3 != 0) {
-                        M.set(i, 0, Double.NaN);
-                        M.set(i, 1, Double.NaN);
-                        M.set(i, 2, Double.NaN);
-                    }
-                }
-                ILikelihood likelihood = null;
-                long t0 = System.currentTimeMillis();
-                for (int i = 0; i < Q; ++i) {
-                    MultivariateOrdinaryFilter filter = new MultivariateOrdinaryFilter();
-                    PredictionErrorsDecomposition pe1 = new PredictionErrorsDecomposition(false);
-                    filter.process(MultivariateTimeInvariantSsf.of(Var.of(desc)), new SsfMatrix(M), pe1);
-                    likelihood = pe1.likelihood();
-                }
-                long t1 = System.currentTimeMillis();
-                System.out.println(t1 - t0);
-                System.out.println(likelihood.getLogLikelihood());
-                t0 = System.currentTimeMillis();
-                for (int i = 0; i < Q; ++i) {
-                    MultivariateFilter filter = new MultivariateFilter();
-                    PredictionErrorsDecomposition pe2 = new PredictionErrorsDecomposition(false);
-                    filter.process(Var.of(desc), new SsfMatrix(M), pe2);
-                    likelihood = pe2.likelihood();
-                }
-                t1 = System.currentTimeMillis();
-                System.out.println(t1 - t0);
-                System.out.println(likelihood.getLogLikelihood());
-                t0 = System.currentTimeMillis();
-                for (int i = 0; i < Q; ++i) {
-                    MultivariateOrdinaryFilter filter = new MultivariateOrdinaryFilter();
-                    PredictionErrorsDecomposition pe2 = new PredictionErrorsDecomposition(false);
-                    filter.process(Var.of(desc), new SsfMatrix(M), pe2);
-                    likelihood = pe2.likelihood();
-                }
-                t1 = System.currentTimeMillis();
-                System.out.println(t1 - t0);
-                System.out.println(likelihood.getLogLikelihood());
-                t0 = System.currentTimeMillis();
-                OrdinaryFilter ofilter = new OrdinaryFilter();
-                for (int i = 0; i < Q; ++i) {
-                    PredictionErrorDecomposition decomp = new PredictionErrorDecomposition(false);
-                    SsfMatrix ssfdata = new SsfMatrix(M);
-                    ISsf udfm = M2uAdapter.of(Var.of(desc));
-                    ISsfData udata = M2uAdapter.of(ssfdata);
-                    ofilter.process(udfm, udata, decomp);
-                    likelihood = decomp.likelihood();
-                }
-                t1 = System.currentTimeMillis();
-                System.out.println(t1 - t0);
-                System.out.println(likelihood.getLogLikelihood());
-            }
-            System.out.println();
+    public void testSmoothing() {
+        int K = 6, L = 3;
+        VarDescriptor desc = new VarDescriptor(K, L);
+        Matrix a = Matrix.square(K);
+        a.randomize(0);
+        a.sub(.5);
+        a.mul(.25);
+        for (int i = 0; i < L; ++i) {
+            desc.getA(i + 1).copy(a.all());
+            a = a.times(a);
         }
+        Matrix M = new Matrix(500, K);
+        M.randomize(0);
+        for (int i = 0; i < 500; ++i) {
+            if ((1+i) % 3 != 0) {
+                M.set(i, 0, Double.NaN);
+                M.set(i, 1, Double.NaN);
+                M.set(i, 2, Double.NaN);
+            }
+        }
+        int[] c = new int[K];
+        for (int i = 0; i < 3; ++i) {
+            c[i] = 3;
+        }
+        for (int i = 3; i < c.length; ++i) {
+            c[i] = 1;
+        }
+        MixedFrequencySsf ssf = MixedFrequencySsf.of(desc, c);
+        SsfMatrix ssfdata = new SsfMatrix(M.clone());
+        ISsf udfm = M2uAdapter.of(ssf);
+        ISsfData udata = M2uAdapter.of(ssfdata);
+        DefaultSmoothingResults sr = DkToolkit.smooth(udfm, udata, false);
+        DataBlock s = new DataBlock(sr.getComponent(0));
+        System.out.println(s.extract(0, -1, K));
+        System.out.println(M.column(0).extract(2, -1, 3));
     }
 
+//    @Test
+//    public void testSmoothing2() {
+//        int K = 6, L = 3;
+//        VarDescriptor desc = new VarDescriptor(K, L);
+//        Matrix a = Matrix.square(K);
+//        a.randomize(0);
+//        a.sub(.5);
+//        a.mul(.25);
+//        for (int i = 0; i < L; ++i) {
+//            desc.getA(i + 1).copy(a.all());
+//            a = a.times(a);
+//        }
+//        Matrix M = new Matrix(500, K);
+//        M.randomize(0);
+//        for (int i = 0; i < 500; ++i) {
+//            if ((i+1) % 3 != 0) {
+//                M.set(i, 0, Double.NaN);
+//                M.set(i, 1, Double.NaN);
+//                M.set(i, 2, Double.NaN);
+//            }
+//        }
+//        int[] c = new int[K];
+//        for (int i = 0; i < 3; ++i) {
+//            c[i] = 3;
+//        }
+//        for (int i = 3; i < c.length; ++i) {
+//            c[i] = 1;
+//        }
+//        MixedFreqSsf ssf = MixedFreqSsf.of(desc, c);
+//        SsfMatrix ssfdata = new SsfMatrix(M);
+//        MultivariateOrdinarySmoother smoother=new MultivariateOrdinarySmoother();
+//        smoother.process(ssf, ssfdata);
+//        System.out.println(sr.getComponent(0).extract(0, -1, K));
+//        System.out.println(M.column(0).extract(2, -1, 3));
+//    }
+//    
     @Test
     //@Ignore
     public void stressTestLLC() {
@@ -156,14 +153,23 @@ public class VarTest {
                         M.set(i, 2, Double.NaN);
                     }
                 }
+                int[] c = new int[K];
+                for (int i = 0; i < 3; ++i) {
+                    c[i] = 3;
+                }
+                for (int i = 3; i < c.length; ++i) {
+                    c[i] = 1;
+                }
+                MixedFrequencySsf ssf = MixedFrequencySsf.of(desc, c);
+                IMultivariateSsf mssfc = MultivariateTimeInvariantSsf.of(MultivariateSsfWithIntercept.addIntercept(ssf));
+                IMultivariateSsf ssfc = MultivariateSsfWithIntercept.addIntercept(ssf);
                 ILikelihood likelihood = null;
                 long t0 = System.currentTimeMillis();
                 for (int i = 0; i < Q; ++i) {
                     try {
-                        IMultivariateSsf ssfc = MultivariateTimeInvariantSsf.of(MultivariateSsfWithIntercept.addIntercept(Var.of(desc)));
                         AugmentedPredictionErrorsDecomposition pe2 = new AugmentedPredictionErrorsDecomposition();
                         MultivariateAugmentedFilter filter = new MultivariateAugmentedFilter();
-                        filter.process(ssfc, new SsfMatrix(M), pe2);
+                        filter.process(mssfc, new SsfMatrix(M), pe2);
                         likelihood = pe2.likelihood();
                     } catch (Exception err) {
                         System.out.println("failed");
@@ -179,7 +185,6 @@ public class VarTest {
                 t0 = System.currentTimeMillis();
                 for (int i = 0; i < Q; ++i) {
                     try {
-                        MultivariateSsfWithIntercept ssfc = MultivariateSsfWithIntercept.addIntercept(Var.of(desc));
                         AugmentedPredictionErrorsDecomposition pe2 = new AugmentedPredictionErrorsDecomposition();
                         MultivariateAugmentedFilter filter = new MultivariateAugmentedFilter();
                         filter.process(ssfc, new SsfMatrix(M), pe2);
@@ -199,7 +204,7 @@ public class VarTest {
                 for (int i = 0; i < Q; ++i) {
                     try {
                         SsfMatrix ssfdata = new SsfMatrix(M);
-                        ISsf udfm = M2uAdapter.of(MultivariateSsfWithIntercept.addIntercept(Var.of(desc)));
+                        ISsf udfm = M2uAdapter.of(ssfc);
                         ISsfData udata = M2uAdapter.of(ssfdata);
                         likelihood = DkToolkit.likelihoodComputer().compute(udfm, udata);
                     } catch (Exception err) {
