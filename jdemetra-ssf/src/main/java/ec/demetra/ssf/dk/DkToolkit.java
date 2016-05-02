@@ -31,6 +31,7 @@ import ec.demetra.ssf.dk.sqrt.DiffuseSquareRootSmoother;
 import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.demetra.ssf.univariate.IConcentratedLikelihoodComputer;
 import ec.demetra.ssf.univariate.ILikelihoodComputer;
+import ec.demetra.ssf.univariate.ISmoothingResults;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfBuilder;
 import ec.demetra.ssf.univariate.ISsfData;
@@ -120,6 +121,20 @@ public class DkToolkit {
         }
     }
 
+    public static boolean smooth(ISsf ssf, ISsfData data, ISmoothingResults sresults) {
+        boolean all=sresults.hasVariances();
+        DiffuseSmoother smoother = new DiffuseSmoother();
+        smoother.setCalcVariances(all);
+        if (smoother.process(ssf, data, sresults)) {
+            if (all) {
+                sresults.rescaleVariances(var(data.getLength(), smoother.getFilteringResults()));
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static DataBlockStorage fastSmooth(ISsf ssf, ISsfData data) {
         FastStateSmoother smoother = new FastStateSmoother();
         return smoother.process(ssf, data);
@@ -141,6 +156,20 @@ public class DkToolkit {
         }
     }
 
+    public static boolean sqrtSmooth(ISsf ssf, ISsfData data, ISmoothingResults sresults) {
+        boolean all=sresults.hasVariances();
+        DiffuseSquareRootSmoother smoother = new DiffuseSquareRootSmoother();
+        smoother.setCalcVariances(all);
+        if (smoother.process(ssf, data, sresults)) {
+            if (all) {
+                sresults.rescaleVariances(var(data.getLength(), smoother.getFilteringResults()));
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     private static class LLComputer1 implements ILikelihoodComputer<DkLikelihood> {
 
         private final boolean res;

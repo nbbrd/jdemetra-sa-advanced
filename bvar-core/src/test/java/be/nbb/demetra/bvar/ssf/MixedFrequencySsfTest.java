@@ -34,6 +34,7 @@ import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfData;
 import ec.demetra.ssf.univariate.OrdinarySmoother;
+import ec.demetra.ssf.univariate.PartialSmoothingResults;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
@@ -65,7 +66,7 @@ public class MixedFrequencySsfTest {
         Matrix M = new Matrix(500, K);
         M.randomize(0);
         for (int i = 0; i < 500; ++i) {
-            if ((1+i) % 3 != 0) {
+            if ((1 + i) % 3 != 0) {
                 M.set(i, 0, Double.NaN);
                 M.set(i, 1, Double.NaN);
                 M.set(i, 2, Double.NaN);
@@ -82,9 +83,12 @@ public class MixedFrequencySsfTest {
         SsfMatrix ssfdata = new SsfMatrix(M.clone());
         ISsf udfm = M2uAdapter.of(ssf);
         ISsfData udata = M2uAdapter.of(ssfdata);
-        DefaultSmoothingResults sr = DkToolkit.smooth(udfm, udata, false);
-        DataBlock s = new DataBlock(sr.getComponent(0));
-        System.out.println(s.extract(0, -1, K));
+        DefaultSmoothingResults sr = DefaultSmoothingResults.light();
+        sr.prepare(udfm.getStateDim(), 0, ssfdata.getCount());
+        PartialSmoothingResults psr = new PartialSmoothingResults(M.getColumnsCount(), sr);
+        DkToolkit.sqrtSmooth(udfm, udata, psr);
+        DataBlock s = new DataBlock(psr.getComponent(0));
+        System.out.println(s);
         System.out.println(M.column(0).extract(2, -1, 3));
     }
 
@@ -125,7 +129,7 @@ public class MixedFrequencySsfTest {
 //    }
 //    
     @Test
-    //@Ignore
+    @Ignore
     public void stressTestLLC() {
         int Q = 10;
         System.out.println("With diffuse intercept");

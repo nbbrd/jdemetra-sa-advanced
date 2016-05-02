@@ -40,6 +40,8 @@ public class M2uAdapter {
             return null;
         }
     }
+    
+    
 
     public static ISsf of(IMultivariateSsf mssf) {
         ISsfMeasurements measurements = mssf.getMeasurements();
