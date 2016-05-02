@@ -212,6 +212,10 @@ public class DiffuseSquareRootInitializer implements OrdinaryFilter.Initializer 
         if (measurement.hasErrors()) {
             f += measurement.errorVariance(t);
         }
+        if (Math.abs(f) < State.ZERO) {
+            f = 0;
+        }
+
         pe.setVariance(f);
         if (data.hasData()) {
             double y = data.get(t);

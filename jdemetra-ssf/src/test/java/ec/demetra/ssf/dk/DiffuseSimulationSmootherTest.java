@@ -20,7 +20,7 @@ import org.junit.Test;
  */
 public class DiffuseSimulationSmootherTest {
 
-    final static int N = 100000;
+    final static int N = 10000;
 
     public DiffuseSimulationSmootherTest() {
     }
@@ -37,7 +37,7 @@ public class DiffuseSimulationSmootherTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void stressTestUcarima() {
         int CMP = 0;
         long t0 = System.currentTimeMillis();

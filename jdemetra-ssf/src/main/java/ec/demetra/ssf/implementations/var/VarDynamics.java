@@ -133,7 +133,7 @@ public class VarDynamics implements ISsfDynamics {
     public void addSU(int pos, DataBlock x, DataBlock u) {
         DataBlock v = u.deepClone();
         LowerTriangularMatrix.rmul(L(), v);
-        x.add(v);
+        x.range(0, nvars).add(v);
     }
 
     @Override

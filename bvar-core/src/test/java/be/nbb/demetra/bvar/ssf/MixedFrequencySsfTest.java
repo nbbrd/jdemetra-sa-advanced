@@ -20,6 +20,7 @@ import ec.demetra.eco.ILikelihood;
 import ec.demetra.ssf.akf.AugmentedPredictionErrorsDecomposition;
 import ec.demetra.ssf.akf.AugmentedSmoother;
 import ec.demetra.ssf.akf.MultivariateAugmentedFilter;
+import ec.demetra.ssf.dk.DiffuseSimulationSmoother;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.dk.sqrt.DefaultDiffuseSquareRootFilteringResults;
 import ec.demetra.ssf.implementations.MultivariateSsfWithIntercept;
@@ -31,6 +32,7 @@ import ec.demetra.ssf.multivariate.M2uAdapter;
 import ec.demetra.ssf.multivariate.MultivariateOrdinarySmoother;
 import ec.demetra.ssf.multivariate.SsfMatrix;
 import ec.demetra.ssf.univariate.DefaultSmoothingResults;
+import ec.demetra.ssf.univariate.DisturbanceSmoother;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfData;
 import ec.demetra.ssf.univariate.OrdinarySmoother;
@@ -53,7 +55,7 @@ public class MixedFrequencySsfTest {
 
     @Test
     public void testSmoothing() {
-        int K = 6, L = 3;
+        int K = 4, L = 3;
         VarDescriptor desc = new VarDescriptor(K, L);
         Matrix a = Matrix.square(K);
         a.randomize(0);
@@ -90,6 +92,7 @@ public class MixedFrequencySsfTest {
         DataBlock s = new DataBlock(psr.getComponent(0));
         System.out.println(s);
         System.out.println(M.column(0).extract(2, -1, 3));
+       
     }
 
 //    @Test
@@ -226,4 +229,53 @@ public class MixedFrequencySsfTest {
         }
         System.out.println();
     }
+
+    @Test
+    public void testSimulation() {
+        int K = 4, L = 3, N=1000;
+        VarDescriptor desc = new VarDescriptor(K, L);
+        Matrix a = Matrix.square(K);
+        a.randomize(0);
+        a.sub(.5);
+        a.mul(.25);
+        for (int i = 0; i < L; ++i) {
+            desc.getA(i + 1).copy(a.all());
+            a = a.times(a);
+        }
+        Matrix M = new Matrix(500, K);
+        M.randomize(0);
+        for (int i = 0; i < 500; ++i) {
+            if ((1 + i) % 3 != 0) {
+                M.set(i, 0, Double.NaN);
+                M.set(i, 1, Double.NaN);
+                M.set(i, 2, Double.NaN);
+            }
+        }
+        int[] c = new int[K];
+        for (int i = 0; i < 3; ++i) {
+            c[i] = 3;
+        }
+        for (int i = 3; i < c.length; ++i) {
+            c[i] = 1;
+        }
+        MixedFrequencySsf ssf = MixedFrequencySsf.of(desc, c);
+        SsfMatrix ssfdata = new SsfMatrix(M.clone());
+        ISsf udfm = M2uAdapter.of(ssf);
+        ISsfData udata = M2uAdapter.of(ssfdata);
+        IMultivariateSsf ssfc = MultivariateSsfWithIntercept.addIntercept(ssf);
+        DiffuseSimulationSmoother dss = new DiffuseSimulationSmoother(udfm, udata);
+        DataBlock sum=null;
+        for (int i = 0; i < N; ++i) {
+            DiffuseSimulationSmoother.Simulation simul = dss.newSimulation();
+//            System.out.println(simul.getSmoothedStates().item(0).extract(0, -1, K));
+            DataBlock item = simul.getSimulatedStates().item(0).extract(0, -1, K);
+            if (sum != null)
+                sum.add(item);
+            else
+                sum=item.deepClone();
+        }
+        sum.div(N);
+        System.out.println(sum);
+    }
+
 }

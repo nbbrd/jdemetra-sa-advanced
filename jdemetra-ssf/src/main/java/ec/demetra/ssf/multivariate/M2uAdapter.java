@@ -244,7 +244,8 @@ public class M2uAdapter {
         public void XS(int pos, DataBlock x, DataBlock xs) {
             if (pos % nstep == nstep - 1) {
                 mdynamics.XS(pos / nstep, x, xs);
-            }
+            }else
+                xs.set(0);
         }
 
         @Override
