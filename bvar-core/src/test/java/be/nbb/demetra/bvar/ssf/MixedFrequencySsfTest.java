@@ -55,12 +55,12 @@ public class MixedFrequencySsfTest {
 
     @Test
     public void testSmoothing() {
-        int K = 4, L = 3;
+        int K = 6, L = 6;
         VarDescriptor desc = new VarDescriptor(K, L);
         Matrix a = Matrix.square(K);
         a.randomize(0);
         a.sub(.5);
-        a.mul(.25);
+        //a.mul(.75);
         for (int i = 0; i < L; ++i) {
             desc.getA(i + 1).copy(a.all());
             a = a.times(a);
@@ -91,8 +91,8 @@ public class MixedFrequencySsfTest {
         DkToolkit.sqrtSmooth(udfm, udata, psr);
         DataBlock s = new DataBlock(psr.getComponent(0));
         System.out.println(s);
-        System.out.println(M.column(0).extract(2, -1, 3));
-       
+//        System.out.println(M.column(0).extract(2, -1, 3));
+
     }
 
 //    @Test
@@ -146,7 +146,7 @@ public class MixedFrequencySsfTest {
                 Matrix a = Matrix.square(K);
                 a.randomize(0);
                 a.sub(.5);
-                a.mul(.25);
+                a.mul(.9);
                 for (int i = 0; i < L; ++i) {
                     desc.getA(i + 1).copy(a.all());
                     a = a.times(a);
@@ -232,12 +232,13 @@ public class MixedFrequencySsfTest {
 
     @Test
     public void testSimulation() {
-        int K = 4, L = 3, N=1;
+        long t0 = System.currentTimeMillis();
+        int K = 6, L = 6, N = 100000;
         VarDescriptor desc = new VarDescriptor(K, L);
         Matrix a = Matrix.square(K);
         a.randomize(0);
         a.sub(.5);
-        a.mul(.25);
+        //a.mul(.75);
         for (int i = 0; i < L; ++i) {
             desc.getA(i + 1).copy(a.all());
             a = a.times(a);
@@ -265,18 +266,21 @@ public class MixedFrequencySsfTest {
         IMultivariateSsf ssfc = MultivariateSsfWithIntercept.addIntercept(ssf);
         DiffuseSimulationSmoother dss = new DiffuseSimulationSmoother(udfm, udata);
 //        System.out.println(dss.getReferenceSmoothing().getSmoothedStates().item(0));
-        DataBlock sum=null;
+        DataBlock sum = null;
         for (int i = 0; i < N; ++i) {
             DiffuseSimulationSmoother.Simulation simul = dss.newSimulation();
 //            System.out.println(simul.getSmoothedStates().item(0).extract(0, -1, K));
             DataBlock item = simul.getSimulatedStates().item(0).extract(0, -1, K);
-            if (sum != null)
+            if (sum != null) {
                 sum.add(item);
-            else
-                sum=item.deepClone();
+            } else {
+                sum = item.deepClone();
+            }
         }
         sum.div(N);
         System.out.println(sum);
+        long t1 = System.currentTimeMillis();
+        System.out.println(t1 - t0);
     }
 
 }

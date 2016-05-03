@@ -29,6 +29,7 @@ import ec.demetra.ssf.ResultsRange;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfData;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
+import ec.tstoolkit.random.JdkRNG;
 import ec.tstoolkit.random.MersenneTwister;
 
 /**
@@ -38,7 +39,7 @@ import ec.tstoolkit.random.MersenneTwister;
 public class DiffuseSimulationSmoother {
 
     private static final Normal N = new Normal();
-    private static final IRandomNumberGenerator RNG = new MersenneTwister(0);
+    private static final IRandomNumberGenerator RNG = JdkRNG.newRandom(0);
 
     private static void fillRandoms(DataBlock u) {
         synchronized (N) {
@@ -350,7 +351,7 @@ public class DiffuseSimulationSmoother {
                     generateTransitionRandoms(i - 1, q);
                     q.mul(std);
                     transitionInnovations.save(i - 1, q);
-                    dynamics.addSU(i, a, q);
+                    dynamics.addSU(i-1, a, q);
                 }
                 states.save(i, a);
                 simulatedData[i] = measurement.ZX(i, a);
