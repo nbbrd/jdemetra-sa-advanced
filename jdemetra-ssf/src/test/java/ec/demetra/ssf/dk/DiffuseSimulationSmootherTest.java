@@ -20,7 +20,7 @@ import org.junit.Test;
  */
 public class DiffuseSimulationSmootherTest {
 
-    final static int N = 10000;
+    final static int N = 100000;
 
     public DiffuseSimulationSmootherTest() {
     }

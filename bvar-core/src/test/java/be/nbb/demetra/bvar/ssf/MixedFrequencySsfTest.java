@@ -232,7 +232,7 @@ public class MixedFrequencySsfTest {
 
     @Test
     public void testSimulation() {
-        int K = 4, L = 3, N=1000;
+        int K = 4, L = 3, N=1;
         VarDescriptor desc = new VarDescriptor(K, L);
         Matrix a = Matrix.square(K);
         a.randomize(0);
@@ -264,6 +264,7 @@ public class MixedFrequencySsfTest {
         ISsfData udata = M2uAdapter.of(ssfdata);
         IMultivariateSsf ssfc = MultivariateSsfWithIntercept.addIntercept(ssf);
         DiffuseSimulationSmoother dss = new DiffuseSimulationSmoother(udfm, udata);
+//        System.out.println(dss.getReferenceSmoothing().getSmoothedStates().item(0));
         DataBlock sum=null;
         for (int i = 0; i < N; ++i) {
             DiffuseSimulationSmoother.Simulation simul = dss.newSimulation();

@@ -154,6 +154,10 @@ public class DiffuseSimulationSmoother {
             boolean missing;
             int pos = n;
             while (--pos >= nd) {
+                if (dynamics.hasInnovations(pos)) {
+                    dynamics.XS(pos, R, U);
+                    smoothedInnovations.save(pos, U);
+                }
                 // Get info
                 e = getError(pos);
                 v = frslts.errorVariance(pos);
@@ -173,10 +177,6 @@ public class DiffuseSimulationSmoother {
                         esm.set(pos, Double.NaN);
                     }
                 }
-                if (dynamics.hasInnovations(pos)) {
-                    dynamics.XS(pos, R, U);
-                    smoothedInnovations.save(pos, U);
-                }
             }
         }
 
@@ -187,6 +187,10 @@ public class DiffuseSimulationSmoother {
             boolean missing;
             int pos = nd;
             while (--pos >= 0) {
+                if (dynamics.hasInnovations(pos)) {
+                    dynamics.XS(pos, R, U);
+                    smoothedInnovations.save(pos, U);
+                }
                 // Get info
                 e = getError(pos);
                 f = frslts.errorVariance(pos);
@@ -224,10 +228,6 @@ public class DiffuseSimulationSmoother {
                     } else {
                         esm.set(pos, Double.NaN);
                     }
-                }
-                if (dynamics.hasInnovations(pos)) {
-                    dynamics.XS(pos, R, U);
-                    smoothedInnovations.save(pos, U);
                 }
             }
         }
@@ -276,14 +276,15 @@ public class DiffuseSimulationSmoother {
             smoothedStates.save(0, a0);
             int cur = 1;
             DataBlock a = a0.deepClone();
-            do {
-                // next: a(t+1) = T a(t) + S*r(t)
-                dynamics.TX(cur, a);
-                if (dynamics.hasInnovations(cur)) {
-                    dynamics.addSU(cur, a, smoothedInnovations.block(cur));
+            while (cur<n) {
+                // next: a(t+1) = T(t) a(t) + S*r(t)
+                dynamics.TX(cur-1, a);
+                if (dynamics.hasInnovations(cur-1)) {
+                    DataBlock u=smoothedInnovations.block(cur-1);
+                    dynamics.addSU(cur-1, a, u);
                 }
                 smoothedStates.save(cur++, a);
-            } while (cur < n);
+            } 
         }
     }
 
