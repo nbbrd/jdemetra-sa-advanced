@@ -14,7 +14,7 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-/*
+ /*
  */
 package ec.demetra.ssf.univariate;
 
@@ -27,12 +27,18 @@ import ec.demetra.ssf.IStateResults;
  *
  * @author PCUser
  */
-public interface ISmoothingResults extends IStateResults{
-    default DataBlock a(int pos) {
-        return null;
-    }
+public interface ISmoothingResults extends IStateResults {
 
-    default SubMatrix P(int pos) {
-        return null;
-    }
+    DataBlock a(int pos);
+
+    SubMatrix P(int pos);
+
+    void rescaleVariances(double factor);
+
+    IReadDataBlock getComponent(int pos);
+
+    IReadDataBlock getComponentVariance(int pos);
+    
+    boolean hasVariances();
+
 }

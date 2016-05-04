@@ -16,11 +16,28 @@
  */
 package be.nbb.demetra.bvar.ssf;
 
+import ec.demetra.ssf.implementations.var.VarDescriptor;
+import ec.tstoolkit.timeseries.simplets.TsData;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Jean Palate
  */
-public class MixedFreqSsf {
+public class MixedFrequencySsfBuilder {
     
+    private final List<TsData> input=new ArrayList<>();
+    private VarDescriptor desc;
+    
+    public boolean set(TsData[] data, VarDescriptor desc){
+        if (desc.getVariablesCount() != data.length)
+            return false;
+        for (int i=0; i<data.length; ++i){
+            input.add(data[i]);
+        }
+        this.desc=desc;
+        return true;
+    }
     
 }

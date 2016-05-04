@@ -36,9 +36,9 @@ public class VarDynamics implements ISsfDynamics {
     private final int nvars, nl, nlx;
     private final DataBlock ttmp, xtmp;
     private Matrix L;
-
+    
     public static VarDynamics of(final VarDescriptor desc, final Matrix V0) {
-        if (V0.getColumnsCount() != desc.getVariablesCount()) {
+        if (V0 != null && V0.getColumnsCount() != desc.getVarMatrix().getColumnsCount()) {
             return null;
         }
         int nlx = desc.getVarMatrix().getColumnsCount();
@@ -50,6 +50,14 @@ public class VarDynamics implements ISsfDynamics {
             return null;
         }
         return new VarDynamics(desc, nlx, V0);
+    }
+
+    public static VarDynamics of(final VarDescriptor desc, final int nlags, final Matrix V0) {
+        int nl=Math.max(nlags, desc.getLagsCount());
+        if (V0 != null && V0.getColumnsCount() != nl) {
+            return null;
+        }
+        return new VarDynamics(desc, nl, V0);
     }
 
     private VarDynamics(final VarDescriptor desc, final int nlx, final Matrix V0) {
@@ -125,7 +133,7 @@ public class VarDynamics implements ISsfDynamics {
     public void addSU(int pos, DataBlock x, DataBlock u) {
         DataBlock v = u.deepClone();
         LowerTriangularMatrix.rmul(L(), v);
-        x.add(v);
+        x.range(0, nvars).add(v);
     }
 
     @Override
@@ -144,7 +152,7 @@ public class VarDynamics implements ISsfDynamics {
     @Override
     public void T(int pos, SubMatrix tr) {
         Matrix v = desc.getVarMatrix();
-        tr.top(nvars).copy(v.all());
+        tr.topLeft(nvars, nvars*nl).copy(v.all());
         tr.subDiagonal(-nvars).set(1);
     }
 
@@ -169,6 +177,10 @@ public class VarDynamics implements ISsfDynamics {
 
     @Override
     public boolean Pf0(SubMatrix pf0) {
+        if (V0 ==null){
+            V(0, pf0);
+            return true;
+        }
         pf0.topLeft(V0.getRowsCount(), V0.getColumnsCount()).copy(V0.all());
         return true;
     }
@@ -194,12 +206,12 @@ public class VarDynamics implements ISsfDynamics {
         xtmp.product(x.range(0, nvars), v.columns());
         x.bshift(nvars);
         x.range((nlx-1)*nvars, x.getLength()).set(0);
-        x.range(0, nl*nvars).copy(xtmp);
+        x.range(0, nl*nvars).add(xtmp);
     }
 
     @Override
     public void addV(final int pos, final SubMatrix v) {
-        v.topLeft(nvars, nvars).copy(desc.getInnovationsVariance().all());
+        v.topLeft(nvars, nvars).add(desc.getInnovationsVariance().all());
     }
 
 }

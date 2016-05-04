@@ -53,7 +53,7 @@ public class VarTest {
     @Ignore
     public void stressTestLL() {
         System.out.println("Without intercept");
-        int Q = 100;
+        int Q = 10;
         for (int K = 4; K <= 12; K += 4) {
             for (int L = 3; L <= 12; L += 3) {
                 System.out.print("K=");
@@ -63,10 +63,11 @@ public class VarTest {
                 VarDescriptor desc = new VarDescriptor(K, L);
                 Matrix a = Matrix.square(K);
                 a.randomize(0);
+                a.sub(.5);
                 a.mul(.25);
                 for (int i = 0; i < L; ++i) {
                     desc.getA(i + 1).copy(a.all());
-                    a = a.times(.3);
+                    a = a.times(a);
                 }
                 Matrix M = new Matrix(500, K);
                 M.randomize(0);
@@ -80,10 +81,7 @@ public class VarTest {
                 ILikelihood likelihood = null;
                 long t0 = System.currentTimeMillis();
                 for (int i = 0; i < Q; ++i) {
-                    MultivariateOrdinaryFilter filter = new MultivariateOrdinaryFilter((State state, IMultivariateSsf ssf, IMultivariateSsfData data) -> {
-                        state.P().diagonal().set(1);
-                        return 0;
-                    });
+                    MultivariateOrdinaryFilter filter = new MultivariateOrdinaryFilter();
                     PredictionErrorsDecomposition pe1 = new PredictionErrorsDecomposition(false);
                     filter.process(MultivariateTimeInvariantSsf.of(Var.of(desc)), new SsfMatrix(M), pe1);
                     likelihood = pe1.likelihood();
@@ -93,10 +91,7 @@ public class VarTest {
                 System.out.println(likelihood.getLogLikelihood());
                 t0 = System.currentTimeMillis();
                 for (int i = 0; i < Q; ++i) {
-                    MultivariateFilter filter = new MultivariateFilter((State state, IMultivariateSsf ssf, IMultivariateSsfData data) -> {
-                        state.P().diagonal().set(1);
-                        return 0;
-                    });
+                    MultivariateFilter filter = new MultivariateFilter();
                     PredictionErrorsDecomposition pe2 = new PredictionErrorsDecomposition(false);
                     filter.process(Var.of(desc), new SsfMatrix(M), pe2);
                     likelihood = pe2.likelihood();
@@ -106,10 +101,7 @@ public class VarTest {
                 System.out.println(likelihood.getLogLikelihood());
                 t0 = System.currentTimeMillis();
                 for (int i = 0; i < Q; ++i) {
-                    MultivariateOrdinaryFilter filter = new MultivariateOrdinaryFilter((State state, IMultivariateSsf ssf, IMultivariateSsfData data) -> {
-                        state.P().diagonal().set(1);
-                        return 0;
-                    });
+                    MultivariateOrdinaryFilter filter = new MultivariateOrdinaryFilter();
                     PredictionErrorsDecomposition pe2 = new PredictionErrorsDecomposition(false);
                     filter.process(Var.of(desc), new SsfMatrix(M), pe2);
                     likelihood = pe2.likelihood();
@@ -118,10 +110,7 @@ public class VarTest {
                 System.out.println(t1 - t0);
                 System.out.println(likelihood.getLogLikelihood());
                 t0 = System.currentTimeMillis();
-                OrdinaryFilter ofilter = new OrdinaryFilter((State state, ISsf ssf, ISsfData data) -> {
-                    state.P().diagonal().set(1);
-                    return 0;
-                });
+                OrdinaryFilter ofilter = new OrdinaryFilter();
                 for (int i = 0; i < Q; ++i) {
                     PredictionErrorDecomposition decomp = new PredictionErrorDecomposition(false);
                     SsfMatrix ssfdata = new SsfMatrix(M);
@@ -134,14 +123,14 @@ public class VarTest {
                 System.out.println(t1 - t0);
                 System.out.println(likelihood.getLogLikelihood());
             }
-        System.out.println();
+            System.out.println();
         }
     }
 
     @Test
     @Ignore
     public void stressTestLLC() {
-        int Q = 100;
+        int Q = 10;
         System.out.println("With diffuse intercept");
         for (int K = 4; K <= 12; K += 4) {
             for (int L = 3; L <= 12; L += 3) {
@@ -152,10 +141,11 @@ public class VarTest {
                 VarDescriptor desc = new VarDescriptor(K, L);
                 Matrix a = Matrix.square(K);
                 a.randomize(0);
+                a.sub(.5);
                 a.mul(.25);
                 for (int i = 0; i < L; ++i) {
                     desc.getA(i + 1).copy(a.all());
-                    a = a.times(.3);
+                    a = a.times(a);
                 }
                 Matrix M = new Matrix(500, K);
                 M.randomize(0);
@@ -169,36 +159,60 @@ public class VarTest {
                 ILikelihood likelihood = null;
                 long t0 = System.currentTimeMillis();
                 for (int i = 0; i < Q; ++i) {
-                    IMultivariateSsf ssfc = MultivariateTimeInvariantSsf.of(MultivariateSsfWithIntercept.addIntercept(Var.of(desc)));
-                    AugmentedPredictionErrorsDecomposition pe2 = new AugmentedPredictionErrorsDecomposition();
-                    MultivariateAugmentedFilter filter = new MultivariateAugmentedFilter();
-                    filter.process(ssfc, new SsfMatrix(M), pe2);
-                    likelihood = pe2.likelihood();
+                    try {
+                        IMultivariateSsf ssfc = MultivariateTimeInvariantSsf.of(MultivariateSsfWithIntercept.addIntercept(Var.of(desc)));
+                        AugmentedPredictionErrorsDecomposition pe2 = new AugmentedPredictionErrorsDecomposition();
+                        MultivariateAugmentedFilter filter = new MultivariateAugmentedFilter();
+                        filter.process(ssfc, new SsfMatrix(M), pe2);
+                        likelihood = pe2.likelihood();
+                    } catch (Exception err) {
+                        System.out.println("failed");
+                        likelihood = null;
+                        break;
+                    }
                 }
                 long t1 = System.currentTimeMillis();
                 System.out.println(t1 - t0);
-                System.out.println(likelihood.getLogLikelihood());
+                if (likelihood != null) {
+                    System.out.println(likelihood.getLogLikelihood());
+                }
                 t0 = System.currentTimeMillis();
                 for (int i = 0; i < Q; ++i) {
-                    MultivariateSsfWithIntercept ssfc = MultivariateSsfWithIntercept.addIntercept(Var.of(desc));
-                    AugmentedPredictionErrorsDecomposition pe2 = new AugmentedPredictionErrorsDecomposition();
-                    MultivariateAugmentedFilter filter = new MultivariateAugmentedFilter();
-                    filter.process(ssfc, new SsfMatrix(M), pe2);
-                    likelihood = pe2.likelihood();
+                    try {
+                        MultivariateSsfWithIntercept ssfc = MultivariateSsfWithIntercept.addIntercept(Var.of(desc));
+                        AugmentedPredictionErrorsDecomposition pe2 = new AugmentedPredictionErrorsDecomposition();
+                        MultivariateAugmentedFilter filter = new MultivariateAugmentedFilter();
+                        filter.process(ssfc, new SsfMatrix(M), pe2);
+                        likelihood = pe2.likelihood();
+                    } catch (Exception err) {
+                        System.out.println("failed");
+                        likelihood = null;
+                        break;
+                    }
                 }
                 t1 = System.currentTimeMillis();
                 System.out.println(t1 - t0);
-                System.out.println(likelihood.getLogLikelihood());
+                if (likelihood != null) {
+                    System.out.println(likelihood.getLogLikelihood());
+                }
                 t0 = System.currentTimeMillis();
                 for (int i = 0; i < Q; ++i) {
-                    SsfMatrix ssfdata = new SsfMatrix(M);
-                    ISsf udfm = M2uAdapter.of(MultivariateSsfWithIntercept.addIntercept(Var.of(desc)));
-                    ISsfData udata = M2uAdapter.of(ssfdata);
-                    likelihood = DkToolkit.likelihoodComputer().compute(udfm, udata);
+                    try {
+                        SsfMatrix ssfdata = new SsfMatrix(M);
+                        ISsf udfm = M2uAdapter.of(MultivariateSsfWithIntercept.addIntercept(Var.of(desc)));
+                        ISsfData udata = M2uAdapter.of(ssfdata);
+                        likelihood = DkToolkit.likelihoodComputer().compute(udfm, udata);
+                    } catch (Exception err) {
+                        System.out.println("failed");
+                        likelihood = null;
+                        break;
+                    }
                 }
                 t1 = System.currentTimeMillis();
                 System.out.println(t1 - t0);
-                System.out.println(likelihood.getLogLikelihood());
+                if (likelihood != null) {
+                    System.out.println(likelihood.getLogLikelihood());
+                }
             }
         }
         System.out.println();

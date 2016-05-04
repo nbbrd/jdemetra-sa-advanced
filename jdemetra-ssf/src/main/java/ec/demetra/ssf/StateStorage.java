@@ -44,6 +44,10 @@ public class StateStorage implements IStateResults {
     public static StateStorage light(final StateInfo info) {
         return new StateStorage(info, false);
     }
+    
+    public boolean hasVariances(){
+        return P != null;
+    }
 
     @Override
     public void save(final int t, final State state, final StateInfo info) {

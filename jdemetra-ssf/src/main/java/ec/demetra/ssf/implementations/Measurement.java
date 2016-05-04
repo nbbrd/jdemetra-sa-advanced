@@ -21,6 +21,7 @@ import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.demetra.ssf.multivariate.ISsfMeasurements;
+import ec.tstoolkit.data.DataBlockIterator;
 
 /**
  *
@@ -42,6 +43,18 @@ public class Measurement {
 
     public static ISsfMeasurement createSum(final int n) {
         return new SumMeasurement(n, 0);
+    }
+
+    public static ISsfMeasurement createPartialSum(final int n, final int dim, final double var) {
+        return new PartialSumMeasurement(n, dim, var);
+    }
+
+    public static ISsfMeasurement createPartialSum(final int n, final int dim) {
+        return new PartialSumMeasurement(n, dim, 0);
+    }
+
+    public static ISsfMeasurement createExtractor(final int i0, final int n, final int inc, final int dim) {
+        return new ExtractorMeasurement(n, inc, n, dim);
     }
 
     public static ISsfMeasurement create(final int dim, final int[] mpos) {
@@ -217,6 +230,189 @@ public class Measurement {
             return sdim > 0;
         }
 
+    }
+
+    private static class PartialSumMeasurement implements ISsfMeasurement {
+
+        private final int sdim, cdim;
+        private final double var;
+
+        PartialSumMeasurement(int n, int dim, double var) {
+            if (n < 2) {
+                throw new java.lang.IllegalArgumentException("Sum measurement");
+            }
+            this.cdim = n;
+            this.sdim=dim;
+            this.var = var;
+        }
+
+        @Override
+        public double errorVariance(int pos) {
+            return var;
+        }
+
+        @Override
+        public boolean hasErrors() {
+            return var != 0;
+        }
+
+        @Override
+        public boolean hasError(int pos) {
+            return var != 0;
+        }
+
+        @Override
+        public double ZX(int pos, DataBlock m) {
+            return m.range(0, cdim).sum();
+        }
+
+        @Override
+        public void ZM(int pos, SubMatrix m, DataBlock zm) {
+            zm.sum(m.row(0), m.row(1));
+            for (int r = 2; r < cdim; ++r) {
+                zm.add(m.row(r));
+            }
+        }
+
+        @Override
+        public double ZVZ(int pos, SubMatrix V) {
+            return V.topLeft(cdim, cdim).sum();
+        }
+
+        @Override
+        public void VpZdZ(int pos, SubMatrix V, double d) {
+            V.topLeft(cdim, cdim).add(d);
+        }
+
+        @Override
+        public void XpZd(int pos, DataBlock x, double d) {
+            x.range(0, cdim).add(d);
+        }
+
+        @Override
+        public boolean isTimeInvariant() {
+            return true;
+        }
+
+        @Override
+        public void Z(int pos, DataBlock z) {
+            z.range(0, cdim).set(1);
+        }
+
+        @Override
+        public int getStateDim() {
+            return sdim;
+        }
+
+        @Override
+        public boolean isValid() {
+            return sdim > 0;
+        }
+    }
+
+    private static class ExtractorMeasurement implements ISsfMeasurement {
+
+        private final int i0, n, inc, dim;
+        private final double var;
+
+        ExtractorMeasurement(int i0, int n, int inc, int dim) {
+            this(i0, n, inc, dim, 0);
+        }
+
+        ExtractorMeasurement(int i0, int n, int inc, int dim, double var) {
+            this.i0=i0;
+            this.n = n;
+            this.inc = inc;
+            this.dim=dim;
+            this.var = var;
+        }
+        
+        /**
+         * Selects specific columns
+         * @param m
+         * @return 
+         */
+        private SubMatrix columnExtract(SubMatrix m){
+            return m.extract(0, i0, m.getRowsCount(), n, 1, inc);
+        }
+
+        /**
+         * Selects specific rows
+         * @param m
+         * @return 
+         */
+        private SubMatrix rowExtract(SubMatrix m){
+            return m.extract(i0, 0, n, m.getColumnsCount(), inc, 1);
+        }
+        
+        private SubMatrix extract(SubMatrix v){
+            return v.extract(i0, i0, n, n, inc, inc);
+        }
+
+        @Override
+        public double errorVariance(int pos) {
+            return var;
+        }
+
+        @Override
+        public boolean hasErrors() {
+            return var != 0;
+        }
+
+        @Override
+        public boolean hasError(int pos) {
+            return var != 0;
+        }
+
+        @Override
+        public double ZX(int pos, DataBlock m) {
+            return m.extract(i0, n, inc).sum();
+        }
+
+        @Override
+        public void ZM(int pos, SubMatrix m, DataBlock zm) {
+            DataBlockIterator rows = rowExtract(m).rows();
+            DataBlock row=rows.getData();
+            zm.copy(row);
+            while (rows.next()){
+                zm.add(row);
+            }
+        }
+
+        @Override
+        public double ZVZ(int pos, SubMatrix V) {
+            return extract(V).sum();
+        }
+
+        @Override
+        public void VpZdZ(int pos, SubMatrix V, double d) {
+            extract(V).add(d);
+        }
+
+        @Override
+        public void XpZd(int pos, DataBlock x, double d) {
+            x.extract(i0, n, inc).add(d);
+        }
+
+        @Override
+        public boolean isTimeInvariant() {
+            return true;
+        }
+
+        @Override
+        public void Z(int pos, DataBlock z) {
+            z.extract(i0, n, inc).set(1);
+        }
+
+        @Override
+        public int getStateDim() {
+            return dim;
+        }
+
+        @Override
+        public boolean isValid() {
+            return n > 0;
+        }
     }
 
     private static class Measurement1 implements ISsfMeasurement {

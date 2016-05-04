@@ -28,6 +28,7 @@ import ec.demetra.ssf.implementations.TimeInvariantSsf;
 import ec.demetra.ssf.implementations.arima.SsfArima;
 import ec.demetra.ssf.univariate.FilteringErrors;
 import ec.demetra.ssf.univariate.SsfData;
+import ec.tstoolkit.maths.matrices.ElementaryTransformations;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -86,6 +87,17 @@ public class AugmentedKalmanFilterTest {
         dk.initialize(state, ssf, ssfdata);
     }
 
+    @Test
+    public void testSquareRoot2() {
+        DiffuseSquareRootInitializer dk = new DiffuseSquareRootInitializer(null);
+        dk.setTransformation((r,A)->ElementaryTransformations.rowHouseholder(r, A));
+        SsfArima ssf = SsfArima.create(model);
+        FilteringErrors pe = new FilteringErrors(false);
+        SsfData ssfdata = new SsfData(data);
+        State state = new State(ssf.getStateDim());
+        dk.initialize(state, ssf, ssfdata);
+    }
+
     @Ignore
     @Test
     public void testStressInitialisation() {
@@ -127,6 +139,19 @@ public class AugmentedKalmanFilterTest {
         t0 = System.currentTimeMillis();
         for (int i = 0; i < N; ++i) {
             DiffuseSquareRootInitializer dk = new DiffuseSquareRootInitializer(null);
+            SsfArima ssf = SsfArima.create(model);
+            FilteringErrors pe = new FilteringErrors(false);
+            SsfData ssfdata = new SsfData(data);
+            State state = new State(ssf.getStateDim());
+            dk.initialize(state, ssf, ssfdata);
+        }
+        t1 = System.currentTimeMillis();
+        System.out.println(t1 - t0);
+        System.out.println("square root - householder");
+        t0 = System.currentTimeMillis();
+        for (int i = 0; i < N; ++i) {
+            DiffuseSquareRootInitializer dk = new DiffuseSquareRootInitializer(null);
+            dk.setTransformation((r,A)->ElementaryTransformations.rowHouseholder(r, A));
             SsfArima ssf = SsfArima.create(model);
             FilteringErrors pe = new FilteringErrors(false);
             SsfData ssfdata = new SsfData(data);

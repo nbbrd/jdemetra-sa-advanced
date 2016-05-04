@@ -29,7 +29,7 @@ public class DefaultSmoothingResults extends StateStorage implements ISmoothingR
 
     private final DataResults e, f;
 
-    private DefaultSmoothingResults(final boolean cov, final boolean err) {
+    protected DefaultSmoothingResults(final boolean cov, final boolean err) {
         super(StateInfo.Smoothed, cov);
         if (err) {
             e = new DataResults();

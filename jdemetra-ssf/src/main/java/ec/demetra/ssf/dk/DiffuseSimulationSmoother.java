@@ -29,6 +29,7 @@ import ec.demetra.ssf.ResultsRange;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfData;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
+import ec.tstoolkit.random.JdkRNG;
 import ec.tstoolkit.random.MersenneTwister;
 
 /**
@@ -38,7 +39,7 @@ import ec.tstoolkit.random.MersenneTwister;
 public class DiffuseSimulationSmoother {
 
     private static final Normal N = new Normal();
-    private static final IRandomNumberGenerator RNG =new MersenneTwister(0);
+    private static final IRandomNumberGenerator RNG = JdkRNG.newRandom(0);
 
     private static void fillRandoms(DataBlock u) {
         synchronized (N) {
@@ -91,7 +92,7 @@ public class DiffuseSimulationSmoother {
     }
 
     private void initSsf() {
-        int dim = dynamics.getStateDim(), resdim = dynamics.getInnovationsDim();
+        int dim = dynamics.getStateDim();
         LA = Matrix.square(dim);
         dynamics.Pf0(LA.all());
         SymmetricMatrix.lcholesky(LA, EPS);
@@ -105,11 +106,6 @@ public class DiffuseSimulationSmoother {
     private void generateMeasurementRandoms(DataBlock e) {
         fillRandoms(e);
         e.mul(lh(0));
-    }
-
-    private double generateMeasurementRandom(int pos) {
-        double e = random();
-        return e * lh(pos);
     }
 
     private void generateInitialState(DataBlock a) {
@@ -155,21 +151,23 @@ public class DiffuseSimulationSmoother {
 
         private void doNormalSmoothing() {
             double e, v;
-            DataBlock M = new DataBlock(dim);
             DataBlock U = new DataBlock(resdim);
             boolean missing;
             int pos = n;
             while (--pos >= nd) {
+                if (dynamics.hasInnovations(pos)) {
+                    dynamics.XS(pos, R, U);
+                    smoothedInnovations.save(pos, U);
+                }
                 // Get info
                 e = getError(pos);
                 v = frslts.errorVariance(pos);
-                M.copy(frslts.M(pos));
                 missing = !Double.isFinite(e);
                 // Iterate R
                 dynamics.XT(pos, R);
                 if (!missing && e != 0) {
                     // RT
-                    double c = (e - R.dot(M)) / v;
+                    double c = (e - R.dot(frslts.M(pos))) / v;
                     measurement.XpZd(pos, R, c);
                 }
                 // Computes esm, U
@@ -180,8 +178,6 @@ public class DiffuseSimulationSmoother {
                         esm.set(pos, Double.NaN);
                     }
                 }
-                dynamics.XS(pos, R, U);
-                smoothedInnovations.save(pos, U);
             }
         }
 
@@ -192,6 +188,10 @@ public class DiffuseSimulationSmoother {
             boolean missing;
             int pos = nd;
             while (--pos >= 0) {
+                if (dynamics.hasInnovations(pos)) {
+                    dynamics.XS(pos, R, U);
+                    smoothedInnovations.save(pos, U);
+                }
                 // Get info
                 e = getError(pos);
                 f = frslts.errorVariance(pos);
@@ -230,8 +230,6 @@ public class DiffuseSimulationSmoother {
                         esm.set(pos, Double.NaN);
                     }
                 }
-                dynamics.XS(pos, R, U);
-                smoothedInnovations.save(pos, U);
             }
         }
 
@@ -245,9 +243,11 @@ public class DiffuseSimulationSmoother {
             a0.addProduct(R, Pf0.columns());
 
             // non stationary initialisation
-            Matrix Pi0 = Matrix.square(dim);
-            dynamics.Pi0(Pi0.all());
-            a0.addProduct(Ri, Pi0.columns());
+            if (dynamics.isDiffuse()) {
+                Matrix Pi0 = Matrix.square(dim);
+                dynamics.Pi0(Pi0.all());
+                a0.addProduct(Ri, Pi0.columns());
+            }
         }
 
         public DataBlock getSmoothedInnovations(int pos) {
@@ -277,12 +277,15 @@ public class DiffuseSimulationSmoother {
             smoothedStates.save(0, a0);
             int cur = 1;
             DataBlock a = a0.deepClone();
-            do {
-                // next: a(t+1) = T a(t) + S*r(t)
-                dynamics.TX(cur, a);
-                dynamics.addSU(cur, a, smoothedInnovations.block(cur));
+            while (cur<n) {
+                // next: a(t+1) = T(t) a(t) + S*r(t)
+                dynamics.TX(cur-1, a);
+                if (dynamics.hasInnovations(cur-1)) {
+                    DataBlock u=smoothedInnovations.block(cur-1);
+                    dynamics.addSU(cur-1, a, u);
+                }
                 smoothedStates.save(cur++, a);
-            } while (cur < n);
+            } 
         }
     }
 
@@ -343,11 +346,13 @@ public class DiffuseSimulationSmoother {
             // a(2|1) = T a(1|0) + S * q(1)...
             DataBlock q = new DataBlock(resdim);
             for (int i = 1; i < simulatedData.length; ++i) {
-                generateTransitionRandoms(i - 1, q);
-                q.mul(std);
-                transitionInnovations.save(i - 1, q);
                 dynamics.TX(i, a);
-                dynamics.addSU(i, a, q);
+                if (dynamics.hasInnovations(i - 1)) {
+                    generateTransitionRandoms(i - 1, q);
+                    q.mul(std);
+                    transitionInnovations.save(i - 1, q);
+                    dynamics.addSU(i-1, a, q);
+                }
                 states.save(i, a);
                 simulatedData[i] = measurement.ZX(i, a);
                 if (measurementErrors != null) {
@@ -418,7 +423,9 @@ public class DiffuseSimulationSmoother {
             for (int i = 0; i < n; ++i) {
                 u.copy(sm.block(i));
                 u.sub(ssm.block(i));
-                u.add(transitionInnovations.block(i));
+                if (dynamics.hasInnovations(i)) {
+                    u.add(transitionInnovations.block(i));
+                }
                 simulatedInnovations.save(i, u);
             }
         }

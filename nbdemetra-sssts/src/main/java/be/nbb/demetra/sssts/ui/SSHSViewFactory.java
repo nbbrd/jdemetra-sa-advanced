@@ -33,9 +33,9 @@ public class SSHSViewFactory extends SaDocumentViewFactory<SSHSSpecification, SS
     public static final String COMPONENTS = "Components";
     public static final String FINALS = "Final estimators";
     private static final Id MODEL_SELECTION = new LinearId(MODEL, SELECTION);
-    private static final Id MODEL_NOISE = new LinearId(MODEL, NOISE);
-    private static final Id MODEL_WK_COMPONENTS = new LinearId(MODEL, WK, COMPONENTS);
-    private static final Id MODEL_WK_FINALS = new LinearId(MODEL, WK, FINALS);
+//    private static final Id MODEL_NOISE = new LinearId(MODEL, NOISE);
+//    private static final Id MODEL_WK_COMPONENTS = new LinearId(MODEL, WK, COMPONENTS);
+//    private static final Id MODEL_WK_FINALS = new LinearId(MODEL, WK, FINALS);
     private static final AtomicReference<IProcDocumentViewFactory<SSHSDocument>> INSTANCE = new AtomicReference(new SSHSViewFactory());
 
     public static IProcDocumentViewFactory<SSHSDocument> getDefault() {
@@ -154,19 +154,19 @@ public class SSHSViewFactory extends SaDocumentViewFactory<SSHSSpecification, SS
         }
     }
 
-    @ServiceProvider(service = ProcDocumentItemFactory.class, position = 300000 + 2000)
-    public static class ModelNoiseFactory extends ItemFactory<CompositeResults> {
-
-        public ModelNoiseFactory() {
-            super(MODEL_NOISE, new DefaultInformationExtractor<SSHSDocument, CompositeResults>() {
-                @Override
-                public CompositeResults retrieve(SSHSDocument source) {
-                    return source.getResults();
-                }
-            }, new ChartUI(SSHSResults.NOISE_DATA, SSHSResults.IRREGULAR));
-        }
-    }
-
+//    @ServiceProvider(service = ProcDocumentItemFactory.class, position = 300000 + 2000)
+//    public static class ModelNoiseFactory extends ItemFactory<CompositeResults> {
+//
+//        public ModelNoiseFactory() {
+//            super(MODEL_NOISE, new DefaultInformationExtractor<SSHSDocument, CompositeResults>() {
+//                @Override
+//                public CompositeResults retrieve(SSHSDocument source) {
+//                    return source.getResults();
+//                }
+//            }, new ChartUI(SSHSResults.NOISE_DATA, SSHSResults.IRREGULAR));
+//        }
+//    }
+//
     @ServiceProvider(service = ProcDocumentItemFactory.class, position = 300000 + 2500)
     public static class ModelResFactory extends ItemFactory<TsData> {
 

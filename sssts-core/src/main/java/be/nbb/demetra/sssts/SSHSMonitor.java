@@ -67,13 +67,14 @@ public class SSHSMonitor {
             return false;
         }
         BasicStructuralModel bsm = bsmMonitor.getResult();
-        if (bsm.getVariance(Component.Noise)<0)
+        if (bsm.getVariance(Component.Noise) < 0) {
             bsm.setVariance(Component.Noise, 0);
+        }
         m.setBasicStructuralMode(bsm);
         MixedEstimation rslt = new MixedEstimation();
         rslt.model = m;
         rslt.ll = DkToolkit.likelihoodComputer(true, true).compute(SsfBsm.create(bsm), new SsfData(m_series));
-        
+
         m_models.add(rslt);
         boolean noise = sspec.noisyComponent == Component.Noise;
         m_best = 0;
@@ -147,13 +148,14 @@ public class SSHSMonitor {
                 }
             }
         } while (iter++ <= 5 && switched);
-
     }
+
+    private static final double DLL = 2;
 
     private void compute3(BasicStructuralModel bsm, double refll, boolean noise) {
         // we compute the one-step-ahead forecast errors
         int[] np = sortNoisyPeriods2(bsm, noise);
-        for (int i = 1; i < np.length - 1; ++i) {
+        for (int i = 1; i < np.length; ++i) {
             SSHSModel m = new SSHSModel();
             m.setBasicStructuralMode(bsm.clone());
             int[] noisyPeriods = Arrays.copyOf(np, i);
@@ -167,9 +169,10 @@ public class SSHSMonitor {
                 if (ll > refll) {
                     m_best = m_models.size() - 1;
                     refll = ll;
+                } else if (ll < refll - DLL) {
+                    break;
                 }
             }
-
         }
     }
 
