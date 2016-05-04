@@ -50,7 +50,7 @@ public class VarTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void stressTestLL() {
         System.out.println("Without intercept");
         int Q = 10;
@@ -128,7 +128,7 @@ public class VarTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void stressTestLLC() {
         int Q = 10;
         System.out.println("With diffuse intercept");

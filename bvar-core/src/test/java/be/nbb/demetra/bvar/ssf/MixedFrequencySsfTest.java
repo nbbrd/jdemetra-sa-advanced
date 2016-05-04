@@ -90,7 +90,7 @@ public class MixedFrequencySsfTest {
         PartialSmoothingResults psr = new PartialSmoothingResults(M.getColumnsCount(), sr);
         DkToolkit.sqrtSmooth(udfm, udata, psr);
         DataBlock s = new DataBlock(psr.getComponent(0));
-        System.out.println(s);
+//        System.out.println(s);
 //        System.out.println(M.column(0).extract(2, -1, 3));
 
     }
@@ -231,6 +231,7 @@ public class MixedFrequencySsfTest {
     }
 
     @Test
+    @Ignore
     public void testSimulation() {
         long t0 = System.currentTimeMillis();
         int K = 6, L = 6, N = 100000;

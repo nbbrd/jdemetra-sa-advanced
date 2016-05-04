@@ -48,7 +48,7 @@ public class DiffuseSimulationSmootherTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void stressTestUcarima() {
         int CMP = 0;
         long t0 = System.currentTimeMillis();
