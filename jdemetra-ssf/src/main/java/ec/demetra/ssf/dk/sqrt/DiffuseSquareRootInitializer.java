@@ -43,6 +43,11 @@ import ec.demetra.ssf.univariate.OrdinaryFilter;
 @Development(status = Development.Status.Preliminary)
 public class DiffuseSquareRootInitializer implements OrdinaryFilter.Initializer {
 
+    public interface Transformation{
+        void transform(DataBlock row, SubMatrix A); 
+    }
+
+    private Transformation fn=(DataBlock row, SubMatrix A) ->ElementaryTransformations.fastRowGivens(row, A); 
     private final IDiffuseSquareRootFilteringResults results;
     private AugmentedState astate;
     private DiffuseUpdateInformation pe;
@@ -64,6 +69,20 @@ public class DiffuseSquareRootInitializer implements OrdinaryFilter.Initializer 
         this.results = results;
     }
 
+    /**
+     * @return the fn
+     */
+    public Transformation getTransformation() {
+        return fn;
+    }
+
+    /**
+     * @param fn the fn to set
+     */
+    public void setTransformation(Transformation fn) {
+        this.fn = fn;
+    }
+    
     /**
      *
      * @param ssf
@@ -231,7 +250,7 @@ public class DiffuseSquareRootInitializer implements OrdinaryFilter.Initializer 
         measurement.ZM(t, astate.P().all(), C);
         if (pe.isDiffuse()) {
             SubMatrix B = constraints();
-            ElementaryTransformations.fastRowGivens(z, B);
+           fn.transform(z, B);
             pe.Mi().setAY(z.get(0), B.column(0));
             // move right
             astate.dropDiffuseConstraint();
