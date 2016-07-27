@@ -43,6 +43,7 @@ import ec.tstoolkit.timeseries.regression.InterventionVariable;
 import ec.tstoolkit.timeseries.regression.Ramp;
 import ec.tstoolkit.timeseries.regression.TsVariableList;
 import ec.tstoolkit.timeseries.regression.TsVariableSelection;
+import ec.tstoolkit.timeseries.simplets.TsFrequency;
 import java.io.IOException;
 import java.util.Formatter;
 
@@ -115,7 +116,7 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
     public HtmlBsm(StsEstimation stm) {
         this.rslts = stm;
         this.bsm = stm.getModel();
-        this.x=stm.getX();
+        this.x = stm.getX();
     }
 
     /**
@@ -168,7 +169,7 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
             stream.newLine();
             stream.write(HtmlTag.HEADER3, h3, "Cycle");
             stream.write("Average length (in years): ");
-            double len=bsm.getCyclicalPeriod()/bsm.getFrequency();
+            double len = bsm.getCyclicalPeriod() / bsm.getFrequency();
             stream.write(new Formatter().format("%.1f", len).toString());
             stream.newLine();
             stream.write("Dumping factor: ");
@@ -211,6 +212,7 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
     }
 
     private <V extends ITsVariable> void writeRegressionItems(HtmlStream stream, String title, Class<V> tclass) throws IOException {
+        TsFrequency context = TsFrequency.valueOf(bsm.getFrequency());
         TsVariableSelection<ITsVariable> regs = x.selectCompatible(tclass);
         if (regs.isEmpty()) {
             return;
@@ -229,7 +231,7 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
         }
         if (!simple) {
             for (TsVariableSelection.Item<ITsVariable> reg : regs.elements()) {
-                stream.write(HtmlTag.HEADER3, h3, reg.variable.getDescription());
+                stream.write(HtmlTag.HEADER3, h3, reg.variable.getDescription(context));
                 stream.open(new HtmlTable(0, 400));
                 stream.open(HtmlTag.TABLEROW);
                 stream.write(new HtmlTableCell("", 100));
@@ -240,7 +242,7 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
                 for (int j = 0; j < reg.variable.getDim(); ++j) {
                     stream.open(HtmlTag.TABLEROW);
                     if (reg.variable.getDim() > 1) {
-                        stream.write(new HtmlTableCell(reg.variable.getItemDescription(j), 100));
+                        stream.write(new HtmlTableCell(reg.variable.getItemDescription(j, context), 100));
                     } else {
                         stream.write(new HtmlTableCell("", 100));
                     }
@@ -280,7 +282,7 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
             stream.close(HtmlTag.TABLEROW);
             for (TsVariableSelection.Item<ITsVariable> reg : regs.elements()) {
                 stream.open(HtmlTag.TABLEROW);
-                stream.write(new HtmlTableCell(reg.variable.getDescription(), 100));
+                stream.write(new HtmlTableCell(reg.variable.getDescription(context), 100));
                 stream.write(new HtmlTableCell(df4.format(b.get(reg.position)), 100));
                 double tval = ll.getTStat(reg.position, true, nhp);
                 stream.write(new HtmlTableCell(formatT(tval), 100));

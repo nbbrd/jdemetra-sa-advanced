@@ -16,6 +16,7 @@
  */
 package ec.demetra.ssf.univariate;
 
+import data.WeeklyData;
 import ec.demetra.eco.ILikelihood;
 import ec.demetra.ssf.multivariate.SsfMatrix;
 import ec.tstoolkit.maths.matrices.Matrix;
@@ -30,6 +31,9 @@ import ec.demetra.ssf.implementations.arima.SsfArima;
 import ec.demetra.ssf.multivariate.MultivariateOrdinaryFilter;
 import ec.demetra.ssf.multivariate.PredictionErrorsDecomposition;
 import ec.demetra.ssf.multivariate.MultivariateSsf;
+import ec.tstoolkit.data.DataBlock;
+import ec.tstoolkit.data.Periodogram;
+import ec.tstoolkit.data.ReadDataBlock;
 import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -179,6 +183,16 @@ public class OrdinaryFilterTest {
             System.out.println("new time invariant multivariate ordinary filter");
             System.out.println(t1 - t0);
         }
+    }
+    
+    @Test
+    public void testWeekly(){
+        DataBlock x=new DataBlock(WeeklyData.US_PetroleumProducts);
+        x.difference();
+        Periodogram p=new Periodogram(x.drop(1, 0));
+        p.setWindowLength(12);
+        System.out.println(new ReadDataBlock(p.getP()));
+        System.out.println(new ReadDataBlock(p.getS()));
     }
 
 }
