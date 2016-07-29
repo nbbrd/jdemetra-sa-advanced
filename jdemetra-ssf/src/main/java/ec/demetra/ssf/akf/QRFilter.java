@@ -96,7 +96,7 @@ public class QRFilter {
             calcDLL();
         }
 
-        Householder housx = new Householder(false);
+        Householder housx = new Householder(true);
         housx.setEpsilon(1e-13);
         housx.decompose(X);
         mcorr = 2 * housx.getRDiagonal().sumLog().value;

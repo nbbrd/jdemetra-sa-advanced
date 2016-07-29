@@ -19,6 +19,7 @@ package ec.demetra.ssf.implementations.structural;
 import data.Models;
 import ec.demetra.ssf.akf.AkfToolkit;
 import ec.demetra.ssf.akf.DiffuseLikelihood;
+import ec.demetra.ssf.akf.MarginalLikelihood;
 import ec.demetra.ssf.ckms.CkmsToolkit;
 import ec.demetra.ssf.dk.DiffusePredictionErrorDecomposition;
 import ec.demetra.ssf.dk.DkLikelihood;
@@ -55,10 +56,13 @@ public class SsfBsmTest {
 //        System.out.println("AKF");
 //        System.out.println(AkfToolkit.likelihoodComputer().compute(bsm, Models.ssfProd));
         DkLikelihood dkll = DkToolkit.likelihoodComputer().compute(bsm, Models.ssfProd);
-        double ll1 = dkll.getLogLikelihood();
-        DiffuseLikelihood akfll = AkfToolkit.likelihoodComputer().compute(bsm, Models.ssfProd);
+        double ll1 = dkll.getDiffuseLogLikelihood();
+        DiffuseLikelihood akfll = AkfToolkit.likelihoodComputer(false).compute(bsm, Models.ssfProd);
         double ll2 = akfll.getLogLikelihood();
-        double ll3 = CkmsToolkit.likelihoodComputer().compute(bsm, Models.ssfProd).getLogLikelihood();
+        MarginalLikelihood mll = AkfToolkit.marginalLikelihoodComputer().compute(bsm, Models.ssfProd);
+        double ll4 = mll.getLogLikelihood();
+        DkLikelihood ckll = CkmsToolkit.likelihoodComputer().compute(bsm, Models.ssfProd);
+        double ll3 = ckll.getDiffuseLogLikelihood();
         assertEquals(ll1, ll2, 1e-6);
         assertEquals(ll1, ll3, 1e-6);
     }

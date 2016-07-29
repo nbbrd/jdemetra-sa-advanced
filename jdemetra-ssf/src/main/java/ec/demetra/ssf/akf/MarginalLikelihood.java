@@ -27,8 +27,8 @@ import ec.tstoolkit.data.IReadDataBlock;
 public class MarginalLikelihood implements ILikelihood {
 
     /**
-     * Respectively: diffuse log-likelihood sum of the squared residuals log
-     * determinant of the cov matrix diffuse correction
+     * Respectively: log-likelihood, sum of the squared residuals, log
+     * determinant of the cov matrix, diffuse correction
      */
     private double ll, ssqerr, ldet, dcorr, mcorr;
 
@@ -123,13 +123,21 @@ public class MarginalLikelihood implements ILikelihood {
     }
 
     public double getDiffuseCorrection() {
-        return dcorr;
+        return -.5 * dcorr;
     }
 
     public double getMarginalCorrection() {
-        return mcorr;
+        return .5 * mcorr;
     }
-    
+
+    public double getMarginalLogLikelihood() {
+        return ll + .5 * mcorr;
+    }
+
+    public double getDiffuseLogLikelihood() {
+        return ll;
+    }
+
     /**
      * Initialize the diffuse likelihood. We consider below the GLS problem
      * corresponding to a given state space: y = a * X + e, where X is derived
@@ -177,7 +185,7 @@ public class MarginalLikelihood implements ILikelihood {
         }
         ll = -.5
                 * (m * Math.log(2 * Math.PI) + m
-                * (1 + Math.log(ssqerr / m)) + ldet + dcorr - mcorr);
+                * (1 + Math.log(ssqerr / m)) + ldet + dcorr);
 
     }
 

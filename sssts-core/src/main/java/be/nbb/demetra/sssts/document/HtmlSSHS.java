@@ -66,7 +66,7 @@ public class HtmlSSHS extends AbstractHtmlElement implements IHtmlElement {
                 style = new HtmlStyle[0];
             }
             stream.write(new HtmlTableCell(cur.model.toString(), 100, style));
-            stream.write(new HtmlTableCell(df4.format(cur.ll.getLogLikelihood()+.5*cur.ll.getDiffuseCorrection()), 100, style));
+            stream.write(new HtmlTableCell(df4.format(cur.ll.getLogLikelihood()), 100, style));
             stream.write(new HtmlTableCell(df4.format(cur.model.getBasicStructuralModel().getVariance(Component.Level)), 100, style));
             stream.write(new HtmlTableCell(df4.format(cur.model.getBasicStructuralModel().getVariance(Component.Slope)), 100, style));
             stream.write(new HtmlTableCell(df4.format(cur.model.getBasicStructuralModel().getVariance(Component.Seasonal)), 100, style));
