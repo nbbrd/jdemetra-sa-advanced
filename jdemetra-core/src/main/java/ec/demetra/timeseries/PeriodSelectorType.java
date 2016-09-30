@@ -14,34 +14,46 @@
 * See the Licence for the specific language governing permissions and 
 * limitations under the Licence.
 */
+package ec.demetra.timeseries;
 
-package ec.demetra.realfunctions;
-
-import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.design.Development;
-import java.util.function.ToDoubleFunction;
 
 /**
- * Generic interface for real functions
+ *
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public interface IFunction {
-
+public enum PeriodSelectorType {
     /**
-     * Evaluates the function for a given set of parameters
-     * @param parameters The parameters (read only)
-     * @return The evaluation of the function (may be null)
+     * 
      */
-    IFunctionInstance evaluate(IReadDataBlock parameters);
-
+    None,
     /**
-     * Gets the domain of the function
-     * @return The domain of the function
+     *
      */
-    IParametersDomain getDomain();
-    
-    default ToDoubleFunction<IReadDataBlock> asFunction(){
-        return (p->this.evaluate(p).getValue());
-    }
+    All,
+    /**
+     * 
+     */
+    From,
+    /**
+     *
+     */
+    To,
+    /**
+     *
+     */
+    Between,
+    /**
+     * 
+     */
+    Last,
+    /**
+     * 
+     */
+    First,
+    /**
+     *
+     */
+    Excluding;
 }

@@ -14,34 +14,30 @@
 * See the Licence for the specific language governing permissions and 
 * limitations under the Licence.
 */
+package ec.demetra.timeseries;
 
-package ec.demetra.realfunctions;
-
-import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.design.Development;
-import java.util.function.ToDoubleFunction;
+import java.time.LocalDateTime;
 
 /**
- * Generic interface for real functions
+ * Represents a time domain, which is a collection of contiguous periods.
+ * Implementations of a time domain should be immutable objects.
  * @author Jean Palate
  */
-@Development(status = Development.Status.Alpha)
-public interface IFunction {
+@Development(status = Development.Status.Preliminary)
+public interface ITimeDomain extends IDomain {
 
-    /**
-     * Evaluates the function for a given set of parameters
-     * @param parameters The parameters (read only)
-     * @return The evaluation of the function (may be null)
-     */
-    IFunctionInstance evaluate(IReadDataBlock parameters);
-
-    /**
-     * Gets the domain of the function
-     * @return The domain of the function
-     */
-    IParametersDomain getDomain();
-    
-    default ToDoubleFunction<IReadDataBlock> asFunction(){
-        return (p->this.evaluate(p).getValue());
+    @Override
+    default LocalDateTime getTime(int idx){
+        return get(idx).start();
     }
+
+    /**
+     * Gets the idx-th period
+     * @param idx 0-based position of the period in the domain
+     * @return
+     */
+    ITimePeriod get(int idx);
+
+
 }

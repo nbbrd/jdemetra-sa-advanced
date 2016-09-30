@@ -14,34 +14,39 @@
 * See the Licence for the specific language governing permissions and 
 * limitations under the Licence.
 */
+package ec.demetra.timeseries;
 
-package ec.demetra.realfunctions;
-
-import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.design.Development;
-import java.util.function.ToDoubleFunction;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
- * Generic interface for real functions
+ * interface that defines a time period. The atomic time unit for a IPeriod is the day. 
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public interface IFunction {
+public interface ITimePeriod {
 
     /**
-     * Evaluates the function for a given set of parameters
-     * @param parameters The parameters (read only)
-     * @return The evaluation of the function (may be null)
+     * Checks that the period contains a given date
+     * 
+     * @param dt
+     *            The considered date.
+     * @return true if the date is inside the period, false otherwise.
      */
-    IFunctionInstance evaluate(IReadDataBlock parameters);
+    boolean contains(LocalDateTime dt);
 
     /**
-     * Gets the domain of the function
-     * @return The domain of the function
+     * Gets the start of the period (included)
+     * @return The start of the period.
      */
-    IParametersDomain getDomain();
-    
-    default ToDoubleFunction<IReadDataBlock> asFunction(){
-        return (p->this.evaluate(p).getValue());
-    }
+    LocalDateTime start();
+
+    /**
+     * Gets the end of the period (excluded)
+     * 
+     * @return The end of the period (excluded)
+     */
+    LocalDateTime end();
+
 }
