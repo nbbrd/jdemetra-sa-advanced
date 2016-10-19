@@ -51,6 +51,7 @@
         <module>nbdemetra-sts</module>
         <module>nbdemetra-mixedfreq</module>
         <module>nbdemetra-sssts</module>
+        <module>jdemetra-modelling</module>
     </modules>
 
     <organization>

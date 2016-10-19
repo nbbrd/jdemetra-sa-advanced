@@ -17,8 +17,10 @@
 package ec.demetra.timeseries.simplets;
 
 import data.Data;
+import java.util.Optional;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -30,6 +32,7 @@ public class TsDataTest {
     }
 
     @Test
+    @Ignore
     public void testDisplay() {
         for (TsObservation obs:Data.P){
             System.out.print(obs.getPeriod().firstDay());
@@ -40,4 +43,13 @@ public class TsDataTest {
         }
     }
     
+    @Test
+    public void testFunctional(){
+        TsData s=new TsData(TsFrequency.Monthly, 1990, 0, 20);
+        s.set(i->1-.4*i+.04*i*i);
+        Optional<TsObservation> min = s.stream().min((x,y)->Double.compare(x.getValue(), y.getValue()));
+        assertTrue(min.get().getPeriod().minus(s.getStart())==5);
+        assertTrue(min.get().getValue()==0);
+    }
+   
 }

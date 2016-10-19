@@ -16,17 +16,16 @@
  */
 package ec.demetra.timeseries.simplets;
 
+import ec.demetra.timeseries.ITsData;
 import ec.demetra.timeseries.PeriodSelector;
 import ec.demetra.timeseries.TsAggregationType;
 import ec.tstoolkit.arima.ArimaModelBuilder;
 import ec.tstoolkit.data.DescriptiveStatistics;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.data.ReadDataBlock;
-import ec.tstoolkit.data.Values;
 import java.util.Arrays;
 import java.util.Iterator;
 import ec.tstoolkit.design.NewObject;
-import ec.tstoolkit.design.Unsafe;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.random.IRandomNumberGenerator;
 import ec.tstoolkit.random.JdkRNG;
@@ -52,7 +51,7 @@ import java.util.stream.StreamSupport;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBlock {
+public class TsData implements ITsData<TsDomain, double[]>, Cloneable, Iterable<TsObservation>, IReadDataBlock {
 
     private static final class TsIterator implements Iterator<TsObservation> {
 
@@ -418,7 +417,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
         this.vals = new double[vals.getLength()];
         vals.copyTo(this.vals, 0);
     }
-
+    
     @Override
     public void copyTo(double[] buffer, int start) {
         System.arraycopy(vals, 0, buffer, start, vals.length);
@@ -427,6 +426,15 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
     @Override
     public IReadDataBlock rextract(int start, int length) {
         return new ReadDataBlock(vals, start, length);
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Override
+    public double[] data(){
+        return vals;
     }
 
     /**
@@ -681,12 +689,13 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
      * the beginning and/or at the d1.
      *
      * @param nfirst Number of periods to drop at the beginning of the series.
-     * If nfirst < 0, -nfirst periods are added (with Missing values). @param
-     * nlast Number of peri ods to drop at th e d1 of the series. If nlast < 0,
+     * If nfirst < 0, -nfirst periods are added (with Missing values). 
+     * @param nlast Number of peri ods to drop at th e d1 of the series. If nlast < 0,
      * -nlast periods are added (with Missing values). @return The returned time
      * series may be empty, but the returne d value is never null. @see
      * #extend(int, int) @param nlast @return
-     */
+     * @return 
+      */
     public TsData drop(final int nfirst, final int nlast) {
         TsPeriod s = getStart().plus(nfirst);
         int n = vals.length - nfirst - nlast;
@@ -747,10 +756,10 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
      *
      * @param nbefore Number of periods to add (with Missing values) at the
      * beginning of the series. If nbefore < 0, -nbefore periods are removed .
-     * @param nafter Number of per
-     * iods to add (with Missing values) at the d1 of the series. If nafter < 0,
-     * -nafter periods are removed. @return The returned time series may be
+     * @param nafter Number of periods to add (with Missing values) at the d1 of the series. 
+     * If nafter lt 0, -nafter periods are removed. @return The returned time series may be
      * empty, but the returned value is never null. @see #extend(int, int)
+     * @return 
      */
     public TsData extend(final int nbefore, final int nafter) {
         return drop(-nbefore, -nafter);
@@ -795,6 +804,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
      * getLength()[)
      * @return True if the idx-th observation is missing, false otherwise.
      */
+    @Override
     public boolean isMissing(final int idx) {
         return !Double.isFinite(vals[idx]);
     }
@@ -829,14 +839,11 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
      * modified
      */
     @NewObject
-    public TsDomain getDomain() {
+    @Override
+    public TsDomain domain() {
         return new TsDomain(start, vals.length);
     }
 
-    @Deprecated
-    public Values getValues(){
-        return new Values(vals, false);
-    }
     /**
      * Gets the first period after the d1 of the series. That period doesn't
      * belong to the time domain.
@@ -921,7 +928,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
      */
     public TsData index(final TsPeriod refperiod, final double refvalue) {
         LocalDate d0 = refperiod.firstDay(), d1 = refperiod.lastDay();
-        TsDomain dom = getDomain();
+        TsDomain dom = domain();
         int i0 = dom.search(d0), i1 = dom.search(d1);
 
         if (i0 < 0) {
@@ -1112,8 +1119,8 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
             }
         }
 
-        TsDomain dout = null;
-        TsDomain dom = getDomain();
+        TsDomain dout;
+        TsDomain dom = domain();
 
         if (bcentred) {
             int nw2 = (nw - 1) / 2;
@@ -1160,8 +1167,8 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
             return null;
         }
         int np2 = (nperiods - 1) / 2;
-        TsDomain dout = null;
-        TsDomain dom = getDomain();
+        TsDomain dout;
+        TsDomain dom = domain();
         if (bcentred) {
             dout = dom.drop(nperiods - 1 - np2, np2);
         } else {
@@ -1267,7 +1274,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
         if (ps == null) {
             return clone();
         }
-        TsDomain domain = getDomain().select(ps);
+        TsDomain domain = domain().select(ps);
         TsData rslt = new TsData(domain);
         int diff = domain.firstid() - start.id();
         System.arraycopy(vals, diff, rslt.vals, 0, domain.getLength());
@@ -1333,7 +1340,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
         if (ts == null) {
             return clone();
         }
-        TsDomain dom = getDomain(), rdom = ts.getDomain();
+        TsDomain dom = domain(), rdom = ts.domain();
         TsDomain uDomain = dom.union(rdom);
         if (uDomain == null) {
             return null;
@@ -1402,11 +1409,6 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
     public void set(TsPeriod period, double value) {
         int pos = period.minus(start);
         vals[pos] = value;
-    }
-
-    @Unsafe
-    public double[] internalStorage() {
-        return vals;
     }
 
     @Override
@@ -1594,8 +1596,8 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
 
     public static TsData computeOnIntersection(final DoubleBinaryOperator fn, final TsData tsl, final TsData tsr) {
 
-        TsDomain rDomain = tsr.getDomain();
-        TsDomain lDomain = tsl.getDomain();
+        TsDomain rDomain = tsr.domain();
+        TsDomain lDomain = tsl.domain();
         TsDomain iDomain = lDomain.intersection(rDomain);
         if (iDomain == null) {
             return null;

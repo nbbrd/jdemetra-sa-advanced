@@ -34,6 +34,7 @@ public class FastStateSmoother {
 
     private ISsfDynamics dynamics;
     private ISsfMeasurement measurement;
+    protected boolean adjust = true;
 
     public DataBlockStorage process(ISsf ssf, ISsfData data) {
         initSsf(ssf);
@@ -45,11 +46,31 @@ public class FastStateSmoother {
         DataBlock a = initialState(ssf, data, srslts);
         storage.save(0, a);
         int pos = 1;
+        double zz = 0;
+        DataBlock z = new DataBlock(dim);
+        if (measurement.isTimeInvariant()) {
+            measurement.Z(0, z);
+            zz = z.ssq();
+        }
         do {
             // next: a(t+1) = T a(t) + S*r(t)
             dynamics.TX(pos, a);
             dynamics.addSU(pos, a, srslts.u(pos));
             // T
+            if (adjust) {
+                // we want to stabilize the results so that Za(t)=y(t)
+                // we suppose that the error is very small, so that we can distribute it on a 
+                // in  a simple way
+                if (!data.isMissing(pos)) {
+                    if (!measurement.isTimeInvariant()) {
+                        z.set(0);
+                        measurement.Z(0, z);
+                        zz = z.ssq();
+                    }
+                    double e = data.get(pos) - measurement.ZX(pos, a)-srslts.e(pos);
+                    measurement.XpZd(pos, a, e / zz);
+                }
+            }
             storage.save(pos++, a);
         } while (pos < n);
 
@@ -76,5 +97,18 @@ public class FastStateSmoother {
         }
     }
 
+    /**
+     * @return the adjust
+     */
+    public boolean isAdjust() {
+        return adjust;
+    }
+
+    /**
+     * @param adjust the adjust to set
+     */
+    public void setAdjust(boolean adjust) {
+        this.adjust = adjust;
+    }
 
 }
