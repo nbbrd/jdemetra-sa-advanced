@@ -18,6 +18,7 @@ package ec.demetra.timeseries;
 
 import ec.tstoolkit.design.Development;
 import java.time.LocalDateTime;
+import java.time.Period;
 
 /**
  * Represents a time domain, which is a collection of contiguous periods.
@@ -47,4 +48,5 @@ public interface IDomain  {
      */
     int search(LocalDateTime time);
 
+    Period getPeriod();
 }

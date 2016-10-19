@@ -134,11 +134,7 @@ public class MarginalLikelihood implements ILikelihood {
         return ll + .5 * mcorr;
     }
 
-    public double getDiffuseLogLikelihood() {
-        return ll;
-    }
-
-    /**
+   /**
      * Initialize the diffuse likelihood. We consider below the GLS problem
      * corresponding to a given state space: y = a * X + e, where X is derived
      * from the initial conditions and e ~ N(0, V)

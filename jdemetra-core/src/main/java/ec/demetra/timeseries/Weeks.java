@@ -18,6 +18,7 @@ package ec.demetra.timeseries;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 
 /**
  *
@@ -50,4 +51,8 @@ public class Weeks implements IDateDomain{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
+    @Override
+    public Period getPeriod(){
+        return Period.ofWeeks(1);
+    }
 }

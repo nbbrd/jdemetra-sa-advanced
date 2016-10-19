@@ -17,6 +17,7 @@
 package ec.demetra.timeseries;
 
 import java.time.LocalDateTime;
+import java.time.Period;
 
 /**
  *
@@ -41,6 +42,11 @@ public class TimeDomain implements ITimeDomain{
 
     @Override
     public int search(LocalDateTime time) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Period getPeriod() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

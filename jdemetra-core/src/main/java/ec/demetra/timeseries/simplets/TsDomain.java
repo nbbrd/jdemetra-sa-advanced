@@ -24,6 +24,7 @@ import ec.tstoolkit.design.Development;
 import ec.tstoolkit.design.Immutable;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -56,14 +57,14 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
         }
     }
     private static final long serialVersionUID = 3500593038737276467L;
-    private final TsFrequency m_freq;
-    private final int m_beg;
-    private final int m_c;
+    private final TsFrequency freq;
+    private final int beg;
+    private final int len;
 
     TsDomain(final TsFrequency freq, final int beg, final int count) {
-        m_freq = freq;
-        m_beg = beg;
-        m_c = count;
+        this.freq = freq;
+        this.beg = beg;
+        len = count;
     }
 
     /**
@@ -100,11 +101,11 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      * domain.
      */
     public boolean contains(TsDomain domain) {
-        if (this.m_freq != domain.m_freq) {
+        if (this.freq != domain.freq) {
             throw new TsException(TsException.INCOMPATIBLE_FREQ);
         }
-        return this.m_beg <= domain.m_beg
-                && this.m_beg + this.m_c >= domain.m_beg + domain.m_c;
+        return this.beg <= domain.beg
+                && this.beg + this.len >= domain.beg + domain.len;
     }
 
     /**
@@ -126,8 +127,8 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
     }
 
     public boolean equals(TsDomain other) {
-        return (m_freq == other.m_freq) && (m_beg == other.m_beg)
-                && (m_c == other.m_c);
+        return (freq == other.freq) && (beg == other.beg)
+                && (len == other.len);
     }
 
     /**
@@ -140,26 +141,34 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      * @return The returned domain may be Empty.
      */
     public TsDomain extend(final int nbefore, final int nafter) {
-        int c = Math.max(0, m_c + nbefore + nafter);
-        return new TsDomain(m_freq, m_beg - nbefore, c);
+        int c = Math.max(0, len + nbefore + nafter);
+        return new TsDomain(freq, beg - nbefore, c);
     }
 
     int firstid() {
-        return m_beg;
+        return beg;
     }
 
     @Override
     public TsPeriod get(final int idx) {
-        return new TsPeriod(m_freq, m_beg + idx);
+        return new TsPeriod(freq, beg + idx);
     }
 
+    @Override
+    public Period getPeriod(){
+        switch (freq){
+            case Yearly:return Period.ofYears(1);
+            case Monthly:return Period.ofMonths(1);
+            default:return Period.ofMonths(12/freq.intValue());
+        }
+     }
     /**
      * Return the first period at the end of the domain.
      *
      * @return The end of the domain. That period doesn't belong to the domain!
      */
     public TsPeriod getEnd() {
-        return new TsPeriod(m_freq, m_beg + m_c);
+        return new TsPeriod(freq, beg + len);
     }
 
     /**
@@ -169,7 +178,7 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      * frequency.
      */
     public TsFrequency getFrequency() {
-        return m_freq;
+        return freq;
     }
 
     /**
@@ -187,13 +196,13 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      * @return The number of full years.
      */
     public int getFullYearsCount() {
-        int ifreq = m_freq.intValue();
-        int start = m_beg;
+        int ifreq = freq.intValue();
+        int start = beg;
         int pos = start % ifreq;
         if (pos > 0) {
             start += ifreq - pos;
         }
-        int end = m_beg + m_c;
+        int end = beg + len;
         end -= end % ifreq;
         return (end - start) / ifreq;
     }
@@ -204,12 +213,12 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      * @return A new period is returned. Should not be used on empty domain,
      */
     public TsPeriod getLast() {
-        return new TsPeriod(m_freq, m_beg + m_c - 1);
+        return new TsPeriod(freq, beg + len - 1);
     }
 
     @Override
     public int getLength() {
-        return m_c;
+        return len;
     }
 
     /**
@@ -218,7 +227,7 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      * @return A new period is returned, even for empty domain,
      */
     public TsPeriod getStart() {
-        return new TsPeriod(m_freq, m_beg);
+        return new TsPeriod(freq, beg);
     }
     
     /**
@@ -226,12 +235,12 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      * @return 
      */
     public int startId(){
-        return m_beg;
+        return beg;
     }
 
     @Override
     public int hashCode() {
-        return m_freq.hashCode() + m_beg + m_c;
+        return freq.hashCode() + beg + len;
     }
 
     public static TsDomain and(TsDomain l, TsDomain r) {
@@ -264,18 +273,18 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
         if (d == this) {
             return this;
         }
-        if (d.m_freq != m_freq) {
+        if (d.freq != freq) {
             throw new TsException(TsException.INCOMPATIBLE_FREQ);
         }
 
-        int ln = m_c, rn = d.m_c;
-        int lbeg = m_beg, rbeg = d.m_beg;
+        int ln = len, rn = d.len;
+        int lbeg = beg, rbeg = d.beg;
 
         int lend = lbeg + ln, rend = rbeg + rn;
         int beg = lbeg <= rbeg ? rbeg : lbeg;
         int end = lend >= rend ? rend : lend;
 
-        return new TsDomain(m_freq, beg, Math.max(0, end - beg));
+        return new TsDomain(freq, beg, Math.max(0, end - beg));
     }
 
     /**
@@ -284,7 +293,7 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      * @return true if the domain is empty. false otherwise.
      */
     public boolean isEmpty() {
-        return this.m_c == 0;
+        return this.len == 0;
     }
 
     /**
@@ -311,12 +320,12 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      * position. The current object is not modified.
      */
     public TsDomain move(final int nperiods) {
-        return new TsDomain(m_freq, m_beg + nperiods, m_c);
+        return new TsDomain(freq, beg + nperiods, len);
     }
 
     @Override
     public int search(final LocalDate day) {
-        TsPeriod p = new TsPeriod(m_freq, day);
+        TsPeriod p = new TsPeriod(freq, day);
         return search(p);
     }
 
@@ -329,12 +338,12 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      */
     public int search(final TsPeriod p) {
 
-        if (p.getFrequency() != m_freq) {
+        if (p.getFrequency() != freq) {
             return -1;
         }
         int id = p.id();
-        id -= m_beg;
-        if ((id < 0) || (id >= m_c)) {
+        id -= beg;
+        if ((id < 0) || (id >= len)) {
             return -1;
         } else {
             return id;
@@ -348,7 +357,7 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
      * @return The corresponding domain. May be Empty.
      */
     public TsDomain select(final PeriodSelector ps) {
-        if (m_c == 0) {
+        if (len == 0) {
             return this;
         }
         // throw new ArgumentNullException("ps");
@@ -356,31 +365,31 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
         int nf = 0, nl = 0;
         PeriodSelectorType type = ps.getType();
         if (type == PeriodSelectorType.None) {
-            nf = m_c;
+            nf = len;
         } else if (type == PeriodSelectorType.First) {
             int nobs = ps.getN0();
-            nl = m_c - nobs;
+            nl = len - nobs;
         } else if (type == PeriodSelectorType.Last) {
             int nobs = ps.getN1();
-            nf = m_c - nobs;
+            nf = len - nobs;
         } else if (type == PeriodSelectorType.Excluding) {
             nf = ps.getN0();
             nl = ps.getN1();
             if (nf < 0) {
-                nf = -nf * m_freq.intValue();
+                nf = -nf * freq.intValue();
             }
             if (nl < 0) {
-                nl = -nl * m_freq.intValue();
+                nl = -nl * freq.intValue();
             }
 
         } else {
             if ((type == PeriodSelectorType.From)
                     || (type == PeriodSelectorType.Between)) {
                 LocalDate d = ps.getD0();
-                TsPeriod cur = new TsPeriod(m_freq, d);
-                int c = cur.id() - m_beg;
-                if (c >= m_c) {
-                    nf = m_c; // on ne garde rien
+                TsPeriod cur = new TsPeriod(freq, d);
+                int c = cur.id() - beg;
+                if (c >= len) {
+                    nf = len; // on ne garde rien
                 } else if (c >= 0) {
                     if (cur.firstDay().isBefore(d)) {
                         nf = c + 1;
@@ -392,16 +401,16 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
             if ((type == PeriodSelectorType.To)
                     || (type == PeriodSelectorType.Between)) {
                 LocalDate d = ps.getD1();
-                TsPeriod cur = new TsPeriod(m_freq,d);
+                TsPeriod cur = new TsPeriod(freq,d);
 
-                int c = cur.id() - m_beg;
+                int c = cur.id() - beg;
                 if (c < 0) {
-                    nl = m_c; // on ne garde rien
-                } else if (c < m_c) {
+                    nl = len; // on ne garde rien
+                } else if (c < len) {
                     if (cur.lastDay().isAfter(d)) {
-                        nl = m_c - c;
+                        nl = len - c;
                     } else {
-                        nl = m_c - c - 1;
+                        nl = len - c - 1;
                     }
                 }
             }
@@ -412,7 +421,7 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
         if (nl < 0) {
             nl = 0;
         }
-        return new TsDomain(m_freq, m_beg + nf, m_c - nf - nl);
+        return new TsDomain(freq, beg + nf, len - nf - nl);
     }
 
     /**
@@ -427,21 +436,21 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
         if (d == this) {
             return this;
         }
-        if (d.m_freq != m_freq) {
+        if (d.freq != freq) {
             return null;
         }
 
-        int ln = m_c, rn = d.m_c;
-        int lbeg = m_beg, rbeg = d.m_beg;
+        int ln = len, rn = d.len;
+        int lbeg = beg, rbeg = d.beg;
         int lend = lbeg + ln, rend = rbeg + rn;
         int beg = lbeg <= rbeg ? lbeg : rbeg;
         int end = lend >= rend ? lend : rend;
 
-        return new TsDomain(m_freq, beg, end - beg);
+        return new TsDomain(freq, beg, end - beg);
     }
 
     public TsDomain changeFrequency(final TsFrequency newfreq, final boolean complete) {
-        int freq = m_freq.intValue(), nfreq = newfreq.intValue();
+        int freq = this.freq.intValue(), nfreq = newfreq.intValue();
         if (freq == nfreq) {
             return this;
         }
@@ -456,25 +465,25 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
             int z0 = 0;
 
             // beginning and end
-            int nbeg = m_beg / nconv;
+            int nbeg = beg / nconv;
             int n0 = nconv, n1 = nconv;
-            if (m_beg % nconv != 0) {
+            if (beg % nconv != 0) {
                 if (complete) {
-                if (m_beg > 0) {
+                if (beg > 0) {
                     ++nbeg;
-                    z0 = nconv - m_beg % nconv;
+                    z0 = nconv - beg % nconv;
                 } else {
-                    z0 = - m_beg % nconv;
+                    z0 = - beg % nconv;
                 }
                 } else {
-                    if (m_beg < 0) {
+                    if (beg < 0) {
                         --nbeg;
                     }
-                    n0 = (nbeg + 1) * nconv - m_beg;
+                    n0 = (nbeg + 1) * nconv - beg;
                 }
             }
 
-            int end = m_beg + m_c; // excluded
+            int end = beg + len; // excluded
             int nend = end / nconv;
 
             if (end % nconv != 0) {
@@ -496,7 +505,7 @@ public final class TsDomain implements IDateDomain, Serializable, Iterable<TsPer
                 return null;
             }
             TsPeriod start=getStart().firstPeriod(newfreq);
-            return new TsDomain(start, m_c*nfreq/freq);
+            return new TsDomain(start, len*nfreq/freq);
         }
     }
     

@@ -17,6 +17,7 @@
 package ec.demetra.timeseries;
 
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Arrays;
 
 /**
@@ -50,6 +51,11 @@ public class DiscreteDomain implements IDomain{
     @Override
     public int search(LocalDateTime time) {
         return Arrays.binarySearch(dates, time);
+    }
+
+    @Override
+    public Period getPeriod() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }
