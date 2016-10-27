@@ -1,9 +1,0 @@
-C:\Users\Admin\Documents\JD+\jdemetra-sa-advanced\jdemetra-modelling\src\main\java\be\nbb\demetra\modelling\outliers\AdditiveOutlier.java
-C:\Users\Admin\Documents\JD+\jdemetra-sa-advanced\jdemetra-modelling\src\main\java\be\nbb\demetra\modelling\outliers\IOutlierVariable.java
-C:\Users\Admin\Documents\JD+\jdemetra-sa-advanced\jdemetra-modelling\src\main\java\be\nbb\demetra\modelling\arima\outliers\FastOutlierDetector.java
-C:\Users\Admin\Documents\JD+\jdemetra-sa-advanced\jdemetra-modelling\src\main\java\be\nbb\demetra\modelling\arima\outliers\AbstractSingleOutlierDetector.java
-C:\Users\Admin\Documents\JD+\jdemetra-sa-advanced\jdemetra-modelling\src\main\java\be\nbb\demetra\modelling\arima\outliers\OutliersDetectionModule.java
-C:\Users\Admin\Documents\JD+\jdemetra-sa-advanced\jdemetra-modelling\src\main\java\be\nbb\demetra\modelling\outliers\IOutlierFactory.java
-C:\Users\Admin\Documents\JD+\jdemetra-sa-advanced\jdemetra-modelling\src\main\java\be\nbb\demetra\modelling\outliers\SeasonalOutlier.java
-C:\Users\Admin\Documents\JD+\jdemetra-sa-advanced\jdemetra-modelling\src\main\java\be\nbb\demetra\modelling\outliers\SwitchOutlier.java
-C:\Users\Admin\Documents\JD+\jdemetra-sa-advanced\jdemetra-modelling\src\main\java\be\nbb\demetra\modelling\outliers\LevelShift.java
