@@ -122,7 +122,7 @@ public class DkToolkit {
     }
 
     public static boolean smooth(ISsf ssf, ISsfData data, ISmoothingResults sresults) {
-        boolean all=sresults.hasVariances();
+        boolean all = sresults.hasVariances();
         DiffuseSmoother smoother = new DiffuseSmoother();
         smoother.setCalcVariances(all);
         if (smoother.process(ssf, data, sresults)) {
@@ -136,7 +136,12 @@ public class DkToolkit {
     }
 
     public static DataBlockStorage fastSmooth(ISsf ssf, ISsfData data) {
+        return fastSmooth(ssf, data, null);
+    }
+
+    public static DataBlockStorage fastSmooth(ISsf ssf, ISsfData data, FastStateSmoother.Corrector corrector) {
         FastStateSmoother smoother = new FastStateSmoother();
+        smoother.setCorrector(corrector);
         return smoother.process(ssf, data);
     }
 
@@ -157,7 +162,7 @@ public class DkToolkit {
     }
 
     public static boolean sqrtSmooth(ISsf ssf, ISsfData data, ISmoothingResults sresults) {
-        boolean all=sresults.hasVariances();
+        boolean all = sresults.hasVariances();
         DiffuseSquareRootSmoother smoother = new DiffuseSquareRootSmoother();
         smoother.setCalcVariances(all);
         if (smoother.process(ssf, data, sresults)) {
@@ -169,7 +174,7 @@ public class DkToolkit {
             return false;
         }
     }
-    
+
     private static class LLComputer1 implements ILikelihoodComputer<DkLikelihood> {
 
         private final boolean res;

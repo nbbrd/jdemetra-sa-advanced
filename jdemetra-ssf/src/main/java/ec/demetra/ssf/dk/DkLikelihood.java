@@ -110,7 +110,7 @@ public class DkLikelihood implements ILikelihood {
 
     @Override
     public double getFactor() {
-        return Math.exp(ldet / (m()));
+        return Math.exp((ldet + lddet) / (m()));
     }
 
     @Override
@@ -169,11 +169,7 @@ public class DkLikelihood implements ILikelihood {
     }
 
     public double getDiffuseCorrection() {
-        return -.5*lddet;
-    }
-    
-    public double getDiffuseLogLikelihood(){
-        return ll-.5*lddet;
+        return lddet;
     }
 
     /**
@@ -219,7 +215,7 @@ public class DkLikelihood implements ILikelihood {
         }
         ll = -.5
                 * (m * Math.log(2 * Math.PI) + m
-                * (1 + Math.log(ssqerr / m)) + ldet);
+                * (1 + Math.log(ssqerr / m)) + ldet + lddet);
 
     }
 

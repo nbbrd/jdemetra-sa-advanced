@@ -187,10 +187,10 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
         stream.write("Number of estimated parameters = ").write(
                 np + 1 + (ll.getCoefficients() != null ? ll.getCoefficients().getLength() : 0)).newLines(2);
         //stream.write("BIC = ").write(stats.BIC).newLine();
-        stream.write("Log-likelihood = ").write(ll.getLogLikelihood()).newLine();
+        stream.write("Diffuse likelihood = ").write(ll.getLogLikelihood()).newLine();
         stream.write("SSQ = ").write(ll.getSsqErr()).newLine();
-        stream.write("Determinantal correction = ").write(ll.getLogDeterminant()).newLine();
         stream.write("Diffuse correction = ").write(ll.getDiffuseCorrection()).newLine();
+        stream.write("Determinantal correction = ").write(ll.getLogDeterminant()).newLine();
         stream.write("AIC = ").write(ll.AIC(np)).newLine();
         stream.newLines(2);
         stream.write(HtmlTag.LINEBREAK);

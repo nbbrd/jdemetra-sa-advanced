@@ -63,7 +63,7 @@ public class HtmlMixedAirline extends AbstractHtmlElement implements IHtmlElemen
                 style = new HtmlStyle[0];
             }
             stream.write(new HtmlTableCell(cur.model.toString(), 100, style));
-            stream.write(new HtmlTableCell(df4.format(cur.ll.getLogLikelihood()), 100, style));
+            stream.write(new HtmlTableCell(df4.format(cur.ll.getLogLikelihood()-cur.ll.getDiffuseCorrection()), 100, style));
             stream.write(new HtmlTableCell(df4.format(cur.model.getTheta()), 100, style));
             stream.write(new HtmlTableCell(df4.format(cur.model.getBTheta()), 100, style));
             stream.write(new HtmlTableCell(df4.format(cur.model.getNoisyPeriodsVariance()), 100, style));
