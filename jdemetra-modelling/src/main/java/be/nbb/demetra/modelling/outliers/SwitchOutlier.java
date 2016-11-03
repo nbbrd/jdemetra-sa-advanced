@@ -58,17 +58,17 @@ public class SwitchOutlier implements IOutlierVariable{
     @Override
     public void data(int start, DataBlock data) {
         int dpos = pos - start;
-        if (dpos >= 0) {
+        if (dpos >= 0 && dpos < data.getLength()) {
             data.set(dpos, 1);
         }
-        if (dpos + 1 < data.getLength()) {
+        if (dpos+1 >= 0 && dpos + 1 < data.getLength()) {
             data.set(dpos + 1, -1);
         }
     }
 
     @Override
     public String getCode() {
-        return "SO";
+        return "WO";
     }
 
     @Override

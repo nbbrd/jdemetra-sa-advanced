@@ -52,6 +52,7 @@
         <module>nbdemetra-mixedfreq</module>
         <module>nbdemetra-sssts</module>
         <module>jdemetra-modelling</module>
+        <module>JD_HighFreq</module>
     </modules>
 
     <organization>
