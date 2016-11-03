@@ -19,9 +19,11 @@ package be.nbb.demetra.highfreq;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.utilities.DoubleList;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.NumberFormat;
@@ -39,6 +41,12 @@ public class MatrixSerializer {
 
     public static Matrix read(File file) throws FileNotFoundException, IOException {
         return read(file, Locale.ROOT);
+    }
+
+    public static void write(Matrix m, File file) throws FileNotFoundException, IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(m.toString());
+        }
     }
     
     public static Matrix read(File file, Locale locale) throws FileNotFoundException, IOException {

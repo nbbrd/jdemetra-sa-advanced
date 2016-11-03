@@ -16,6 +16,10 @@
  */
 package be.nbb.demetra.highfreq;
 
+import be.nbb.demetra.modelling.arima.outliers.OutliersDetectionModule;
+import be.nbb.demetra.modelling.outliers.AdditiveOutlier;
+import be.nbb.demetra.modelling.outliers.IOutlierVariable;
+import be.nbb.demetra.modelling.outliers.SwitchOutlier;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.implementations.arima.SsfUcarima;
 import ec.demetra.ssf.univariate.DefaultSmoothingResults;
@@ -37,6 +41,11 @@ import ec.tstoolkit.ucarima.UcarimaModel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -54,6 +63,7 @@ public class App {
     private static UcarimaModel ucm;
     private static UcarimaModel tc_ucm;
     private static boolean silent = false, verbose = false;
+    private static boolean ami = false;
 
     private static IParametricMapping<ArimaModel> mapping;
     private static RegArimaEstimation<ArimaModel> estimation;
@@ -71,55 +81,71 @@ public class App {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        try {
-            // TODO code application logic here
-            if (!silent) {
-                System.out.println("Reading data");
-            }
-            if (!decodeArgs(args)) {
-                return;
-            }
-            if (!createMapping()) {
-                return;
-            }
-            if (!createModel()) {
-                return;
-            }
-            if (!silent) {
-                System.out.println("Estimating the model");
-            }
-            if (!estimateModel()) {
-                return;
-            }
-            arima = estimation.model.getArima();
-            if (verbose) {
-                System.out.println(arima);
-            }
-            if (!silent) {
-                System.out.println("Decomposing the model");
-            }
-            if (!decomposeModel()) {
-                return;
-            }
-            if (verbose) {
-                System.out.println(ucm);
-            }
-            if (!silent) {
-                System.out.println("Computing the components");
-            }
-            computeComponents();
-            if (tlength > 0) {
+        // TODO code application logic here
+        if (!silent) {
+            System.out.println("Reading data");
+        }
+        if (!decodeArgs(args)) {
+            return;
+        }
+        if (!createMapping()) {
+            return;
+        }
+        for (int col = 0; col < data.getColumnsCount(); ++col) {
+            try {
                 if (!silent) {
-                    System.out.println("Computing trend/cycle");
+                    System.out.println("Series " + (col + 1));
                 }
-                computeTC();
-            }
-            if (verbose) {
-                System.out.println(components);
-            }
+                if (!createModel()) {
+                    return;
+                }
+                if (!silent) {
+                    System.out.println("Estimating the model");
+                }
+                if (!estimateModel(col)) {
+                    return;
+                }
+                if (ami) {
+                    if (!silent) {
+                        System.out.println("Estimating outliers");
+                    }
+                    estimateOutliers();
+                }
 
-        } catch (Exception err) {
-            System.out.println(err.getMessage());
+                arima = estimation.model.getArima();
+                if (verbose) {
+                    System.out.println(arima);
+                }
+                if (!silent) {
+                    System.out.println("Decomposing the model");
+                }
+                if (!decomposeModel()) {
+                    return;
+                }
+                if (verbose) {
+                    System.out.println(ucm);
+                }
+                if (!silent) {
+                    System.out.println("Computing the components");
+                }
+                computeComponents(col);
+                if (tlength > 0) {
+                    if (!silent) {
+                        System.out.println("Computing trend/cycle");
+                    }
+                    computeTC();
+                }
+                if (verbose) {
+                    System.out.println(components);
+                }
+                if (!silent) {
+                    System.out.println("Generating output");
+                }
+                generateOutput(col);
+
+            } catch (Exception err) {
+                System.out.println(err.getMessage());
+            }
         }
     }
 
@@ -232,6 +258,11 @@ public class App {
                     verbose = true;
                     break;
                 }
+                case "-ami":
+                case "-AMI": {
+                    ami = true;
+                    break;
+                }
                 default:
                     System.out.println(cmd + " is not supported");
                     return false;
@@ -281,11 +312,11 @@ public class App {
         }
     }
 
-    private static boolean estimateModel() {
+    private static boolean estimateModel(int col) {
         GlsArimaMonitor monitor = new GlsArimaMonitor();
 
         monitor.setMapping(mapping);
-        RegArimaModel<ArimaModel> regarima = new RegArimaModel<>(arima, data.column(0));
+        RegArimaModel<ArimaModel> regarima = new RegArimaModel<>(arima, data.column(col));
         if (regressors != null) {
             for (int i = 0; i < regressors.getColumnsCount(); ++i) {
                 regarima.addX(regressors.column(i));
@@ -314,8 +345,8 @@ public class App {
         return ucm.isValid();
     }
 
-    private static void computeComponents() {
-        DataBlock mlin = data.column(0);
+    private static void computeComponents(int col) {
+        DataBlock mlin = data.column(col);
         if (estimation.likelihood.getB() != null) {
             mlin = estimation.model.calcRes(new ReadDataBlock(estimation.likelihood.getB()));
         }
@@ -353,5 +384,39 @@ public class App {
         DefaultSmoothingResults sr = DkToolkit.smooth(ssf, new SsfData(components.column(2)), false);
         components.column(2).copy(sr.getComponent(ssf.getComponentPosition(0)));
         components.column(3).copy(sr.getComponent(ssf.getComponentPosition(1)));
+    }
+
+    private static File generateFile(String name, int col) {
+        File path = new File(output == null ? "." : output);
+        if (!path.exists()) {
+            path.mkdirs();
+        }
+        return new File(path, name + ("-") + (col + 1) + ".txt");
+    }
+
+    private static void generateOutput(int col) {
+        try {
+            File cmp = generateFile("components", col);
+            MatrixSerializer.write(components, cmp);
+        } catch (IOException ex) {
+        }
+    }
+
+    private static void estimateOutliers() {
+        OutliersDetectionModule outliersDetector = new OutliersDetectionModule();
+        if (!silent) {
+            Consumer<IOutlierVariable> hook = o -> System.out.println("add outlier:" + o.getCode() + (o.getPosition() + 1));
+            outliersDetector.setAddHook(hook);
+        }
+        GlsArimaMonitor monitor = new GlsArimaMonitor();
+        monitor.setMapping(mapping);
+        outliersDetector.setMonitor(monitor);
+        outliersDetector.addOutlierFactory(new SwitchOutlier.Factory());
+        outliersDetector.addOutlierFactory(new AdditiveOutlier.Factory());
+        
+        outliersDetector.process(estimation.model);
+        RegArimaModel<ArimaModel> regarima = outliersDetector.getRegarima();
+        estimation = monitor.optimize(regarima);
+        arima = regarima.getArima();
     }
 }
