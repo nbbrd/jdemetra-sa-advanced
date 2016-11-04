@@ -21,11 +21,13 @@ import ec.demetra.timeseries.calendars.FixedDateHoliday;
 import ec.demetra.timeseries.calendars.IHoliday;
 import ec.demetra.timeseries.calendars.IHolidayInfo;
 import ec.tstoolkit.maths.matrices.Matrix;
+import ec.tstoolkit.maths.matrices.SubMatrix;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import static java.time.temporal.ChronoUnit.DAYS;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,55 +37,44 @@ import java.util.List;
  */
 public class Holidays {
 
-    private final List<IHoliday> holidays = new ArrayList<>();
+    protected final List<IHoliday> holidays = new ArrayList<>();
 
     public static Holidays france() {
         Holidays holidays = new Holidays();
-        holidays.add(FixedDateHoliday.NEWYEAR);
-        holidays.add(FixedDateHoliday.MAYDAY);
+        holidays.addDefault();
         holidays.add(new FixedDateHoliday(Month.MAY, 8));
         holidays.add(new FixedDateHoliday(Month.JULY, 14));
-        holidays.add(FixedDateHoliday.ASSUMPTION);
-        holidays.add(FixedDateHoliday.ALLSAINTSDAY);
         holidays.add(FixedDateHoliday.ARMISTICEDAY);
-        holidays.add(FixedDateHoliday.CHRISTMAS);
-        holidays.add(EasterRelatedHoliday.EASTERMONDAY);
-        holidays.add(EasterRelatedHoliday.ASCENSION);
-        holidays.add(EasterRelatedHoliday.WHITMONDAY);
         return holidays;
     }
 
-    public static Holidays france1() {
+    public static Holidays belgium() {
         Holidays holidays = new Holidays();
-        holidays.add(FixedDateHoliday.NEWYEAR);
-        holidays.add(FixedDateHoliday.MAYDAY);
-        holidays.add(new FixedDateHoliday(Month.MAY, 8));
-        holidays.add(new FixedDateHoliday(Month.JULY, 14));
-        holidays.add(FixedDateHoliday.ASSUMPTION);
-        holidays.add(FixedDateHoliday.ALLSAINTSDAY);
+        holidays.addDefault();
+        holidays.add(new FixedDateHoliday(Month.JULY, 21));
         holidays.add(FixedDateHoliday.ARMISTICEDAY);
-        holidays.add(FixedDateHoliday.CHRISTMAS);
-        holidays.add(EasterRelatedHoliday.ASCENSION);
-        return holidays;
-    }
-
-    public static Holidays francee() {
-        Holidays holidays = new Holidays();
-        holidays.add(EasterRelatedHoliday.EASTERMONDAY);
-        holidays.add(EasterRelatedHoliday.ASCENSION);
-        holidays.add(EasterRelatedHoliday.WHITMONDAY);
         return holidays;
     }
 
     public Holidays() {
     }
 
+    private void addDefault() {
+        holidays.add(FixedDateHoliday.NEWYEAR);
+        holidays.add(FixedDateHoliday.MAYDAY);
+        holidays.add(FixedDateHoliday.ASSUMPTION);
+        holidays.add(FixedDateHoliday.ALLSAINTSDAY);
+        holidays.add(FixedDateHoliday.CHRISTMAS);
+        holidays.add(EasterRelatedHoliday.EASTERMONDAY);
+        holidays.add(EasterRelatedHoliday.ASCENSION);
+        holidays.add(EasterRelatedHoliday.WHITMONDAY);
+    }
+
     public void add(IHoliday hol) {
         holidays.add(hol);
     }
 
-    public Matrix fillDays(final LocalDate start, int n, boolean one) {
-        final Matrix D = new Matrix(n, one ? 1 : holidays.size());
+    public void fillDays(final SubMatrix D, final LocalDate start, int n) {
         LocalDate end = start.plusDays(n);
         int col = 0;
         for (IHoliday item : holidays) {
@@ -95,16 +86,14 @@ public class Holidays {
                     D.set((int) pos, col, 1);
                 }
             }
-            if (!one) {
+            if (D.getColumnsCount() > 1) {
                 ++col;
             }
         }
-        return D;
     }
 
-    public Matrix fillPreviousWorkingDays(final LocalDate start, int n, final int del, boolean one) {
-        final Matrix D = new Matrix(n, one ? 1 : holidays.size());
-        LocalDate nstart=start.plusDays(del);
+    public void fillPreviousWorkingDays(final SubMatrix D, final LocalDate start, int n, final int del) {
+        LocalDate nstart = start.plusDays(del);
         LocalDate end = start.plusDays(n);
         int col = 0;
         for (IHoliday item : holidays) {
@@ -117,16 +106,14 @@ public class Holidays {
                     D.set((int) pos, col, 1);
                 }
             }
-            if (!one) {
+            if (D.getColumnsCount() > 1) {
                 ++col;
             }
         }
-        return D;
     }
 
-    public Matrix fillNextWorkingDays(final LocalDate start, int n, final int del, boolean one) {
-        final Matrix D = new Matrix(n, one ? 1 : holidays.size());
-        LocalDate nstart=start.minusDays(del);
+    public void fillNextWorkingDays(final SubMatrix D, final LocalDate start, int n, final int del) {
+        LocalDate nstart = start.minusDays(del);
         LocalDate end = nstart.plusDays(n);
         int col = 0;
         for (IHoliday item : holidays) {
@@ -139,10 +126,16 @@ public class Holidays {
                     D.set((int) pos, col, 1);
                 }
             }
-            if (!one) {
+            if (D.getColumnsCount() > 1) {
                 ++col;
             }
         }
-        return D;
+    }
+
+    /**
+     * @return the holidays
+     */
+    public List<IHoliday> getHolidays() {
+        return Collections.unmodifiableList(holidays);
     }
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright 2016 National Bank of Belgium
  * 
- * Licensed under the EUPL, Version 1.1 or – as soon they will be approved 
+ * Licensed under the EUPL, Version 1.1 or â€“ as soon they will be approved 
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
@@ -24,11 +24,13 @@ import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.implementations.arima.SsfUcarima;
 import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.demetra.ssf.univariate.SsfData;
+import ec.demetra.timeseries.calendars.IHoliday;
 import ec.demetra.ucarima.TrendCycleDecomposer;
 import ec.tstoolkit.arima.ArimaModel;
 import ec.tstoolkit.arima.estimation.GlsArimaMonitor;
 import ec.tstoolkit.arima.estimation.RegArimaEstimation;
 import ec.tstoolkit.arima.estimation.RegArimaModel;
+import ec.tstoolkit.data.AutoRegressiveSpectrum;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.DataBlockStorage;
 import ec.tstoolkit.data.ReadDataBlock;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,7 +67,12 @@ public class App {
     private static UcarimaModel tc_ucm;
     private static boolean silent = false, verbose = false;
     private static boolean ami = false;
-
+    private static LocalDate start;
+    private static Holidays holidays;
+    private static boolean hol1;
+    private static int hol_nb, hol_nf;
+    private static int nb, nf;
+    private static IOutlierVariable[] outliers;
     private static IParametricMapping<ArimaModel> mapping;
     private static RegArimaEstimation<ArimaModel> estimation;
     private static Matrix components;
@@ -157,10 +165,10 @@ public class App {
             if (cmd.length() == 0) {
                 return false;
             }
+            cmd = cmd.toLowerCase();
 
             switch (cmd) {
-                case "-y":
-                case "-Y": {
+                case "-y": {
                     if (cur == args.length) {
                         return false;
                     }
@@ -176,8 +184,7 @@ public class App {
                     }
                     break;
                 }
-                case "-x":
-                case "-X": {
+                case "-x": {
                     if (cur == args.length) {
                         return false;
                     }
@@ -193,8 +200,87 @@ public class App {
                     }
                     break;
                 }
-                case "-p":
-                case "-P": {
+                case "-hol": {
+                    if (cur == args.length) {
+                        return false;
+                    }
+                    String str = args[cur++];
+                    if (str.length() == 0 || str.charAt(0) == '-') {
+                        return false;
+                    }
+                    switch (str) {
+                        case "france":
+                            holidays = Holidays.france();
+                            hol1 = false;
+                            break;
+                        case "france1":
+                            holidays = Holidays.france();
+                            hol1 = true;
+                            break;
+                    }
+                    break;
+                }
+                case "-hol_nb": {
+                    if (cur == args.length) {
+                        return false;
+                    }
+                    String str = args[cur++];
+                    if (str.length() == 0 || str.charAt(0) == '-') {
+                        return false;
+                    }
+                    try {
+                        hol_nb = Integer.parseInt(str);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                    break;
+                }
+                case "-hol_nf": {
+                    if (cur == args.length) {
+                        return false;
+                    }
+                    String str = args[cur++];
+                    if (str.length() == 0 || str.charAt(0) == '-') {
+                        return false;
+                    }
+                    try {
+                        hol_nf = Integer.parseInt(str);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                    break;
+                }
+                case "-nb": {
+                    if (cur == args.length) {
+                        return false;
+                    }
+                    String str = args[cur++];
+                    if (str.length() == 0 || str.charAt(0) == '-') {
+                        return false;
+                    }
+                    try {
+                        nb = Integer.parseInt(str);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                    break;
+                }
+                case "-nf": {
+                    if (cur == args.length) {
+                        return false;
+                    }
+                    String str = args[cur++];
+                    if (str.length() == 0 || str.charAt(0) == '-') {
+                        return false;
+                    }
+                    try {
+                        nf = Integer.parseInt(str);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                    break;
+                }
+                case "-p": {
                     if (cur == args.length) {
                         return false;
                     }
@@ -220,8 +306,7 @@ public class App {
                     }
                     break;
                 }
-                case "-t":
-                case "-T": {
+                case "-t": {
                     if (cur == args.length) {
                         return false;
                     }
@@ -236,8 +321,23 @@ public class App {
                     }
                     break;
                 }
+                case "-start": {
+                    if (cur == args.length) {
+                        return false;
+                    }
+                    String str = args[cur++];
+                    if (str.length() == 0 || str.charAt(0) == '-') {
+                        return false;
+                    }
+                    try {
+                        start = LocalDate.parse(str);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                    break;
+                }
                 case "-o":
-                case "-O": {
+                case "-output": {
                     if (cur == args.length) {
                         return false;
                     }
@@ -248,18 +348,15 @@ public class App {
                     output = str;
                     break;
                 }
-                case "-s":
-                case "-S": {
+                case "-s": {
                     silent = true;
                     break;
                 }
-                case "-v":
-                case "-V": {
+                case "-v": {
                     verbose = true;
                     break;
                 }
-                case "-ami":
-                case "-AMI": {
+                case "-ami": {
                     ami = true;
                     break;
                 }
@@ -312,17 +409,44 @@ public class App {
         }
     }
 
-    private static boolean estimateModel(int col) {
-        GlsArimaMonitor monitor = new GlsArimaMonitor();
-
-        monitor.setMapping(mapping);
+    private static RegArimaModel<ArimaModel> generateRegArima(int col) {
         RegArimaModel<ArimaModel> regarima = new RegArimaModel<>(arima, data.column(col));
         if (regressors != null) {
             for (int i = 0; i < regressors.getColumnsCount(); ++i) {
                 regarima.addX(regressors.column(i));
             }
         }
-        estimation = monitor.process(regarima);
+        if (holidays != null && start != null) {
+            int nhol = hol1 ? 1 : holidays.getHolidays().size();
+            Matrix[] td = new Matrix[1 + hol_nb + hol_nf];
+            int cur = 0;
+            for (int i = hol_nb; i > 0; --i) {
+                Matrix m = new Matrix(data.getRowsCount(), nhol);
+                holidays.fillPreviousWorkingDays(m.all(), start, data.getRowsCount(), i);
+                td[cur++] = m;
+            }
+            Matrix m0 = new Matrix(data.getRowsCount(), nhol);
+            holidays.fillDays(m0.all(), start, data.getRowsCount());
+            td[cur++] = m0;
+            for (int i = 1; i <= hol_nf; ++i) {
+                Matrix m = new Matrix(data.getRowsCount(), nhol);
+                holidays.fillNextWorkingDays(m.all(), start, data.getRowsCount(), i);
+                td[cur++] = m;
+            }
+            for (int i = 0; i < nhol; ++i) {
+                for (int j = 0; j < td.length; ++j) {
+                    regarima.addX(td[j].column(i));
+                }
+            }
+        }
+        return regarima;
+    }
+
+    private static boolean estimateModel(int col) {
+        GlsArimaMonitor monitor = new GlsArimaMonitor();
+        monitor.setMultiThread(true);
+        monitor.setMapping(mapping);
+        estimation = monitor.process(generateRegArima(col));
         return estimation != null;
     }
 
@@ -352,21 +476,22 @@ public class App {
         }
         SsfUcarima ssf = SsfUcarima.create(ucm);
         DataBlockStorage sr = DkToolkit.fastSmooth(ssf, new SsfData(mlin));//, (pos, a, e)->a.add(0,e));
-        int ncmps = (tlength > 0) ? 3 : 2;
+        int ncmps = (tlength > 0) ? 4 : 3;
         components = new Matrix(mlin.getLength(), ncmps + ucm.getComponentsCount());
-        components.column(0).copy(mlin);
+        components.column(0).copy(data.column(col));
+        components.column(1).copy(mlin);
         for (int i = 1; i < ucm.getComponentsCount(); ++i) {
             components.column(ncmps + i).copy(sr.item(ssf.getComponentPosition(i)));
         }
         // computes sa, t
-        components.column(1).copy(mlin);
+        components.column(2).copy(mlin);
         // sa=y-s
-        components.column(1).sub(components.column(ncmps + 1));
+        components.column(2).sub(components.column(ncmps + 1));
         if (isDaily()) {
-            components.column(1).sub(components.column(ncmps + 2));
+            components.column(2).sub(components.column(ncmps + 2));
         }
-        components.column(2).copy(components.column(1));
-        components.column(2).sub(components.column(components.getColumnsCount() - 1));
+        components.column(3).copy(components.column(2));
+        components.column(3).sub(components.column(components.getColumnsCount() - 1));
 
     }
 
@@ -381,9 +506,9 @@ public class App {
         tcdecomposer.decompose(ucm.getComponent(0));
         tc_ucm = new UcarimaModel(ucm.getComponent(0), new ArimaModel[]{tcdecomposer.getTrend(), tcdecomposer.getCycle()});
         SsfUcarima ssf = SsfUcarima.create(tc_ucm);
-        DefaultSmoothingResults sr = DkToolkit.smooth(ssf, new SsfData(components.column(2)), false);
-        components.column(2).copy(sr.getComponent(ssf.getComponentPosition(0)));
-        components.column(3).copy(sr.getComponent(ssf.getComponentPosition(1)));
+        DefaultSmoothingResults sr = DkToolkit.smooth(ssf, new SsfData(components.column(3)), false);
+        components.column(3).copy(sr.getComponent(ssf.getComponentPosition(0)));
+        components.column(4).copy(sr.getComponent(ssf.getComponentPosition(1)));
     }
 
     private static File generateFile(String name, int col) {
@@ -394,10 +519,123 @@ public class App {
         return new File(path, name + ("-") + (col + 1) + ".txt");
     }
 
+    private static void generateRegression(File file) throws IOException {
+        int nx = estimation.model.getXCount();
+        String[] items = new String[nx];
+        int cur = 0;
+        if (regressors != null) {
+            for (int i = 1; i <= regressors.getColumnsCount(); ++i) {
+                items[cur++] = "reg-" + i;
+            }
+        }
+        if (holidays != null && start != null) {
+            if (hol1) {
+                for (int i = hol_nb; i > 0; --i) {
+                    items[cur++] = "td(-" + i + ")";
+                }
+                items[cur++] = "td";
+                for (int i = 1; i <= hol_nf; ++i) {
+                    items[cur++] = "td(+" + i + ")";
+                }
+            } else {
+                List<IHoliday> lh = holidays.getHolidays();
+                for (IHoliday h : lh) {
+                    String td = h.toString();
+                    for (int i = hol_nb; i > 0; --i) {
+                        items[cur++] = td + "(-" + i + ")";
+                    }
+                    items[cur++] = td;
+                    for (int i = 1; i <= hol_nf; ++i) {
+                        items[cur++] = td + "(+" + i + ")";
+                    }
+                }
+            }
+        }
+        if (outliers != null) {
+            for (int i = 0; i < outliers.length; ++i) {
+                String o = outliers[i].getCode();
+                if (start != null) {
+                    o += start.plusDays(outliers[i].getPosition());
+                } else {
+                    o += outliers[i].getPosition();
+                }
+                items[cur++] = o;
+            }
+        }
+        OutputFormatter.write(file, items, new DataBlock(estimation.likelihood.getB()), new DataBlock(estimation.likelihood.getTStats()));
+    }
+
+    private static void generateARSpectrum(int col) throws IOException {
+        // AR spectrum of the linearized, of the SA, of C, of I
+        int nar = (int) (isWeekly() ? 52 * 2.5 : 365 * 2.5);
+        int n = 3;
+        DataBlock ylin = components.column(1).deepClone();
+        DataBlock sa = components.column(2).deepClone();
+        DataBlock irr = components.column(components.getColumnsCount() - 1);
+        sa.difference();
+        sa = sa.drop(1, 0);
+        ylin.difference();
+        ylin = ylin.drop(1, 0);
+        irr = irr.drop(1, 0);
+        DataBlock c = null;
+        if (tlength != 0) {
+            ++n;
+            c = components.column(4).deepClone();
+            c.difference();
+            c = c.drop(1, 0);
+        }
+
+        AutoRegressiveSpectrum arylin = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Ols);
+        AutoRegressiveSpectrum arsa = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Ols);
+        AutoRegressiveSpectrum arc = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Ols);
+        AutoRegressiveSpectrum ari = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Ols);
+        arylin.process(ylin, nar);
+        arsa.process(sa, nar);
+        if (c != null) {
+            arc.process(c, nar);
+        }
+        ari.process(irr, nar);
+        int nf = 4 * (isWeekly() ? 52 : 365);
+        double rd = Math.PI / (1 + nf);
+        Matrix rslt = new Matrix(nf, n + 1);
+        double cur = rd;
+        for (int i = 1; i < nf; ++i) {
+            int j = 0;
+            rslt.set(i - 1, j++, cur);
+            rslt.set(i - 1, j++, arylin.value(cur));
+            rslt.set(i - 1, j++, arsa.value(cur));
+            if (c != null) {
+                rslt.set(i - 1, j++, arc.value(cur));
+            }
+            rslt.set(i - 1, j, ari.value(cur));
+            cur += rd;
+        }
+        File cmp = generateFile("arspectrum", col);
+        MatrixSerializer.write(rslt, cmp);
+    }
+
     private static void generateOutput(int col) {
         try {
+            // components
             File cmp = generateFile("components", col);
             MatrixSerializer.write(components, cmp);
+            // regression 
+            if (estimation.model.getXCount() > 0) {
+                File reg = generateFile("regression", col);
+                generateRegression(reg);
+            }
+            File farima = generateFile("arima", col);
+            OutputFormatter.writeArima(farima, arima);
+            File fucm = generateFile("ucm", col);
+            OutputFormatter.writeUcm(fucm, ucm);
+            File fducm = generateFile("ucm-details", col);
+            OutputFormatter.writeUcmPolynomials(fducm, ucm);
+            if (tc_ucm != null) {
+                File ftcucm = generateFile("ucm-tc", col);
+                OutputFormatter.writeUcm(ftcucm, tc_ucm);
+            }
+            generateARSpectrum(col);
+
         } catch (IOException ex) {
         }
     }
@@ -405,18 +643,21 @@ public class App {
     private static void estimateOutliers() {
         OutliersDetectionModule outliersDetector = new OutliersDetectionModule();
         if (!silent) {
-            Consumer<IOutlierVariable> hook = o -> System.out.println("add outlier:" + o.getCode() + (o.getPosition() + 1));
+            Consumer<IOutlierVariable> hook = o -> System.out.println("add outlier:" + o.getCode()
+                    + ((start == null) ? (o.getPosition() + 1) : start.plusDays(o.getPosition())));
             outliersDetector.setAddHook(hook);
         }
         GlsArimaMonitor monitor = new GlsArimaMonitor();
+        monitor.setMultiThread(true);
         monitor.setMapping(mapping);
         outliersDetector.setMonitor(monitor);
         outliersDetector.addOutlierFactory(new SwitchOutlier.Factory());
         outliersDetector.addOutlierFactory(new AdditiveOutlier.Factory());
-        
+
         outliersDetector.process(estimation.model);
         RegArimaModel<ArimaModel> regarima = outliersDetector.getRegarima();
         estimation = monitor.optimize(regarima);
         arima = regarima.getArima();
+        outliers = outliersDetector.getOutliers();
     }
 }

@@ -8,7 +8,10 @@ package ec.demetra.timeseries.calendars;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.Month;
+import java.time.format.TextStyle;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.Objects;
 
 /**
  *
@@ -55,9 +58,9 @@ public class FixedDateHoliday implements IHoliday {
         private int year;
     }
 
-    public static final FixedDateHoliday 
-            CHRISTMAS = new FixedDateHoliday(Month.DECEMBER, 25),
+    public static final FixedDateHoliday CHRISTMAS = new FixedDateHoliday(Month.DECEMBER, 25),
             NEWYEAR = new FixedDateHoliday(Month.JANUARY, 1),
+            EPIPHANY = new FixedDateHoliday(Month.JANUARY, 6),
             ASSUMPTION = new FixedDateHoliday(Month.AUGUST, 15),
             MAYDAY = new FixedDateHoliday(Month.MAY, 1),
             ALLSAINTSDAY = new FixedDateHoliday(Month.NOVEMBER, 1),
@@ -72,7 +75,7 @@ public class FixedDateHoliday implements IHoliday {
             LocalDate xday = fday.calcDate(ystart);
             LocalDate yday = fday.calcDate(yend);
 
-            int y0= fstart.getYear();
+            int y0 = fstart.getYear();
             int y1 = fend.getYear();
             // y0 is the last year strictly before the valid time span
             if (!xday.isBefore(fstart)) {
@@ -83,8 +86,8 @@ public class FixedDateHoliday implements IHoliday {
             if (!yday.isBefore(fend)) {
                 --y1;
             }
-            ybeg=y0;
-            n = y1-y0;
+            ybeg = y0;
+            n = y1 - y0;
         }
 
         private final FixedDateHoliday fday;
@@ -111,4 +114,27 @@ public class FixedDateHoliday implements IHoliday {
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder=new StringBuilder();
+        builder.append(monthDay.getMonth().getDisplayName(TextStyle.SHORT, Locale.ROOT));
+        builder.append('-').append(monthDay.getDayOfMonth());
+        return builder.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj || (obj instanceof FixedDateHoliday && equals((FixedDateHoliday) obj));
+    }
+
+    public boolean equals(FixedDateHoliday obj) {
+        return monthDay.equals(obj.monthDay);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 59 * hash + Objects.hashCode(this.monthDay);
+        return hash;
+    }
 }

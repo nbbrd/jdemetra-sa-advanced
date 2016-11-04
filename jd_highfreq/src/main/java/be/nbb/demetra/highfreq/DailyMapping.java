@@ -67,16 +67,23 @@ public class DailyMapping implements IParametricMapping<ArimaModel> {
         if (adjust) {
             d2[freq2] = -.75;
             d2[freq2 + 1] = -.25;
+            Polynomial.Division div = Polynomial.divide(Polynomial.of(d2), UnitRoots.D1);
+            ArimaModel arima = new ArimaModel(
+                    new BackFilter(div.getQuotient()),
+                    BackFilter.D1.times(BackFilter.D1).times(BackFilter.of(d1)),
+                    BackFilter.of(ma).times(BackFilter.of(sma1)).times(BackFilter.of(sma2)),
+                    1);
+            return arima;
         } else {
             d2[freq2] = -1;
+            ArimaModel arima = new ArimaModel(
+                    null,
+                    BackFilter.D1.times(BackFilter.of(d1)).times(BackFilter.of(d2)),
+                    BackFilter.of(ma).times(BackFilter.of(sma1)).times(BackFilter.of(sma2)),
+                    1);
+            return arima;
         }
-        Polynomial.Division div = Polynomial.divide(Polynomial.of(d2), UnitRoots.D1);
-        ArimaModel arima = new ArimaModel(
-                new BackFilter(div.getQuotient()),
-                BackFilter.D1.times(BackFilter.D1).times(BackFilter.of(d1)),
-                BackFilter.of(ma).times(BackFilter.of(sma1)).times(BackFilter.of(sma2)),
-                1);
-        return arima;
+
     }
 
     @Override

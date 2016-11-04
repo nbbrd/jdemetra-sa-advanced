@@ -180,4 +180,25 @@ public class EasterRelatedHoliday implements IHoliday {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Easter+"+offset;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj || (obj instanceof EasterRelatedHoliday && equals((EasterRelatedHoliday) obj));
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + this.offset;
+        hash = 31 * hash + (this.julian ? 1 : 0);
+        return hash;
+    }
+
+    public boolean equals(EasterRelatedHoliday obj) {
+        return offset==obj.offset && julian == obj.julian;
+    }
 }
