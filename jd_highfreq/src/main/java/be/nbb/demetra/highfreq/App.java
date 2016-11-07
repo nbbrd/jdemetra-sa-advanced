@@ -585,10 +585,10 @@ public class App {
             c = c.drop(1, 0);
         }
 
-        AutoRegressiveSpectrum arylin = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Ols);
-        AutoRegressiveSpectrum arsa = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Ols);
-        AutoRegressiveSpectrum arc = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Ols);
-        AutoRegressiveSpectrum ari = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Ols);
+        AutoRegressiveSpectrum arylin = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Durbin);
+        AutoRegressiveSpectrum arsa = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Durbin);
+        AutoRegressiveSpectrum arc = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Durbin);
+        AutoRegressiveSpectrum ari = new AutoRegressiveSpectrum(AutoRegressiveSpectrum.Method.Durbin);
         arylin.process(ylin, nar);
         arsa.process(sa, nar);
         if (c != null) {
@@ -599,7 +599,7 @@ public class App {
         double rd = Math.PI / (1 + nf);
         Matrix rslt = new Matrix(nf, n + 1);
         double cur = rd;
-        for (int i = 1; i < nf; ++i) {
+        for (int i = 1; i <= nf; ++i) {
             int j = 0;
             rslt.set(i - 1, j++, cur);
             rslt.set(i - 1, j++, arylin.value(cur));
