@@ -35,13 +35,13 @@ import org.junit.Ignore;
  */
 public class SsfBsmTest {
 
-    static final int N = 50000;
+    static final int N = 100000;
 
     final SsfBsm bsm;
 
     public SsfBsmTest() {
         ModelSpecification mspec = new ModelSpecification();
-        mspec.setSeasonalModel(SeasonalModel.Crude);
+        mspec.setSeasonalModel(SeasonalModel.Dummy);
         BasicStructuralModel model = new BasicStructuralModel(mspec, 12);
         bsm = SsfBsm.create(model);
     }
@@ -72,6 +72,13 @@ public class SsfBsmTest {
             DkToolkit.likelihoodComputer().compute(bsm, Models.ssfX);
         }
         long t1 = System.currentTimeMillis();
+        System.out.println("dk filter (sqr)");
+        System.out.println(t1 - t0);
+        t0 = System.currentTimeMillis();
+        for (int i = 0; i < N; ++i) {
+            DkToolkit.likelihoodComputer(false, false).compute(bsm, Models.ssfX);
+        }
+        t1 = System.currentTimeMillis();
         System.out.println("dk filter");
         System.out.println(t1 - t0);
         t0 = System.currentTimeMillis();

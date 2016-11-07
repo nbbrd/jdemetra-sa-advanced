@@ -19,6 +19,7 @@ package ec.demetra.realfunctions;
 
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.design.Development;
+import java.util.function.ToDoubleFunction;
 
 /**
  * Generic interface for real functions
@@ -40,4 +41,7 @@ public interface IFunction {
      */
     IParametersDomain getDomain();
     
+    default ToDoubleFunction<IReadDataBlock> asFunction(){
+        return (p->this.evaluate(p).getValue());
+    }
 }

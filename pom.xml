@@ -51,6 +51,8 @@
         <module>nbdemetra-sts</module>
         <module>nbdemetra-mixedfreq</module>
         <module>nbdemetra-sssts</module>
+        <module>jdemetra-modelling</module>
+        <module>jd_highfreq</module>
     </modules>
 
     <organization>
@@ -102,6 +104,11 @@
             <dependency>
                 <groupId>be.nbb.demetra</groupId>
                 <artifactId>jdemetra-ssf</artifactId>
+                <version>${nbbdemetra.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>be.nbb.demetra</groupId>
+                <artifactId>jdemetra-modelling</artifactId>
                 <version>${nbbdemetra.version}</version>
             </dependency>
             <dependency>

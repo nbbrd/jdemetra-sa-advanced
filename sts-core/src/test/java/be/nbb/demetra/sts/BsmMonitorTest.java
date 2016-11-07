@@ -32,8 +32,7 @@ public class BsmMonitorTest {
     @Test
     public void testBsm() {
         BsmMonitor monitor=new BsmMonitor();
-        monitor.process(Data.P, 12);
-        System.out.println((monitor.getResult()));
+        assertTrue(monitor.process(Data.P, 12));
     }
     
 }

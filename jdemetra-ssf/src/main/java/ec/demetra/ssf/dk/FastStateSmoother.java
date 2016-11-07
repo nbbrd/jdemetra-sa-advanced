@@ -31,10 +31,16 @@ import ec.demetra.ssf.univariate.ISsfMeasurement;
  * @author Jean Palate
  */
 public class FastStateSmoother {
+    
+    public static interface Corrector {
 
+        void adjust(int pos, DataBlock a, double error);
+    }
+    
     private ISsfDynamics dynamics;
     private ISsfMeasurement measurement;
-
+    protected Corrector corrector;
+    
     public DataBlockStorage process(ISsf ssf, ISsfData data) {
         initSsf(ssf);
         int dim = dynamics.getStateDim();
@@ -44,24 +50,35 @@ public class FastStateSmoother {
         srslts.prepare(ssf, 0, n);
         DataBlock a = initialState(ssf, data, srslts);
         storage.save(0, a);
-        int pos = 1;
-        do {
-            // next: a(t+1) = T a(t) + S*r(t)
-            dynamics.TX(pos, a);
-            dynamics.addSU(pos, a, srslts.u(pos));
+        int cur = 1;
+        while (cur < n) {
+            // next: a(t+1) = T(t) a(t) + S*r(t)
+            dynamics.TX(cur - 1, a);
+            if (dynamics.hasInnovations(cur - 1)) {
+                DataBlock u = srslts.u(cur);
+                dynamics.addSU(cur - 1, a, u);
+            }
             // T
-            storage.save(pos++, a);
-        } while (pos < n);
-
+            if (corrector != null) {
+                // we want to stabilize the results so that Za(t)=y(t)
+                // we suppose that the error is very small, so that we can distribute it on a 
+                // in  a simple way
+                if (!data.isMissing(cur)) {
+                    double e = data.get(cur) - measurement.ZX(cur, a) - srslts.e(cur);
+                    corrector.adjust(cur, a, e);
+                }
+            }
+            storage.save(cur++, a);
+        }
         return storage;
     }
-
+    
     private void initSsf(ISsf ssf) {
         dynamics = ssf.getDynamics();
         measurement = ssf.getMeasurement();
         int dim = dynamics.getStateDim(), resdim = dynamics.getInnovationsDim();
     }
-
+    
     private DataBlock initialState(ISsf ssf, ISsfData data, IDisturbanceSmoothingResults srslts) {
         if (dynamics.isDiffuse()) {
             DiffuseDisturbanceSmoother sm = new DiffuseDisturbanceSmoother();
@@ -76,5 +93,18 @@ public class FastStateSmoother {
         }
     }
 
+    /**
+     * @return the adjust
+     */
+    public Corrector getCorrector() {
+        return corrector;
+    }
 
+    /**
+     * @param adjust the adjust to set
+     */
+    public void setCorrector(Corrector corrector) {
+        this.corrector = corrector;
+    }
+    
 }
