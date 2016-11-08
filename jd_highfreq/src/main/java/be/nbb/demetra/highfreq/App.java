@@ -35,17 +35,24 @@ import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.DataBlockStorage;
 import ec.tstoolkit.data.ReadDataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
+import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.tstoolkit.maths.realfunctions.IParametricMapping;
+import ec.tstoolkit.modelling.arima.x13.UscbForecasts;
 import ec.tstoolkit.ucarima.ModelDecomposer;
 import ec.tstoolkit.ucarima.SeasonalSelector;
 import ec.tstoolkit.ucarima.TrendCycleSelector;
 import ec.tstoolkit.ucarima.UcarimaModel;
+import ec.tstoolkit.utilities.Arrays2;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,7 +73,7 @@ public class App {
     private static UcarimaModel ucm;
     private static UcarimaModel tc_ucm;
     private static boolean silent = false, verbose = false;
-    private static boolean ami = false;
+    private static boolean ami = false, log;
     private static LocalDate start;
     private static Holidays holidays;
     private static boolean hol1;
@@ -208,14 +215,19 @@ public class App {
                     if (str.length() == 0 || str.charAt(0) == '-') {
                         return false;
                     }
+                    int ns = str.length() - 1;
+                    if (str.charAt(ns) == '1') {
+                        hol1 = true;
+                        str = str.substring(0, ns);
+                    } else {
+                        hol1 = false;
+                    }
                     switch (str) {
                         case "france":
                             holidays = Holidays.france();
-                            hol1 = false;
                             break;
-                        case "france1":
-                            holidays = Holidays.france();
-                            hol1 = true;
+                        case "belgium":
+                            holidays = Holidays.belgium();
                             break;
                     }
                     break;
@@ -348,6 +360,10 @@ public class App {
                     output = str;
                     break;
                 }
+                case "-log": {
+                    log = true;
+                    break;
+                }
                 case "-s": {
                     silent = true;
                     break;
@@ -366,6 +382,16 @@ public class App {
             }
         }
         return true;
+    }
+    
+    private static DataBlock y(int col){
+        if (! log)
+            return data.column(col);
+        else{
+            DataBlock y = data.column(col).deepClone();
+            y.apply(x->Math.log(x));
+            return y;
+        }
     }
 
     private static boolean createModel() {
@@ -410,10 +436,10 @@ public class App {
     }
 
     private static RegArimaModel<ArimaModel> generateRegArima(int col) {
-        RegArimaModel<ArimaModel> regarima = new RegArimaModel<>(arima, data.column(col));
+        RegArimaModel<ArimaModel> regarima = new RegArimaModel<>(arima, y(col));
         if (regressors != null) {
             for (int i = 0; i < regressors.getColumnsCount(); ++i) {
-                regarima.addX(regressors.column(i));
+                regarima.addX(regressors.column(i).drop(nb, nf));
             }
         }
         if (holidays != null && start != null) {
@@ -440,6 +466,42 @@ public class App {
             }
         }
         return regarima;
+    }
+
+    private static void fillX(SubMatrix all, int start, LocalDate dstart) {
+        int cur = 0;
+        int len = all.getRowsCount();
+        if (regressors != null) {
+            for (int i = 0; i < regressors.getColumnsCount(); ++i) {
+                all.column(cur++).copy(regressors.column(i).extract(start, len));
+            }
+        }
+        if (holidays != null && dstart != null) {
+            int nhol = hol1 ? 1 : holidays.getHolidays().size();
+            Matrix[] td = new Matrix[1 + hol_nb + hol_nf];
+            int dcur = 0;
+            for (int i = hol_nb; i > 0; --i) {
+                Matrix m = new Matrix(len, nhol);
+                holidays.fillPreviousWorkingDays(m.all(), dstart, len, i);
+                td[dcur++] = m;
+            }
+            Matrix m0 = new Matrix(len, nhol);
+            holidays.fillDays(m0.all(), dstart, len);
+            td[dcur++] = m0;
+            for (int i = 1; i <= hol_nf; ++i) {
+                Matrix m = new Matrix(len, nhol);
+                holidays.fillNextWorkingDays(m.all(), dstart, len, i);
+                td[dcur++] = m;
+            }
+            for (int i = 0; i < nhol; ++i) {
+                for (int j = 0; j < td.length; ++j) {
+                    all.column(cur++).copy(td[j].column(i));
+                }
+            }
+        }
+        for (IOutlierVariable out : outliers) {
+            out.data(start - nb, all.column(cur++));
+        }
     }
 
     private static boolean estimateModel(int col) {
@@ -470,7 +532,8 @@ public class App {
     }
 
     private static void computeComponents(int col) {
-        DataBlock mlin = data.column(col);
+        DataBlock y = y(col);
+        DataBlock mlin=y;
         if (estimation.likelihood.getB() != null) {
             mlin = estimation.model.calcRes(new ReadDataBlock(estimation.likelihood.getB()));
         }
@@ -478,7 +541,7 @@ public class App {
         DataBlockStorage sr = DkToolkit.fastSmooth(ssf, new SsfData(mlin));//, (pos, a, e)->a.add(0,e));
         int ncmps = (tlength > 0) ? 4 : 3;
         components = new Matrix(mlin.getLength(), ncmps + ucm.getComponentsCount());
-        components.column(0).copy(data.column(col));
+        components.column(0).copy(y);
         components.column(1).copy(mlin);
         for (int i = 1; i < ucm.getComponentsCount(); ++i) {
             components.column(ncmps + i).copy(sr.item(ssf.getComponentPosition(i)));
@@ -616,6 +679,8 @@ public class App {
 
     private static void generateOutput(int col) {
         try {
+            File est = generateFile("estimation", col);
+            OutputFormatter.writeEstimation(est, estimation, mapping, log);
             // components
             File cmp = generateFile("components", col);
             MatrixSerializer.write(components, cmp);
@@ -624,17 +689,21 @@ public class App {
                 File reg = generateFile("regression", col);
                 generateRegression(reg);
             }
-            File farima = generateFile("arima", col);
-            OutputFormatter.writeArima(farima, arima);
-            File fucm = generateFile("ucm", col);
-            OutputFormatter.writeUcm(fucm, ucm);
-            File fducm = generateFile("ucm-details", col);
+//            File farima = generateFile("arima", col);
+//            OutputFormatter.writeArima(farima, arima);
+//            File fucm = generateFile("ucm", col);
+//            OutputFormatter.writeUcm(fucm, ucm);
+            File fducm = generateFile("ucm", col);
             OutputFormatter.writeUcmPolynomials(fducm, ucm);
             if (tc_ucm != null) {
                 File ftcucm = generateFile("ucm-tc", col);
-                OutputFormatter.writeUcm(ftcucm, tc_ucm);
+                OutputFormatter.writeUcmPolynomials(ftcucm, tc_ucm);
             }
             generateARSpectrum(col);
+            generateLjungBox(col);
+            if (nb > 0 || nf > 0) {
+                generatefcasts(col);
+            }
 
         } catch (IOException ex) {
         }
@@ -660,4 +729,83 @@ public class App {
         arima = regarima.getArima();
         outliers = outliersDetector.getOutliers();
     }
+
+    private static void generateLjungBox(int col) throws IOException {
+        double period = isWeekly() ? 365.25 / 7 : 365.25;
+        DataBlock ylin = components.column(1).deepClone();
+        DataBlock sa = components.column(2).deepClone();
+        DataBlock irr = components.column(components.getColumnsCount() - 1);
+        int nlag=isWeekly() ? 1 : 7;
+        sa.difference(1.0, nlag);
+        sa = sa.drop(nlag, 0);
+        ylin.difference(1.0, nlag);
+        ylin = ylin.drop(nlag, 0);
+        irr = irr.drop(nlag, 0);
+        DataBlock c = null;
+        if (tlength != 0) {
+            c = components.column(4).deepClone();
+            c.difference(1.0, nlag);
+            c = c.drop(nlag, 0);
+        }
+
+        File lbs = generateFile("lbs", col);
+        // compute seasonal Ljung-Box
+        int[] lags = new int[4];
+        for (int i = 0; i < lags.length; ++i) {
+            lags[i] = (int) (period * (i + 1));
+            
+        }
+        LjungBoxTest2 stest = new LjungBoxTest2();
+        stest.setLags(lags);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(lbs))) {
+            stest.test(ylin);
+            OutputFormatter.writeLb(writer, "ylin", stest);
+            stest.test(sa);
+            OutputFormatter.writeLb(writer, "sa", stest);
+            stest.test(irr);
+            OutputFormatter.writeLb(writer, "irr", stest);
+            if (c != null) {
+                stest.test(c);
+                OutputFormatter.writeLb(writer, "cycle", stest);
+            }
+        }
+    }
+
+    private static void generatefcasts(int col) throws IOException {
+        UscbForecasts fcast = new UscbForecasts(estimation.model.getArima());
+        if (nb > 0) {
+            Matrix m = new Matrix(nb, 3);
+            double[] bcasts = fcast.forecasts(components.column(1).reverse(), nb);
+            Arrays2.reverse(bcasts);
+            m.column(0).copyFrom(bcasts, 0);
+            int nx = estimation.likelihood.getNx();
+            if (nx > 0) {
+                // gets the regression variables
+                Matrix x = new Matrix(nb, nx);
+                fillX(x.all(), 0, start.minusDays(nb));
+                m.column(1).product(x.rows(), new DataBlock(estimation.likelihood.getB()));
+                m.column(2).sum(m.column(0), m.column(1));
+            }
+            File b = generateFile("bcasts", col);
+            MatrixSerializer.write(m, b);
+        }
+        if (nf > 0) {
+            Matrix m = new Matrix(nf, 3);
+            double[] forecasts = fcast.forecasts(components.column(1), nf);
+            m.column(0).copyFrom(forecasts, 0);
+            int nx = estimation.likelihood.getNx();
+            if (nx > 0) {
+                // gets the regression variables
+                Matrix x = new Matrix(nf, nx);
+                fillX(x.all(), nf + data.getRowsCount(), start.plusDays(data.getRowsCount()));
+                m.column(1).product(x.rows(), new DataBlock(estimation.likelihood.getB()));
+                m.column(2).sum(m.column(0), m.column(1));
+            }
+            File f = generateFile("fcasts", col);
+            MatrixSerializer.write(m, f);
+        }
+
+    }
+
 }
