@@ -16,7 +16,11 @@
  */
 package be.nbb.demetra.highfreq;
 
+import ec.tstoolkit.arima.ArimaModel;
+import ec.tstoolkit.arima.estimation.RegArimaEstimation;
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
+import ec.tstoolkit.maths.realfunctions.IParametricMapping;
 import ec.tstoolkit.utilities.DoubleList;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -92,4 +96,5 @@ public class MatrixSerializer {
             return null;
         }
     }
+
 }
