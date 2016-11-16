@@ -27,14 +27,14 @@ import ec.tstoolkit.design.Development;
  */
 @Development(status = Development.Status.Alpha)
 public class SsqProxyFunction implements IFunction {
-    ISsqFunction m_fn;
+    ISsqFunction ssqFn;
 
     /**
      * 
      * @param fn
      */
     public SsqProxyFunction(ISsqFunction fn) {
-	m_fn = fn;
+	ssqFn = fn;
     }
 
     /**
@@ -43,8 +43,8 @@ public class SsqProxyFunction implements IFunction {
      * @return
      */
     @Override
-    public IFunctionInstance evaluate(IReadDataBlock parameters) {
-	return new SsqProxyFunctionInstance(m_fn.ssqEvaluate(parameters));
+    public IFunctionPoint evaluate(IReadDataBlock parameters) {
+	return new SsqProxyFunctionPoint(ssqFn.ssqEvaluate(parameters));
     }
 
     /**
@@ -53,6 +53,6 @@ public class SsqProxyFunction implements IFunction {
      */
     @Override
     public IParametersDomain getDomain() {
-	return m_fn.getDomain();
+	return ssqFn.getDomain();
     }
 }

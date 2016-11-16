@@ -19,48 +19,31 @@ package ec.demetra.realfunctions;
 
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.design.Development;
+import java.util.function.Function;
 
 /**
- * f(p) = sum(e(t,p)^2)
+ * Generic interface for real functions
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public interface ISsqFunctionInstance {
-
-    /**
-     * Gets the underlying function
-     * @return 
-     */
-    ISsqFunction getSsqFunction();
-    /**
-     * Gets the derivatives of the function at this point
-     * @return Returns the derivatives of the function. May be numerical or
-     * analytical derivatives
-     */
-    default ISsqFunctionDerivatives getSsqDerivatives(){
-        return new SsqNumericalDerivatives(this, false);
-    };
+public interface IMFunction {
     
-    default int getDim(){
-        return getE().getLength();
+    int getOutputDim();
+
+    /**
+     * Evaluates the function for a given set of parameters
+     * @param parameters The parameters (read only)
+     * @return The evaluation of the function (may be null)
+     */
+    IMFunctionPoint evaluate(IReadDataBlock parameters);
+
+    /**
+     * Gets the domain of the function
+     * @return The domain of the function
+     */
+    IParametersDomain getDomain();
+    
+    default Function<IReadDataBlock, IReadDataBlock> asFunction(){
+        return (p->this.evaluate(p).getValues());
     }
-    /**
-     * 
-     * @return Returns e(t,p)
-     */
-    IReadDataBlock getE();
-
-    /**
-     * 
-     * @return Returns p
-     */
-    IReadDataBlock getParameters();
-
-    /**
-     * Gets the value of the function
-     * @return 
-     */
-    default double getSsqE(){
-        return getE().ssq();
-    };
 }

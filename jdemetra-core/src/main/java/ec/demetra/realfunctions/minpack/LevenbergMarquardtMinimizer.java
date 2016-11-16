@@ -21,8 +21,8 @@ import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.demetra.realfunctions.ISsqFunction;
-import ec.demetra.realfunctions.ISsqFunctionInstance;
 import ec.demetra.realfunctions.ISsqFunctionMinimizer;
+import ec.demetra.realfunctions.ISsqFunctionPoint;
 
 /**
  *
@@ -92,7 +92,7 @@ public class LevenbergMarquardtMinimizer implements ISsqFunctionMinimizer {
     }
 
     @Override
-    public ISsqFunctionInstance getResult() {
+    public ISsqFunctionPoint getResult() {
 	return m_problem.getResult();
     }
 
@@ -102,7 +102,7 @@ public class LevenbergMarquardtMinimizer implements ISsqFunctionMinimizer {
     }
     
     @Override
-    public boolean minimize(ISsqFunctionInstance start) {
+    public boolean minimize(ISsqFunctionPoint start) {
 	m_problem = new SsqEstimationProblem(start);
 	try {
 	    m_estimator.estimate(m_problem);

@@ -18,15 +18,15 @@ package ec.demetra.ssf.dk;
 
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.demetra.realfunctions.IFunction;
-import ec.demetra.realfunctions.IFunctionInstance;
 import ec.demetra.realfunctions.IParametersDomain;
 import ec.demetra.realfunctions.IParametricMapping;
 import ec.demetra.realfunctions.ISsqFunction;
-import ec.demetra.realfunctions.ISsqFunctionInstance;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfBuilder;
 import ec.demetra.ssf.univariate.ISsfData;
 import ec.tstoolkit.maths.matrices.SubMatrix;
+import ec.demetra.realfunctions.IFunctionPoint;
+import ec.demetra.realfunctions.ISsqFunctionPoint;
 
 /**
  *
@@ -95,7 +95,7 @@ public class SsfFunction<S, F extends ISsf> implements IFunction, ISsqFunction {
     }
 
     @Override
-    public IFunctionInstance evaluate(IReadDataBlock parameters) {
+    public IFunctionPoint evaluate(IReadDataBlock parameters) {
         return new SsfFunctionInstance<>(this, parameters);
     }
 
@@ -109,7 +109,7 @@ public class SsfFunction<S, F extends ISsf> implements IFunction, ISsqFunction {
     }
 
     @Override
-    public ISsqFunctionInstance ssqEvaluate(IReadDataBlock parameters) {
+    public ISsqFunctionPoint ssqEvaluate(IReadDataBlock parameters) {
         return new SsfFunctionInstance<>(this, parameters);
     }
 

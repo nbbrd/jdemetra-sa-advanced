@@ -88,8 +88,8 @@ public class SsqProxyMinimizer implements ISsqFunctionMinimizer {
     }
     
     @Override
-    public ISsqFunctionInstance getResult() {
-        SsqProxyFunctionInstance rslt = (SsqProxyFunctionInstance) minimizer
+    public ISsqFunctionPoint getResult() {
+        SsqProxyFunctionPoint rslt = (SsqProxyFunctionPoint) minimizer
                 .getResult();
         return rslt.fx;
     }
@@ -106,8 +106,8 @@ public class SsqProxyMinimizer implements ISsqFunctionMinimizer {
      * @return
      */
     @Override
-    public boolean minimize(ISsqFunctionInstance start) {
-        return minimizer.minimize(new SsqProxyFunctionInstance(start));
+    public boolean minimize(ISsqFunctionPoint start) {
+        return minimizer.minimize(new SsqProxyFunctionPoint(start));
     }
 
     /**

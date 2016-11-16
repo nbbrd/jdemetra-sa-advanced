@@ -30,7 +30,7 @@ import ec.tstoolkit.design.Development;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public interface IFunctionInstance {
+public interface IFunctionPoint {
     /**
      * Gets the underlying function
      * @return 

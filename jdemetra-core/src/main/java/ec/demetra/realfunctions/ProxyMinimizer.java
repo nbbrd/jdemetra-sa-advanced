@@ -89,8 +89,8 @@ public class ProxyMinimizer implements IFunctionMinimizer {
     }
     
     @Override
-    public IFunctionInstance getResult() {
-        return (IFunctionInstance) minimizer.getResult();
+    public IFunctionPoint getResult() {
+        return (IFunctionPoint) minimizer.getResult();
     }
 
     /**
@@ -104,17 +104,17 @@ public class ProxyMinimizer implements IFunctionMinimizer {
         if (! (function instanceof ISsqFunction))
             return false;
         ISsqFunction fn = (ISsqFunction) function;
-        ISsqFunctionInstance s = fn.ssqEvaluate(function.getDomain().getDefault());
+        ISsqFunctionPoint s = fn.ssqEvaluate(function.getDomain().getDefault());
         return minimizer.minimize(s);
      }
 
     @Override
-    public boolean minimize(IFunctionInstance start) {
+    public boolean minimize(IFunctionPoint start) {
         IFunction function = start.getFunction();
         if (! (function instanceof ISsqFunction))
             return false;
         ISsqFunction fn = (ISsqFunction) function;
-        ISsqFunctionInstance s = fn.ssqEvaluate(start.getParameters());
+        ISsqFunctionPoint s = fn.ssqEvaluate(start.getParameters());
         return minimizer.minimize(s);
      }
     /**

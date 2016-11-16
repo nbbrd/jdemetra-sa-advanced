@@ -26,14 +26,14 @@ import ec.tstoolkit.design.Development;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public class SsqProxyFunctionInstance implements IFunctionInstance {
-    ISsqFunctionInstance fx;
+public class SsqProxyFunctionPoint implements IFunctionPoint {
+    ISsqFunctionPoint fx;
 
     /**
      * 
      * @param f
      */
-    public SsqProxyFunctionInstance(ISsqFunctionInstance f) {
+    public SsqProxyFunctionPoint(ISsqFunctionPoint f) {
 	fx = f;
     }
 
@@ -55,7 +55,7 @@ public class SsqProxyFunctionInstance implements IFunctionInstance {
 	return fx.getSsqE();
     }
     
-    public ISsqFunctionInstance getCore(){
+    public ISsqFunctionPoint getCore(){
         return fx;
     }
 

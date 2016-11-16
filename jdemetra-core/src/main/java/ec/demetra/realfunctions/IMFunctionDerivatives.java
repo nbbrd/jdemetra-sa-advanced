@@ -27,21 +27,24 @@ import ec.tstoolkit.maths.matrices.SubMatrix;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public interface IFunctionDerivatives {
+public interface IMFunctionDerivatives {
     /**
      * Gets the underlying function
      * @return 
      */
-    IFunction getFunction();
+    IMFunction getFunction();
     /**
-     * 
+     * Computes dF(y)/d(x(var))
+     * @param iy
+     * @param ix
      * @return
      */
-    IReadDataBlock getGradient();
+    double getPartialDerivative(int iy, int ix);
 
     /**
-     * 
-     * @param hessian
+     * Computes the Jacobian
+     * J(i, j)=partialDerivatives(i,j)
+     * @param jacobian
      */
-    void getHessian(SubMatrix hessian);
+    void getJacobian(SubMatrix jacobian);
 }

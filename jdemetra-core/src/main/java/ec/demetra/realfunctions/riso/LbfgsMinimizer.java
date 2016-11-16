@@ -23,8 +23,8 @@ import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.demetra.realfunctions.IFunction;
 import ec.demetra.realfunctions.IFunctionDerivatives;
-import ec.demetra.realfunctions.IFunctionInstance;
 import ec.demetra.realfunctions.IFunctionMinimizer;
+import ec.demetra.realfunctions.IFunctionPoint;
 
 /**
  *
@@ -44,7 +44,7 @@ public class LbfgsMinimizer implements IFunctionMinimizer {
 
     private int m_m = 7;
     private IFunction m_fn;
-    private IFunctionInstance m_fcur;
+    private IFunctionPoint m_fcur;
     private boolean m_converged;
 
     @Override
@@ -118,7 +118,7 @@ public class LbfgsMinimizer implements IFunctionMinimizer {
      * @return
      */
     @Override
-    public IFunctionInstance getResult() {
+    public IFunctionPoint getResult() {
         return m_fcur;
     }
 
@@ -145,7 +145,7 @@ public class LbfgsMinimizer implements IFunctionMinimizer {
      * @return
      */
     @Override
-    public boolean minimize(IFunctionInstance start) {
+    public boolean minimize(IFunctionPoint start) {
         m_fn = start.getFunction();
         m_fcur = start;
         m_converged = false;
@@ -186,7 +186,7 @@ public class LbfgsMinimizer implements IFunctionMinimizer {
                 if (!m_fn.getDomain().checkBoundaries(rx)) {
                     failed = true;
                 } else {
-                    IFunctionInstance efn = m_fn.evaluate(rx);
+                    IFunctionPoint efn = m_fn.evaluate(rx);
                     fcur = efn.getValue();
                     if (fcur <= fmin) {
                         fprev = fmin;

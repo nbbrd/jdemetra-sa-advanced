@@ -17,7 +17,6 @@
 package ec.demetra.realfunctions.levmar;
 
 import ec.demetra.realfunctions.ISsqFunction;
-import ec.demetra.realfunctions.ISsqFunctionInstance;
 import ec.demetra.realfunctions.ISsqFunctionMinimizer;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
@@ -25,6 +24,7 @@ import ec.tstoolkit.maths.matrices.LowerTriangularMatrix;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.maths.matrices.MatrixException;
 import ec.tstoolkit.maths.matrices.SymmetricMatrix;
+import ec.demetra.realfunctions.ISsqFunctionPoint;
 
 /**
  *
@@ -46,7 +46,7 @@ public class DogLegMethod implements ISsqFunctionMinimizer {
     private DataBlock g_;
     ///////////////////////////////////////////
     private ISsqFunction fn_;
-    private ISsqFunctionInstance fcur_, ftry_;
+    private ISsqFunctionPoint fcur_, ftry_;
     private DataBlock ecur_;
     private double Fcur_, Ftry_;
     private Matrix J, JtJ;
@@ -99,7 +99,7 @@ public class DogLegMethod implements ISsqFunctionMinimizer {
     }
 
     @Override
-    public ISsqFunctionInstance getResult() {
+    public ISsqFunctionPoint getResult() {
         return fcur_;
     }
 
@@ -109,7 +109,7 @@ public class DogLegMethod implements ISsqFunctionMinimizer {
     }
 
     @Override
-    public boolean minimize(ISsqFunctionInstance start) {
+    public boolean minimize(ISsqFunctionPoint start) {
         fn_ = start.getSsqFunction();
         fcur_ = start;
         return calc();

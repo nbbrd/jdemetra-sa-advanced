@@ -19,29 +19,48 @@ package ec.demetra.realfunctions;
 
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.design.Development;
-import ec.tstoolkit.maths.matrices.Matrix;
-import ec.tstoolkit.maths.matrices.SubMatrix;
 
 /**
- * 
+ * f(p) = sum(e(t,p)^2)
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public interface IFunctionDerivatives {
+public interface ISsqFunctionPoint {
+
     /**
      * Gets the underlying function
      * @return 
      */
-    IFunction getFunction();
+    ISsqFunction getSsqFunction();
+    /**
+     * Gets the derivatives of the function at this point
+     * @return Returns the derivatives of the function. May be numerical or
+     * analytical derivatives
+     */
+    default ISsqFunctionDerivatives getSsqDerivatives(){
+        return new SsqNumericalDerivatives(this, false);
+    };
+    
+    default int getDim(){
+        return getE().getLength();
+    }
     /**
      * 
-     * @return
+     * @return Returns e(t,p)
      */
-    IReadDataBlock getGradient();
+    IReadDataBlock getE();
 
     /**
      * 
-     * @param hessian
+     * @return Returns p
      */
-    void getHessian(SubMatrix hessian);
+    IReadDataBlock getParameters();
+
+    /**
+     * Gets the value of the function
+     * @return 
+     */
+    default double getSsqE(){
+        return getE().ssq();
+    };
 }
