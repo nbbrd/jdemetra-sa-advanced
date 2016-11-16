@@ -27,9 +27,9 @@ public class MixedAirlineMonitorTest {
     public void testSimulation() {
         MaSpecification mspec=new MaSpecification();
         //mspec.method= EstimationMethod.Iterative;
-        int n = 1000;
+        int n = 10000;
         int i = 0;
-        List<TsData> ss = Data.rndAirlines(n, 180, -.4, -.9);
+        List<TsData> ss = Data.rndAirlines(n, 240, -.6, -.4);
         double[] x = ss.parallelStream().mapToDouble(
                 s -> {
                     MixedAirlineMonitor monitor = new MixedAirlineMonitor();

@@ -6,7 +6,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.hint.jdkPlatform>JDK_1.8</netbeans.hint.jdkPlatform>
         <jdk.version>1.8</jdk.version>
-        <brandingToken>nbdemetra</brandingToken>
+        <brandingToken>nbbdemetra</brandingToken>
         <netbeans.version>RELEASE802</netbeans.version>
         <jdemetra.version>2.2.0-SNAPSHOT</jdemetra.version>
         <nbbdemetra.version>1.0.0-SNAPSHOT</nbbdemetra.version>
@@ -53,6 +53,7 @@
         <module>nbdemetra-sssts</module>
         <module>jdemetra-modelling</module>
         <module>jd_highfreq</module>
+        <module>jstl</module>
     </modules>
 
     <organization>
