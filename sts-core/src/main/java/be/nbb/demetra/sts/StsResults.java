@@ -18,7 +18,6 @@ package be.nbb.demetra.sts;
 
 import ec.demetra.ssf.implementations.structural.SsfBsm;
 import ec.demetra.realfunctions.IFunction;
-import ec.demetra.realfunctions.IFunctionInstance;
 import ec.demetra.ssf.dk.DkConcentratedLikelihood;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
@@ -47,6 +46,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import ec.demetra.realfunctions.IFunctionPoint;
 
 /**
  *
@@ -263,7 +263,7 @@ public class StsResults implements ISaResults {
         return monitor_.likelihoodFunction();
     }
 
-    public IFunctionInstance maxLikelihoodFunction() {
+    public IFunctionPoint maxLikelihoodFunction() {
         return monitor_.maxLikelihoodFunction();
     }
 

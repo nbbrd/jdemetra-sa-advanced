@@ -26,10 +26,10 @@ import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.maths.matrices.SymmetricMatrix;
 import ec.demetra.realfunctions.FunctionException;
 import ec.demetra.realfunctions.IFunction;
-import ec.demetra.realfunctions.IFunctionInstance;
 import ec.demetra.realfunctions.IFunctionMinimizer;
 import ec.demetra.realfunctions.NumericalDerivatives;
 import ec.demetra.realfunctions.ParamValidation;
+import ec.demetra.realfunctions.IFunctionPoint;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class Bfgs implements IFunctionMinimizer {
 
     private double[] m_x, m_y, m_s, m_g, m_xprev, m_gprev, m_d;
     private IFunction m_fn;
-    private IFunctionInstance m_ftry;
+    private IFunctionPoint m_ftry;
     private Matrix m_B;
     private ILineSearch m_lsearch = new QuadraticLineSearch();
     private double m_eps = 1e-9, m_geps = 1e-7, m_xeps, m_alpha, m_f, m_fprev,
@@ -174,7 +174,7 @@ public class Bfgs implements IFunctionMinimizer {
     }
 
     @Override
-    public IFunctionInstance getResult() {
+    public IFunctionPoint getResult() {
         return m_ftry;
     }
 
@@ -183,7 +183,7 @@ public class Bfgs implements IFunctionMinimizer {
         return m_ftry == null ? Double.NaN : m_ftry.getValue();
     }
 
-    private void initialize(IFunctionInstance pstart) {
+    private void initialize(IFunctionPoint pstart) {
         m_fn = pstart.getFunction();
         m_iter = 0;
         int n = m_fn.getDomain().getDim();
@@ -269,7 +269,7 @@ public class Bfgs implements IFunctionMinimizer {
             }
             ++m_bdirty;
 
-            IFunctionInstance ftry = fn.getResult();
+            IFunctionPoint ftry = fn.getResult();
             DataBlock newval = new DataBlock(ftry.getParameters());
             ParamValidation v = m_fn.getDomain().validate(newval);
              switch (v) {
@@ -290,7 +290,7 @@ public class Bfgs implements IFunctionMinimizer {
     }
 
     @Override
-    public boolean minimize( IFunctionInstance start) {
+    public boolean minimize( IFunctionPoint start) {
         initialize(start);
         while (iterate() && m_iter < m_maxiter) {
             ++m_iter;
@@ -335,7 +335,7 @@ public class Bfgs implements IFunctionMinimizer {
         m_maxiter = value;
     }
 
-    private void start(IFunctionInstance start) {
+    private void start(IFunctionPoint start) {
         int n = m_x.length;
         if (start != null) {
             m_ftry = start;

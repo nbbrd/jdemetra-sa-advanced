@@ -21,7 +21,7 @@ import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.design.Development;
 import ec.demetra.realfunctions.FunctionException;
 import ec.demetra.realfunctions.IFunction;
-import ec.demetra.realfunctions.IFunctionInstance;
+import ec.demetra.realfunctions.IFunctionPoint;
 
 /**
  *
@@ -32,7 +32,7 @@ public class DefaultLineFunction implements ILineFunction {
 
     private IFunction m_fn;
 
-    private IFunctionInstance m_ftry;
+    private IFunctionPoint m_ftry;
 
     private DataBlock m_ptmp, m_origin;
 
@@ -48,7 +48,7 @@ public class DefaultLineFunction implements ILineFunction {
      * @param dir
      * @param point
      */
-    public DefaultLineFunction(IFunction fn, IFunctionInstance point,
+    public DefaultLineFunction(IFunction fn, IFunctionPoint point,
 	    double[] dir, double[] grad) {
 	m_fn = fn;
 	m_ftry = point;
@@ -145,7 +145,7 @@ public class DefaultLineFunction implements ILineFunction {
      * 
      * @return
      */
-    public IFunctionInstance getResult()
+    public IFunctionPoint getResult()
     {
 	return m_ftry;
     }

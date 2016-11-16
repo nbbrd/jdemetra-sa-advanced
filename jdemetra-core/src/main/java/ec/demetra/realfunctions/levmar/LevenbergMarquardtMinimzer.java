@@ -18,12 +18,12 @@ package ec.demetra.realfunctions.levmar;
 
 import ec.demetra.realfunctions.ISsqFunction;
 import ec.demetra.realfunctions.ISsqFunctionDerivatives;
-import ec.demetra.realfunctions.ISsqFunctionInstance;
 import ec.demetra.realfunctions.ISsqFunctionMinimizer;
 import ec.demetra.realfunctions.ParamValidation;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.maths.matrices.*;
+import ec.demetra.realfunctions.ISsqFunctionPoint;
 
 /**
  *
@@ -44,7 +44,7 @@ public class LevenbergMarquardtMinimzer implements ISsqFunctionMinimizer {
     private DataBlock Jte;
     ///////////////////////////////////////////
     private ISsqFunction fn_;
-    private ISsqFunctionInstance fcur_, ftry_;
+    private ISsqFunctionPoint fcur_, ftry_;
     private DataBlock ecur;
     private double Fcur_, Ftry_;
     private Matrix J, V;
@@ -116,7 +116,7 @@ public class LevenbergMarquardtMinimzer implements ISsqFunctionMinimizer {
     }
 
     @Override
-    public ISsqFunctionInstance getResult() {
+    public ISsqFunctionPoint getResult() {
         return fcur_;
     }
 
@@ -126,7 +126,7 @@ public class LevenbergMarquardtMinimzer implements ISsqFunctionMinimizer {
     }
 
     @Override
-    public boolean minimize(ISsqFunctionInstance start) {
+    public boolean minimize(ISsqFunctionPoint start) {
         fn_ = start.getSsqFunction();
         fcur_ = start;
         return calc();

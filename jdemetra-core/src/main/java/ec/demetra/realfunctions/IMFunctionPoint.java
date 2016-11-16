@@ -19,29 +19,40 @@ package ec.demetra.realfunctions;
 
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.design.Development;
-import ec.tstoolkit.maths.matrices.Matrix;
-import ec.tstoolkit.maths.matrices.SubMatrix;
 
 /**
+ * Evaluation of a function for a given set of parameters
+ * The evaluation contains the function, the parameters and the value of the function 
+ * at that point
+ * Formally, if we consider the function y=f(x1...xn), a IFunctionInstance
+ * corresponds to a couple ({x1...xn}, f(x1...xn))
  * 
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public interface IFunctionDerivatives {
+public interface IMFunctionPoint {
     /**
      * Gets the underlying function
      * @return 
      */
-    IFunction getFunction();
-    /**
-     * 
-     * @return
-     */
-    IReadDataBlock getGradient();
+    IMFunction getFunction();
 
     /**
-     * 
-     * @param hessian
+     * Gets the derivatives of the function at this point
+     * @return Returns the derivatives of the function. May be numerical or
+     * analytical derivatives
      */
-    void getHessian(SubMatrix hessian);
+    IMFunctionDerivatives getDerivatives();
+    /**
+     * Gets the parameters of the evaluation
+     * @return A read only set of parameters.
+     */
+    IReadDataBlock getParameters();
+
+    /**
+     * Gets the value of the function for the set of parameters of the
+     * IFunctionInstance
+     * @return A Double value. May be Double.Nan
+     */
+    IReadDataBlock getValues();
 }

@@ -33,7 +33,7 @@ public interface IFunction {
      * @param parameters The parameters (read only)
      * @return The evaluation of the function (may be null)
      */
-    IFunctionInstance evaluate(IReadDataBlock parameters);
+    IFunctionPoint evaluate(IReadDataBlock parameters);
 
     /**
      * Gets the domain of the function
@@ -41,7 +41,7 @@ public interface IFunction {
      */
     IParametersDomain getDomain();
     
-    default ToDoubleFunction<IReadDataBlock> asFunction(){
+    default ToDoubleFunction<IReadDataBlock> asRealFunction(){
         return (p->this.evaluate(p).getValue());
     }
 }

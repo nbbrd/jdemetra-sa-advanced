@@ -29,22 +29,22 @@ import ec.tstoolkit.maths.matrices.SubMatrix;
 @Development(status = Development.Status.Preliminary)
 public class TransformedFunction implements IFunction {
 
-    class Instance implements IFunctionInstance {
+    class Point implements IFunctionPoint {
 
-        private final IFunctionInstance fx_;
+        private final IFunctionPoint yfx;
 
-        Instance(IFunctionInstance fx) {
-            fx_ = fx;
+        Point(IFunctionPoint fx) {
+            this.yfx = fx;
         }
 
         @Override
         public IReadDataBlock getParameters() {
-            return fx_.getParameters();
+            return yfx.getParameters();
         }
 
         @Override
         public double getValue() {
-            return t_.f(fx_.getValue());
+            return t.f(yfx.getValue());
         }
 
         @Override
@@ -54,19 +54,24 @@ public class TransformedFunction implements IFunction {
 
         @Override
         public IFunctionDerivatives getDerivatives() {
-            return new Derivatives(fx_.getDerivatives(), getValue());
+            return new Derivatives(yfx.getDerivatives(), getValue());
         }
 
     }
 
     class Derivatives implements IFunctionDerivatives {
 
-        private final IFunctionDerivatives dfx_;
-        private final double fx_;
+        private final IFunctionDerivatives dfx;
+        private final double fx;
 
         Derivatives(IFunctionDerivatives dfx, double fx) {
-            dfx_ = dfx;
-            fx_ = fx;
+            this.dfx = dfx;
+            this.fx = fx;
+        }
+        
+        @Override
+        public IFunction getFunction(){
+            return TransformedFunction.this;
         }
 
         /**
@@ -76,8 +81,8 @@ public class TransformedFunction implements IFunction {
          */
         @Override
         public IReadDataBlock getGradient() {
-            DataBlock g = new DataBlock(dfx_.getGradient());
-            double dt = t_.df(fx_);
+            DataBlock g = new DataBlock(dfx.getGradient());
+            double dt = t.df(fx);
             g.mul(dt);
             return g;
         }
@@ -92,9 +97,9 @@ public class TransformedFunction implements IFunction {
         public void getHessian(SubMatrix H) {
             int n = getDomain().getDim();
             Matrix h = Matrix.square(n);
-            dfx_.getHessian(h.all());
-            IReadDataBlock grad = dfx_.getGradient();
-            double dt = t_.df(fx_), d2t = t_.d2f(fx_);
+            dfx.getHessian(h.all());
+            IReadDataBlock grad = dfx.getGradient();
+            double dt = t.df(fx), d2t = t.d2f(fx);
             h.mul(dt);
             h.addXaXt(d2t, new DataBlock(grad));
             H.copy(h.all());
@@ -137,22 +142,22 @@ public class TransformedFunction implements IFunction {
         double d2f(double x);
     }
 
-    private final ITransformation t_;
-    private final IFunction f_;
+    private final ITransformation t;
+    private final IFunction fn;
 
     public TransformedFunction(IFunction fn, ITransformation t) {
-        f_ = fn;
-        t_ = t;
+        this.fn = fn;
+        this.t = t;
     }
 
     @Override
-    public IFunctionInstance evaluate(IReadDataBlock parameters) {
-        return new Instance(f_.evaluate(parameters));
+    public IFunctionPoint evaluate(IReadDataBlock parameters) {
+        return new Point(fn.evaluate(parameters));
     }
 
     @Override
     public IParametersDomain getDomain() {
-        return f_.getDomain();
+        return fn.getDomain();
     }
 
 }

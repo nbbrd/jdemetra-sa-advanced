@@ -38,6 +38,10 @@ public interface ISsqFunction {
      * @param parameters
      * @return
      */
-    ISsqFunctionInstance ssqEvaluate(IReadDataBlock parameters);
+    ISsqFunctionPoint ssqEvaluate(IReadDataBlock parameters);
+    
+    default IFunction asFunction(){
+        return new SsqProxyFunction(this);
+    }
     
 }

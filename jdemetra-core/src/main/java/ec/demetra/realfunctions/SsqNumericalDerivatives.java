@@ -43,7 +43,7 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
     private double[] m_epsm;
     private double[] m_grad;
     private Matrix m_h;
-    private final ISsqFunction m_fn;
+    private final ISsqFunction fn;
     private IReadDataBlock m_pt;
     private IReadDataBlock m_ecur;
     private final boolean m_sym, m_mt;
@@ -53,14 +53,14 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
      *
      * @param point
      */
-    public SsqNumericalDerivatives(ISsqFunctionInstance point) {
+    public SsqNumericalDerivatives(ISsqFunctionPoint point) {
         this(point, false, false);
     }
     
-    public SsqNumericalDerivatives(ISsqFunctionInstance point, boolean sym, boolean mt) {
+    public SsqNumericalDerivatives(ISsqFunctionPoint point, boolean sym, boolean mt) {
         m_sym = sym;
         m_mt = mt;
-        m_fn = point.getSsqFunction();
+        fn = point.getSsqFunction();
         m_ecur = point.getE();
         m_pt = point.getParameters();
     }
@@ -70,7 +70,7 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
      * @param point
      * @param sym
      */
-    public SsqNumericalDerivatives(ISsqFunctionInstance point,
+    public SsqNumericalDerivatives(ISsqFunctionPoint point,
             boolean sym) {
         this(point, sym, false);
     }
@@ -87,7 +87,7 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
         m_de = new IReadDataBlock[n];
         if (!m_mt || n < 2) {
             for (int i = 0; i < n; ++i) {
-                m_epsp[i] = m_fn.getDomain().epsilon(m_pt, i);
+                m_epsp[i] = fn.getDomain().epsilon(m_pt, i);
                 checkepsilon(i);
                 if (m_sym) {
                     checkmepsilon(i);
@@ -99,7 +99,7 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
             }
         } else {
             for (int i = 0; i < n; ++i) {
-                m_epsp[i] = m_fn.getDomain().epsilon(m_pt, i);
+                m_epsp[i] = fn.getDomain().epsilon(m_pt, i);
                 checkepsilon(i);
                 if (m_sym) {
                     checkmepsilon(i);
@@ -159,21 +159,21 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
         DataBlock pcur = new DataBlock(m_pt);
         double pi = pcur.get(i);
         pcur.add(i, eps);
-        if (m_fn.getDomain().checkBoundaries(pcur)) {
+        if (fn.getDomain().checkBoundaries(pcur)) {
             return;
         }
         int k = 0;
         do {
             eps /= 2;
             pcur.set(i, pi + eps);
-        } while (++k <= g_nsteps && !m_fn.getDomain().checkBoundaries(pcur));
+        } while (++k <= g_nsteps && !fn.getDomain().checkBoundaries(pcur));
         if (k <= g_nsteps) {
             m_epsp[i] = eps;
             return;
         }
         eps = -m_epsp[i];
         pcur.set(i, pi + eps);
-        if (m_fn.getDomain().checkBoundaries(pcur)) {
+        if (fn.getDomain().checkBoundaries(pcur)) {
             m_epsp[i] = eps;
             return;
         }
@@ -181,7 +181,7 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
         do {
             eps /= 2;
             pcur.set(i, pi + eps);
-        } while (++k <= g_nsteps && !m_fn.getDomain().checkBoundaries(pcur));
+        } while (++k <= g_nsteps && !fn.getDomain().checkBoundaries(pcur));
         if (k <= g_nsteps) {
             m_epsp[i] = eps;
             return;
@@ -194,11 +194,16 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
         DataBlock pcur = new DataBlock(m_pt);
         double pi = pcur.get(i);
         pcur.set(i, pi + eps);
-        if (m_fn.getDomain().checkBoundaries(pcur)) {
+        if (fn.getDomain().checkBoundaries(pcur)) {
             m_epsm[i] = eps;
         }// else m_epsm == 0 and the asymmetric num. derivative is computed
     }
 
+    @Override
+    public IFunction getFunction(){
+        return fn.asFunction();
+    }
+    
     /**
      * Computes d e(t,p)/dp(i)
      *
@@ -220,7 +225,7 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
             }
             DataBlock pcur = new DataBlock(m_pt);
             pcur.add(i, dx);
-            ISsqFunctionInstance fn = m_fn.ssqEvaluate(pcur);
+            ISsqFunctionPoint fn = this.fn.ssqEvaluate(pcur);
             return fn.getE();
         } catch (Exception err) {
             return m_ecur;
@@ -301,7 +306,7 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
             try {
                 DataBlock cur = new DataBlock(m_pt);
                 cur.add(pos, eps);
-                ISsqFunctionInstance fn = m_fn.ssqEvaluate(cur);
+                ISsqFunctionPoint fn = SsqNumericalDerivatives.this.fn.ssqEvaluate(cur);
                 rslt[pos] = fn.getE();
             } catch (Exception err) {
                 rslt[pos] = m_ecur;
