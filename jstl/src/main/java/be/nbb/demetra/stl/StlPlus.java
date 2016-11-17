@@ -3,7 +3,7 @@
  * 
  * Licensed under the EUPL, Version 1.1 or – as soon they will be approved 
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
+ * You may not use this fit except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
  * 
  * http://ec.europa.eu/idabc/eupl
@@ -16,7 +16,10 @@
  */
 package be.nbb.demetra.stl;
 
+import ec.demetra.realfunctions.RealFunction;
+import ec.tstoolkit.data.IReadDataBlock;
 import java.util.Arrays;
+import java.util.function.IntToDoubleFunction;
 
 /**
  * Java implementation of the original FORTRAN routine
@@ -29,331 +32,452 @@ import java.util.Arrays;
  */
 public class StlPlus {
 
-    private StlSpecification spec;
-    private double[] y, seas, trend, irr;
+    protected static final RealFunction W = x -> {
+        double t = 1 - x * x * x;
+        return t * t * t;
+    };
 
-    public boolean process(double[] data) {
-        initialize(data);
+    private final LoessFilter tfilter;
+    private final SeasonalFilter[] sfilter;
+    protected RealFunction wfn = x -> {
+        double t = 1 - x * x;
+        return t * t;
+    };
 
+    protected RealFunction loessfn = x -> {
+        double t = 1 - x * x * x;
+        return t * t * t;
+    };
+
+    protected double[] y;
+    protected double[][] season;
+    protected double[] trend;
+    protected double[] irr;
+    protected double[] weights;
+    protected double[] fit;
+
+    private static final int MAXSTEP = 100;
+
+    private int ni = 2, no = 0;
+    private double wthreshold = .001;
+
+    private int n() {
+        return y.length;
+    }
+
+    public StlPlus(final LoessFilter tfilter, final SeasonalFilter sfilter) {
+        this.tfilter = tfilter;
+        this.sfilter = new SeasonalFilter[]{sfilter};
+    }
+
+    public StlPlus(final LoessFilter tfilter, final SeasonalFilter[] sfilter) {
+        this.tfilter = tfilter;
+        this.sfilter = sfilter;
+    }
+
+    public StlPlus(final int period, final int swindow) {
+        LoessSpecification sspec = LoessSpecification.of(swindow, 0);
+        int twindow = (int) Math.ceil((1.5 * period) / (1 - 1.5 / swindow));
+        if (twindow % 2 == 0) {
+            ++twindow;
+        }
+        LoessSpecification tspec = LoessSpecification.of(twindow);
+        tfilter = new LoessFilter(tspec);
+        sfilter = new SeasonalFilter[]{new SeasonalFilter(sspec, LoessSpecification.of(period + 1), period)};
+    }
+
+    public boolean process(IReadDataBlock data) {
+
+        if (!initializeProcessing(data)) {
+            return false;
+        }
+        int istep = 0;
+        do {
+            stlstp();
+            if (++istep > no) {
+                return finishProcessing();
+            }
+            if (weights == null) {
+                weights = new double[n()];
+                fit = new double[n()];
+            }
+            for (int i = 0; i < n(); ++i) {
+                fit[i] = trend[i];
+                for (int j = 0; j < season.length; ++j) {
+                    fit[i] += season[j][i];
+                }
+            }
+            stlrwt(fit, weights);
+        } while (true);
+    }
+
+    private boolean finishProcessing() {
+        for (int i = 0; i < n(); ++i) {
+            fit[i] = trend[i];
+            for (int j = 0; j < season.length; ++j) {
+                fit[i] += season[j][i];
+            }
+            irr[i] = y[i] - fit[i];
+        }
         return true;
     }
-    
-    
 
-    /**
-     *
-     * @param m
-     * @param fits
-     * @param slopes
-     * @param at
-     * @return
-     */
-    protected static double[] interp(double[] m, double[] fits, double[] slopes, double[] at) {
-
-        int n_at = at.length;
-        double[] ans = new double[n_at];
-
-        int j = 0; // index of leftmost vertex
-        for (int i = 0; i < n_at; ++i) {
-            if (at[i] > m[j + 1]) {
-                j++;
-            }
-            double h = (m[j + 1] - m[j]);
-            double u = (at[i] - m[j]) / h;
-            double u2 = u * u;
-            double u3 = u2 * u;
-            ans[i] = (2 * u3 - 3 * u2 + 1) * fits[j]
-                    + (3 * u2 - 2 * u3) * fits[j + 1]
-                    + (u3 - 2 * u2 + u) * slopes[j] * h
-                    + (u3 - u2) * slopes[j + 1] * h;
+    private boolean initializeProcessing(IReadDataBlock data) {
+        int n = data.getLength();
+        y = new double[n];
+        data.copyTo(y, 0);
+        fit = new double[n];
+        season = new double[sfilter.length][];
+        for (int i = 0; i < sfilter.length; ++i) {
+            season[i] = new double[n];
         }
-        return ans;
+        trend = new double[n];
+        irr = new double[n];
+        return true;
     }
 
-    private void initialize(double[] data) {
-        y = data;
-        seas = new double[y.length];
-        trend = new double[y.length];
-    }
-
-    protected static double[] movingAverage(double[] x, int n_p) {
-        int i;
-        int n = x.length;
-        int nn = n - n_p * 2;
-        int nn_p = n_p;
-        double ma_tmp = 0;
-
-        double[] ans = new double[n - 2 * nn_p];
-        double[] ma = new double[nn + nn_p + 1];
-        double[] ma2 = new double[nn + 2];
-
-        for (i = 0; i < nn_p; ++i) {
-            ma_tmp = ma_tmp + x[i];
-        }
-        ma[0] = ma_tmp / nn_p;
-        for (i = nn_p; i < nn + 2 * nn_p; ++i) {
-            ma_tmp = ma_tmp - x[i - nn_p] + x[i];
-            ma[i - nn_p + 1] = ma_tmp / nn_p;
-        }
-
-        ma_tmp = 0;
-        for (i = 0; i < nn_p; ++i) {
-            ma_tmp = ma_tmp + ma[i];
-        }
-        ma2[0] = ma_tmp / nn_p;
-
-        for (i = nn_p; i < nn + nn_p + 1; ++i) {
-            ma_tmp = ma_tmp - ma[i - nn_p] + ma[i];
-            ma2[i - nn_p + 1] = ma_tmp / nn_p;
-        }
-
-        ma_tmp = 0;
-
-        for (i = 0; i < 3; ++i) {
-            ma_tmp = ma_tmp + ma2[i];
-        }
-        ans[0] = ma_tmp / 3;
-
-        for (i = 3; i < nn + 2; ++i) {
-            ma_tmp = ma_tmp - ma2[i - 3] + ma2[i];
-            ans[i - 2] = ma_tmp / 3;
-        }
-
-        return ans;
-    }
-
-    
-    /**
-     * See stlrw Robustness Weights rw_i := B( |y_i - fit_i| / (6 M) ), i =
-     * 1,2,...,n where B(u) = (1 - u^2)^2 * 1[|u| < 1] {Tukey's biweight} and M
-     * := median{ |y_i - fit_i| } @param fit @param rw
-     */
-    private void robustnessWeights(double[] fit, double[] rw) {
-        int n = y.length;
-        for (int i = 0; i < n; ++i) {
-            rw[i] = Math.abs(y[i] - fit[i]);
-        }
-        double cmad = cmad(rw);
-        double cu = .999 * cmad;
-        double cl = .001 * cmad;
-
-        for (int i = 0; i < n; ++n) {
-            double u = Math.abs(y[i] - fit[i]);
-            if (u <= cl) {
-                rw[i] = 1;
-            } else if (u < cu) {
-                double tmp = u / cmad;
-                tmp = 1 - tmp * tmp;
-                rw[i] = tmp * tmp;
-            } else {
-                rw[i] = 1;
-            }
-        }
-    }
-
-    private double cmad(double[] w) {
-        // computes 6*the median. We could use the partial sorting of the original code,
-        // but the default routine is probably faster. To be tested !
-        Arrays.sort(w);
-        int n = w.length, m = n >> 1;
+    private static double mad(double[] r) {
+        double[] sr = r.clone();
+        Arrays.sort(sr);
+        int n = r.length;
+        int n2 = n >> 1;
         if (n % 2 != 0) {
-            return 6 * w[m];
+            return 6 * sr[n2];
         } else {
-            return 3 * (w[m] + w[m - 1]);
+            return 3 * (sr[n2 - 1] + sr[n2]);
         }
     }
 
+    private void stlrwt(double[] fit, double[] w) {
+
+        int n = n();
+        for (int i = 0; i < n; ++i) {
+            w[i] = Math.abs(y[i] - fit[i]);
+        }
+
+        double mad = mad(w);
+
+        double c1 = wthreshold * mad;
+        double c9 = (1 - wthreshold) * mad;
+
+        for (int i = 0; i < n; ++i) {
+            double r = w[i];
+            if (r <= c1) {
+                w[i] = 1;
+            } else if (r <= c9) {
+                w[i] = wfn.apply(r / mad);
+            } else {
+                w[i] = 0;
+            }
+        }
+
+    }
+
     /**
-     * See stlma Moving Average ("running mean") ave(i) := mean(x{j}, j =
+     * Moving Average (aka "running mean") ave(i) := mean(x{j}, j =
      * max(1,i-k),..., min(n, i+k)) for i = 1,2,..,n
      *
-     * @param x input (n data)
-     * @param len length of the moving average
-     * @param ave output (n - 2*(len-1))
+     * @param len
+     * @param n
+     * @param x
+     * @param ave
      */
-    protected static void movingAverage(double[] x, int len, double[] ave) {
-        // optimized running mean. Stability could be an issue on very long series
-        // and/or on a series with very erratic values
-        double m = 0;
+    protected static void stlma(int len, int n, double[] x, double[] ave) {
+        int newn = n - len + 1;
+        double v = 0, flen = len;
         for (int i = 0; i < len; ++i) {
-            m += x[i];
+            v += x[i];
         }
-        ave[0] = m / len;
-        for (int i = len, j = 0; i < x.length; ++i, ++j) {
-            m += x[i] - x[j];
-            ave[j + 1] = m / len;
-        }
-    }
-
-    /**
-     * @return the spec
-     */
-    public StlSpecification getSpecification() {
-        return spec;
-    }
-
-    /**
-     * @param spec the spec to set
-     */
-    public void setSpecification(StlSpecification spec) {
-        this.spec = spec;
-    }
-
-    private static double[][] loess(
-            double[] xx, // time values - should be 1:n unless there are some NAs
-            double[] yy, // the corresponding y values
-            int degree, // degree of smoothing
-            int span, // span of smoothing
-            double[] ww, // weights
-            int[] m, // points at which to evaluate the smooth
-            int[] l_idx, // index of left starting points
-            double[] max_dist // distance between nn bounds for each point
-    ) {
-
-        int n = xx.length;
-        int n_m = m.length;
-
-        double[] x = new double[span];
-        double[] w = new double[span];
-        double[] xw = new double[span];
-        double[] x2w = new double[span];
-        double[] x3w = new double[span];
-
-        double[] result = new double[n_m];
-        double[] slopes = new double[n_m];
-
-        if (span > n) {
-            span = n;
-        }
-
-        // loop through all values of m
-        for (int i = 0; i < n_m; i++) {
-            double a = 0.0;
-
-            // get weights, x, and a
-            for (int j = 0; j < span; j++) {
-                w[j] = 0.0;
-                x[j] = xx[l_idx[i] + j] - (double) m[i];
-
-                // r = std::fabs(x[j]);
-                double r = (x[j] > 0) ? x[j] : -x[j];
-                // tricube
-                double tmp1 = r / max_dist[i];
-                // manual multiplication is much faster than pow()
-                double tmp2 = 1.0 - tmp1 * tmp1 * tmp1;
-                w[j] = tmp2 * tmp2 * tmp2;
-
-                // scale by user-defined weights
-                w[j] = w[j] * ww[l_idx[i] + j];
-
-                a = a + w[j];
+        ave[0] = v / flen;
+        if (newn > 1) {
+            for (int i = 1, k = len, m = 0; i < newn; ++i, ++k, ++m) {
+                v = v - x[m] + x[k];
+                ave[i] = v / flen;
             }
+        }
+    }
 
-            if (degree == 0) {
-                // TODO: make sure denominator is not 0
-                double a1 = 1 / a;
-                for (int j = 0; j < span; j++) {
-                    // l_i[j] = w[j] * a1;
-                    result[i] = result[i] + w[j] * a1 * yy[l_idx[i] + j];
+    /**
+     *
+     * @param np
+     * @param n
+     * @param x
+     * @param t
+     */
+    protected static void stlfts(int np, double[] x, double[] t) {
+        int n = x.length;
+        double[] w1 = new double[n];
+        double[] w2 = new double[n];
+        stlma(np, n, x, w1);
+        stlma(np, n - np + 1, w1, w2);
+        stlma(3, n - 2 * np + 2, w2, t);
+    }
+
+    protected double stlest(IntToDoubleFunction y, int n, int len, int degree, double xs, int nleft, int nright, IntToDoubleFunction userWeights) {
+        double[] w = new double[n];
+        double range = n - 1;
+        double h = Math.max(xs - nleft, nright - xs);
+        if (len > n) {
+            h += (len - n) * .5;
+        }
+        double h9 = 0.999 * h;
+        double h1 = 0.001 * h;
+        double a = 0;
+        for (int j = nleft; j <= nright; ++j) {
+            double r = Math.abs(j - xs);
+            if (r < h9) {
+                if (r < h1) {
+                    w[j] = 1;
+                } else {
+                    w[j] = loessfn.apply(r / h);
+                }
+
+                if (userWeights != null) {
+                    w[j] *= userWeights.applyAsDouble(j);
+                }
+                a += w[j];
+            }
+        }
+
+        if (a <= 0) {
+            return Double.NaN;
+        } else {
+            for (int j = nleft; j <= nright; ++j) {
+                w[j] /= a;
+            }
+            if (h > 0 && degree > 0) {
+                a = 0;
+                for (int j = nleft; j <= nright; ++j) {
+                    a += w[j] * j;
+                }
+                double b = xs - a;
+                double c = 0;
+                for (int j = nleft; j <= nright; ++j) {
+                    double ja = j - a;
+                    c += w[j] * ja * ja;
+                }
+                if (Math.sqrt(c) > .001 * range) {
+                    b /= c;
+
+                    for (int j = nleft; j <= nright; ++j) {
+                        w[j] *= b * (j - a) + 1;
+                    }
+                }
+            }
+            double ys = 0;
+            for (int j = nleft; j <= nright; ++j) {
+                ys += w[j] * y.applyAsDouble(j);
+            }
+            return ys;
+        }
+    }
+
+    protected void stless(IntToDoubleFunction y, int n, int len, int degree, int njump, IntToDoubleFunction userWeights, double[] ys) {
+
+        if (n < 2) {
+            ys[0] = y.applyAsDouble(0);
+            return;
+        }
+        int newnj = Math.min(njump, n - 1);
+        int nleft = 0, nright = 0;
+        if (len >= n) {
+            nleft = 0;
+            nright = n - 1;
+            for (int i = 0; i < n; i += newnj) {
+                double yscur = stlest(y, n, len, degree, i, nleft, nright, userWeights);
+                if (Double.isFinite(yscur)) {
+                    ys[i] = yscur;
+                } else {
+                    ys[i] = y.applyAsDouble(i);
+                }
+            }
+        } else {
+            if (newnj == 1) {
+                int nsh = (len - 1) >> 1;
+                nleft = 0;
+                nright = len - 1;
+                for (int i = 0; i < n; ++i) {
+                    if (i > nsh && nright != n - 1) {
+                        ++nleft;
+                        ++nright;
+                    }
+                    double yscur = stlest(y, n, len, degree, i, nleft, nright, userWeights);
+                    if (Double.isFinite(yscur)) {
+                        ys[i] = yscur;
+                    } else {
+                        ys[i] = y.applyAsDouble(i);
+                    }
                 }
             } else {
-                // get xw, x2w, b, c for degree 1 or 2
-                double b = 0.0;
-                double c = 0.0;
-                for (int j = 0; j < span; j++) {
-                    xw[j] = x[j] * w[j];
-                    x2w[j] = x[j] * xw[j];
-                    b = b + xw[j];
-                    c = c + x2w[j];
+                int nsh = (len - 1) >> 1;
+                for (int i = 0; i < n; i += newnj) {
+                    if (i < nsh) {
+                        nleft = 0;
+                        nright = len - 1;
+                    } else if (i >= n - nsh) {
+                        nleft = n - len;
+                        nright = n - 1;
+                    } else {
+                        nleft = i - nsh;
+                        nright = i + nsh;
+                    }
+
+                    double yscur = stlest(y, n, len, degree, i, nleft, nright, userWeights);
+                    if (Double.isFinite(yscur)) {
+                        ys[i] = yscur;
+                    } else {
+                        ys[i] = y.applyAsDouble(i);
+                    }
                 }
-                if (degree == 1) {
-                    // TODO: make sure denominator is not 0
-                    double det = 1 / (a * c - b * b);
-                    double a1 = c * det;
-                    double b1 = -b * det;
-                    double c1 = a * det;
-                    for (int j = 0; j < span; j++) {
-                        result[i] = result[i] + (w[j] * a1 + xw[j] * b1) * yy[l_idx[i] + j];
-                        slopes[i] = slopes[i] + (w[j] * b1 + xw[j] * c1) * yy[l_idx[i] + j];
+            }
+            if (newnj != 1) {
+
+                int i = 0;
+                for (; i < n - newnj; i += newnj) {
+                    double delta = (ys[i + newnj] - ys[i]) / newnj;
+                    for (int j = i + 1; j < i + newnj; ++j) {
+                        ys[j] = ys[i] + delta * (j - i);
                     }
-                } else {
-                    // TODO: make sure degree > 2 cannot be specified (and < 0 for that matter)
-                    // get x3w, d, and e for degree 2
-                    double d = 0.0;
-                    double e = 0.0;
-                    for (int j = 0; j < span; j++) {
-                        x3w[j] = x[j] * x2w[j];
-                        d = d + x3w[j];
-                        e = e + x3w[j] * x[j];
+                }
+
+                if (i != n - 1) {
+                    double yscur = stlest(y, n, len, degree, n - 1, nleft, nright, userWeights);
+                    if (Double.isFinite(yscur)) {
+                        ys[n - 1] = yscur;
+                    } else {
+                        ys[n - 1] = y.applyAsDouble(n - 1);
                     }
-                    double a1 = e * c - d * d;
-                    double b1 = c * d - e * b;
-                    double c1 = b * d - c * c;
-                    double a2 = c * d - e * b;
-                    double b2 = e * a - c * c;
-                    double c2 = b * c - d * a;
-                    // TODO: make sure denominator is not 0
-                    double det = 1 / (a * a1 + b * b1 + c * c1);
-                    a1 = a1 * det;
-                    b1 = b1 * det;
-                    c1 = c1 * det;
-                    a2 = a2 * det;
-                    b2 = b2 * det;
-                    c2 = c2 * det;
-                    for (int j = 0; j < span; j++) {
-                        result[i] = result[i] + (w[j] * a1 + xw[j] * b1 + x2w[j] * c1) * yy[l_idx[i] + j];
-                        slopes[i] = slopes[i] + (w[j] * a2 + xw[j] * b2 + x2w[j] * c2) * yy[l_idx[i] + j];
+                    double delta = (ys[n - 1] - ys[i]) / (n - i - 1);
+                    for (int j = i + 1; j < n - 1; ++j) {
+                        ys[j] = ys[i] + delta * (j - i);
                     }
                 }
             }
         }
-        return new double[][]{result, slopes};
     }
 
-    protected static double[] c_ma(double[] x, int n_p) {
-        int i;
-        int n = x.length;
-        int nn = n - n_p * 2;
-        int nn_p = n_p;
-        double ma_tmp = 0;
+    protected void stlstp() {
+        int n = n();
+        double[] si = new double[n];
+        double[] w = new double[n];
+        // Step 1: SI=Y-T
 
-        double[] ans = new double[n - 2 * nn_p];
-        double[] ma = new double[nn + nn_p + 1];
-        double[] ma2 = new double[nn + 2];
-        double[] ma3 = new double[nn];
+        for (int j = 0; j < ni; ++j) {
 
-        for (i = 0; i < nn_p; ++i) {
-            ma_tmp = ma_tmp + x[i];
+            for (int i = 0; i < n; ++i) {
+                si[i] = y[i] - trend[i];
+            }
+            // compute S
+            for (int s = 0; s < sfilter.length; ++s) {
+                sfilter[s].filter(IDataGetter.of(si), weights == null ? null : k -> weights[k], IDataSelector.of(season[s]));
+            }
+            // seasonal adjustment
+            for (int i = 0; i < n; ++i) {
+                w[i] = y[i];
+                for (int s = 0; s < sfilter.length; ++s) {
+                    w[i] -= season[s][i];
+                }
+            }
+            // Step 6: T=smooth(sa)
+            tfilter.filter(IDataSelector.of(w), weights == null ? null : k -> weights[k], IDataSelector.of(trend));
         }
-        ma[0] = ma_tmp / nn_p;
-        for (i = nn_p; i < nn + 2 * nn_p; ++i) {
-            ma_tmp = ma_tmp - x[i - nn_p] + x[i];
-            ma[i - nn_p + 1] = ma_tmp / nn_p;
-        }
+    }
 
-        ma_tmp = 0;
-        for (i = 0; i < nn_p; ++i) {
-            ma_tmp = ma_tmp + ma[i];
-        }
-        ma2[0] = ma_tmp / nn_p;
+    /**
+     * @return the y
+     */
+    public double[] getY() {
+        return y;
+    }
 
-        for (i = nn_p; i < nn + nn_p + 1; ++i) {
-            ma_tmp = ma_tmp - ma[i - nn_p] + ma[i];
-            ma2[i - nn_p + 1] = ma_tmp / nn_p;
-        }
+    /**
+     * @return the season
+     */
+    public double[] getSeason(int i) {
+        return season[i];
+    }
 
-        ma_tmp = 0;
+    /**
+     * @return the trend
+     */
+    public double[] getTrend() {
+        return trend;
+    }
 
-        for (i = 0; i < 3; ++i) {
-            ma_tmp = ma_tmp + ma2[i];
-        }
-        ans[0] = ma_tmp / 3;
+    /**
+     * @return the irr
+     */
+    public double[] getIrr() {
+        return irr;
+    }
 
-        for (i = 3; i < nn + 2; ++i) {
-            ma_tmp = ma_tmp - ma2[i - 3] + ma2[i];
-            ans[i - 2] = ma_tmp / 3;
-        }
+    /**
+     * @return the weights
+     */
+    public double[] getWeights() {
+        return weights;
+    }
 
-        return ans;
+    /**
+     * @return the fit
+     */
+    public double[] getFit() {
+        return fit;
+    }
+
+    /**
+     * @return the tfilter
+     */
+    public LoessFilter getTfilter() {
+        return tfilter;
+    }
+
+    /**
+     * @return sfilter1lter
+     */
+    public SeasonalFilter[] getSfilter() {
+        return sfilter;
+    }
+
+    /**
+     * @return the ni
+     */
+    public int getNi() {
+        return ni;
+    }
+
+    /**
+     * @param ni the ni to set
+     */
+    public void setNi(int ni) {
+        this.ni = ni;
+    }
+
+    /**
+     * @return the no
+     */
+    public int getNo() {
+        return no;
+    }
+
+    /**
+     * @param no the no to set
+     */
+    public void setNo(int no) {
+        this.no = no;
+    }
+
+    /**
+     * @return the wthreshold
+     */
+    public double getWthreshold() {
+        return wthreshold;
+    }
+
+    /**
+     * @param wthreshold the wthreshold to set
+     */
+    public void setWthreshold(double wthreshold) {
+        this.wthreshold = wthreshold;
     }
 }

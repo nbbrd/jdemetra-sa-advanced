@@ -18,6 +18,7 @@ package be.nbb.demetra.stl;
 
 import data.Data;
 import ec.tstoolkit.data.DataBlock;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -29,25 +30,41 @@ public class StlTest {
     public StlTest() {
     }
 
-//    @Test
-//    public void testDefault() {
-//        Stl stl=new Stl();
-//        stl.process(Data.X);
-//        System.out.println(new DataBlock(stl.trend));
-//        System.out.println(new DataBlock(stl.season));
-//        System.out.println(new DataBlock(stl.irr));
-//    }
-
     @Test
-    public void testInner() {
-        StlSpecification spec=StlSpecification.defaultSpec(12, 9, true);
-        Stl stl=new Stl(spec);
+    public void testDefault() {
+        StlSpecification spec = StlSpecification.defaultSpec(12, 7, false);
+        Stl stl = new Stl(spec);
+        spec.setNo(5);
         stl.process(Data.X);
         System.out.println(new DataBlock(stl.trend));
         System.out.println(new DataBlock(stl.season));
         System.out.println(new DataBlock(stl.irr));
     }
-    
+
+    @Test
+    public void stressTest() {
+        long t0 = System.currentTimeMillis();
+        for (int i = 0; i < 10000; ++i) {
+            StlSpecification spec = StlSpecification.defaultSpec(12, 7, false);
+            spec.setNo(5);
+            Stl stl = new Stl(spec);
+            stl.process(Data.X);
+        }
+        long t1 = System.currentTimeMillis();
+        System.out.println(t1 - t0);
+    }
+
+    @Test
+    @Ignore
+    public void testInner() {
+        StlSpecification spec = StlSpecification.defaultSpec(12, 9, true);
+        Stl stl = new Stl(spec);
+        stl.process(Data.X);
+        System.out.println(new DataBlock(stl.trend));
+        System.out.println(new DataBlock(stl.season));
+        System.out.println(new DataBlock(stl.irr));
+    }
+
 //    @Test
 //    public void testMA() {
 //
@@ -56,7 +73,7 @@ public class StlTest {
 //            x[i] = i + 1;
 //        }
 //        double[] y = new double[16];
-//        Stl.stlma(5, x.length, x, y);
+//        StlPlus.stlma(5, x.length, x, y);
 //        for (int i = 1; i < y.length; ++i) {
 //            assertEquals(y[i] - y[i - 1], 1, 1e-9);
 //        }
@@ -70,7 +87,7 @@ public class StlTest {
 //        ArimaModelBuilder builder = new ArimaModelBuilder();
 //        double[] x = builder.generate(airline, n);
 //        double[] y = new double[x.length - 2 * np];
-//        Stl.stlfts(np, x.length, x, y);
+//        StlPlus.stlfts(np, x.length, x, y);
 ////        System.out.println(new DataBlock(x));
 ////        System.out.println(new DataBlock(y));
 //    }
@@ -82,7 +99,7 @@ public class StlTest {
 //        SarimaModel airline = new SarimaModelBuilder().createAirlineModel(np, -.6, -.8);
 //        ArimaModelBuilder builder = new ArimaModelBuilder();
 //        double[] x = builder.generate(airline, n);
-//        double ys = Stl.stlest(i->x[i], n, 13, 1, 65, 65-6, 65+6, null);
+//        double ys = StlPlus.stlest(i->x[i], n, 13, 1, 65, 65-6, 65+6, null);
 ////        System.out.println(ys);
 ////        System.out.println(new DataBlock(x, 59, 72, 1));
 //    }
@@ -96,8 +113,8 @@ public class StlTest {
 //        double[] x = builder.generate(airline, n);
 //        double[] y =new double[n];
 //        double[] z =new double[n];
-//        Stl.stless(i->x[i], n, np+1, 1, 1, null, y);
-//        Stl.stless(i->x[i], n, np+1, 1, 5, null, z);
+//        StlPlus.stless(i->x[i], n, np+1, 1, 1, null, y);
+//        StlPlus.stless(i->x[i], n, np+1, 1, 5, null, z);
 ////        System.out.println(new DataBlock(x));
 ////        System.out.println(new DataBlock(y));
 ////        System.out.println(new DataBlock(z));
@@ -111,7 +128,7 @@ public class StlTest {
 //        ArimaModelBuilder builder = new ArimaModelBuilder();
 //        double[] x = builder.generate(airline, n);
 //        double[] y=new double[x.length+2*np];
-//        Stl.stlss(i->x[i], n, 12, 5, 1, 1, null, y);
+//        StlPlus.stlss(i->x[i], n, 12, 5, 1, 1, null, y);
 //        System.out.println(new DataBlock(y));
 //        System.out.println(new DataBlock(x));
 //    }

@@ -16,8 +16,6 @@
  */
 package be.nbb.demetra.stl;
 
-import data.Data;
-import ec.tstoolkit.data.DataBlock;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -25,31 +23,34 @@ import static org.junit.Assert.*;
  *
  * @author Jean Palate
  */
-public class StlPlusTest {
-
-    public StlPlusTest() {
+public class IPeriodicDataOrganizerTest {
+    
+    public IPeriodicDataOrganizerTest() {
     }
 
     @Test
-    public void testDefault() {
-
-        StlPlus stl = new StlPlus(12, 7);
-        stl.setNo(5);
-        stl.process(Data.X);
-        System.out.println(new DataBlock(stl.trend));
-        System.out.println(new DataBlock(stl.season[0]));
-        System.out.println(new DataBlock(stl.irr));
-    }
-
-    @Test
-    public void stressTest() {
-        long t0 = System.currentTimeMillis();
-        for (int i = 0; i < 10000; ++i) {
-            StlPlus stl = new StlPlus(12, 7);
-          stl.setNo(5);
-          stl.process(Data.X);
+    public void testFull() {
+        IPeriodicDataOrganizer o = IPeriodicDataOrganizer.of(12);
+        double[] x=new double[36];
+        IPeriodicDataSelectors z = o.selectors(IDataSelector.of(x,-12));
+        int n=0;
+        for (int i=0; i<o.getPeriod(); ++i){
+            IDataSelector s = z.get(i);
+            n+=s.getLength();
         }
-        long t1 = System.currentTimeMillis();
-        System.out.println(t1 - t0);
+        assertEquals(x.length, n);
+    }
+    
+    @Test
+    public void testPartial() {
+        IPeriodicDataOrganizer o = IPeriodicDataOrganizer.of(12);
+        double[] x=new double[40];
+        IPeriodicDataSelectors z = o.selectors(IDataSelector.of(x,-12));
+        int n=0;
+        for (int i=0; i<o.getPeriod(); ++i){
+            IDataSelector s = z.get(i);
+            n+=s.getLength();
+        }
+        assertEquals(x.length, n);
     }
 }

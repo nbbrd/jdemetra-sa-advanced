@@ -17,6 +17,7 @@
 package be.nbb.demetra.stl;
 
 import data.Data;
+import ec.demetra.timeseries.simplets.TsData;
 import ec.tstoolkit.data.DataBlock;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -25,31 +26,21 @@ import static org.junit.Assert.*;
  *
  * @author Jean Palate
  */
-public class StlPlusTest {
-
-    public StlPlusTest() {
+public class SeasonalLoessFilterTest {
+    
+    public SeasonalLoessFilterTest() {
     }
 
     @Test
-    public void testDefault() {
-
-        StlPlus stl = new StlPlus(12, 7);
-        stl.setNo(5);
-        stl.process(Data.X);
-        System.out.println(new DataBlock(stl.trend));
-        System.out.println(new DataBlock(stl.season[0]));
-        System.out.println(new DataBlock(stl.irr));
+    public void testSomeMethod() {
+        TsData s=Data.X;
+        double[] d = s.internalStorage();
+        LoessSpecification spec = LoessSpecification.of(7, 0);
+        SeasonalLoessFilter filter=new SeasonalLoessFilter(spec, 12);
+        double[] sd=new double[d.length+24];
+        filter.filter(IDataGetter.of(d), null, IDataSelector.of(sd, -12));
+        System.out.println(new DataBlock(d));
+        System.out.println(new DataBlock(sd));
     }
-
-    @Test
-    public void stressTest() {
-        long t0 = System.currentTimeMillis();
-        for (int i = 0; i < 10000; ++i) {
-            StlPlus stl = new StlPlus(12, 7);
-          stl.setNo(5);
-          stl.process(Data.X);
-        }
-        long t1 = System.currentTimeMillis();
-        System.out.println(t1 - t0);
-    }
+    
 }
