@@ -93,7 +93,7 @@ public class StlPlus {
         }
         int istep = 0;
         do {
-            stlstp();
+            innerLoop();
             if (++istep > no) {
                 return finishProcessing();
             }
@@ -174,189 +174,13 @@ public class StlPlus {
     }
 
     /**
-     * Moving Average (aka "running mean") ave(i) := mean(x{j}, j =
-     * max(1,i-k),..., min(n, i+k)) for i = 1,2,..,n
-     *
-     * @param len
-     * @param n
-     * @param x
-     * @param ave
-     */
-    protected static void stlma(int len, int n, double[] x, double[] ave) {
-        int newn = n - len + 1;
-        double v = 0, flen = len;
-        for (int i = 0; i < len; ++i) {
-            v += x[i];
-        }
-        ave[0] = v / flen;
-        if (newn > 1) {
-            for (int i = 1, k = len, m = 0; i < newn; ++i, ++k, ++m) {
-                v = v - x[m] + x[k];
-                ave[i] = v / flen;
-            }
-        }
-    }
-
-    /**
      *
      * @param np
      * @param n
      * @param x
      * @param t
      */
-    protected static void stlfts(int np, double[] x, double[] t) {
-        int n = x.length;
-        double[] w1 = new double[n];
-        double[] w2 = new double[n];
-        stlma(np, n, x, w1);
-        stlma(np, n - np + 1, w1, w2);
-        stlma(3, n - 2 * np + 2, w2, t);
-    }
-
-    protected double stlest(IntToDoubleFunction y, int n, int len, int degree, double xs, int nleft, int nright, IntToDoubleFunction userWeights) {
-        double[] w = new double[n];
-        double range = n - 1;
-        double h = Math.max(xs - nleft, nright - xs);
-        if (len > n) {
-            h += (len - n) * .5;
-        }
-        double h9 = 0.999 * h;
-        double h1 = 0.001 * h;
-        double a = 0;
-        for (int j = nleft; j <= nright; ++j) {
-            double r = Math.abs(j - xs);
-            if (r < h9) {
-                if (r < h1) {
-                    w[j] = 1;
-                } else {
-                    w[j] = loessfn.apply(r / h);
-                }
-
-                if (userWeights != null) {
-                    w[j] *= userWeights.applyAsDouble(j);
-                }
-                a += w[j];
-            }
-        }
-
-        if (a <= 0) {
-            return Double.NaN;
-        } else {
-            for (int j = nleft; j <= nright; ++j) {
-                w[j] /= a;
-            }
-            if (h > 0 && degree > 0) {
-                a = 0;
-                for (int j = nleft; j <= nright; ++j) {
-                    a += w[j] * j;
-                }
-                double b = xs - a;
-                double c = 0;
-                for (int j = nleft; j <= nright; ++j) {
-                    double ja = j - a;
-                    c += w[j] * ja * ja;
-                }
-                if (Math.sqrt(c) > .001 * range) {
-                    b /= c;
-
-                    for (int j = nleft; j <= nright; ++j) {
-                        w[j] *= b * (j - a) + 1;
-                    }
-                }
-            }
-            double ys = 0;
-            for (int j = nleft; j <= nright; ++j) {
-                ys += w[j] * y.applyAsDouble(j);
-            }
-            return ys;
-        }
-    }
-
-    protected void stless(IntToDoubleFunction y, int n, int len, int degree, int njump, IntToDoubleFunction userWeights, double[] ys) {
-
-        if (n < 2) {
-            ys[0] = y.applyAsDouble(0);
-            return;
-        }
-        int newnj = Math.min(njump, n - 1);
-        int nleft = 0, nright = 0;
-        if (len >= n) {
-            nleft = 0;
-            nright = n - 1;
-            for (int i = 0; i < n; i += newnj) {
-                double yscur = stlest(y, n, len, degree, i, nleft, nright, userWeights);
-                if (Double.isFinite(yscur)) {
-                    ys[i] = yscur;
-                } else {
-                    ys[i] = y.applyAsDouble(i);
-                }
-            }
-        } else {
-            if (newnj == 1) {
-                int nsh = (len - 1) >> 1;
-                nleft = 0;
-                nright = len - 1;
-                for (int i = 0; i < n; ++i) {
-                    if (i > nsh && nright != n - 1) {
-                        ++nleft;
-                        ++nright;
-                    }
-                    double yscur = stlest(y, n, len, degree, i, nleft, nright, userWeights);
-                    if (Double.isFinite(yscur)) {
-                        ys[i] = yscur;
-                    } else {
-                        ys[i] = y.applyAsDouble(i);
-                    }
-                }
-            } else {
-                int nsh = (len - 1) >> 1;
-                for (int i = 0; i < n; i += newnj) {
-                    if (i < nsh) {
-                        nleft = 0;
-                        nright = len - 1;
-                    } else if (i >= n - nsh) {
-                        nleft = n - len;
-                        nright = n - 1;
-                    } else {
-                        nleft = i - nsh;
-                        nright = i + nsh;
-                    }
-
-                    double yscur = stlest(y, n, len, degree, i, nleft, nright, userWeights);
-                    if (Double.isFinite(yscur)) {
-                        ys[i] = yscur;
-                    } else {
-                        ys[i] = y.applyAsDouble(i);
-                    }
-                }
-            }
-            if (newnj != 1) {
-
-                int i = 0;
-                for (; i < n - newnj; i += newnj) {
-                    double delta = (ys[i + newnj] - ys[i]) / newnj;
-                    for (int j = i + 1; j < i + newnj; ++j) {
-                        ys[j] = ys[i] + delta * (j - i);
-                    }
-                }
-
-                if (i != n - 1) {
-                    double yscur = stlest(y, n, len, degree, n - 1, nleft, nright, userWeights);
-                    if (Double.isFinite(yscur)) {
-                        ys[n - 1] = yscur;
-                    } else {
-                        ys[n - 1] = y.applyAsDouble(n - 1);
-                    }
-                    double delta = (ys[n - 1] - ys[i]) / (n - i - 1);
-                    for (int j = i + 1; j < n - 1; ++j) {
-                        ys[j] = ys[i] + delta * (j - i);
-                    }
-                }
-            }
-        }
-    }
-
-    protected void stlstp() {
+    protected void innerLoop() {
         int n = n();
         double[] si = new double[n];
         double[] w = new double[n];
@@ -370,6 +194,10 @@ public class StlPlus {
             // compute S
             for (int s = 0; s < sfilter.length; ++s) {
                 sfilter[s].filter(IDataGetter.of(si), weights == null ? null : k -> weights[k], IDataSelector.of(season[s]));
+                if (s != sfilter.length-1)
+                for (int i = 0; i < n; ++i) {
+                    si[i] -= season[s][i];
+                }
             }
             // seasonal adjustment
             for (int i = 0; i < n; ++i) {

@@ -79,8 +79,13 @@ public class Stl {
 
     private boolean finishProcessing() {
         for (int i = 0; i < n(); ++i) {
+            if (spec.isMultiplicative()){
+            fit[i] = trend[i] * season[i];
+            irr[i] = y[i] / fit[i];
+            }else{
             fit[i] = trend[i] + season[i];
             irr[i] = y[i] - fit[i];
+            }
         }
         return true;
     }
@@ -92,6 +97,9 @@ public class Stl {
         fit = new double[n];
         season = new double[n];
         trend = new double[n];
+        if (spec.isMultiplicative()) {
+            Arrays.setAll(trend, i -> 1);
+        }
         irr = new double[n];
         return true;
     }
@@ -320,7 +328,7 @@ public class Stl {
         if (spec.np < 1) {
             return;
         }
-        int n=n();
+        int n = n();
         double[] s = new double[(n - 1) / spec.np + 1];
         for (int j = 0; j < spec.np; ++j) {
             // last index fo period j (excluded)
@@ -330,7 +338,7 @@ public class Stl {
             IntToDoubleFunction wp = weights == null ? null : idx -> weights[idx * spec.np + start];
             stless(yp, k, spec.ns, spec.sdeg, spec.nsjump, wp, s);
             // backcast
-            double sb = stlest(yp, k, spec.ns, spec.sdeg, -1, 0, Math.min(spec.ns-1, k - 1), wp);
+            double sb = stlest(yp, k, spec.ns, spec.sdeg, -1, 0, Math.min(spec.ns - 1, k - 1), wp);
             if (Double.isFinite(sb)) {
                 season[j] = sb;
             } else {
@@ -342,7 +350,7 @@ public class Stl {
                 season[l] = s[i];
             }
             // forecast (pos =np*(b+1) )
-            double sf = stlest(yp, k, spec.ns, spec.sdeg, k, Math.max(0, k - spec.ns ), k - 1, wp);
+            double sf = stlest(yp, k, spec.ns, spec.sdeg, k, Math.max(0, k - spec.ns), k - 1, wp);
             if (Double.isFinite(sf)) {
                 season[l] = sf;
             } else {
@@ -362,7 +370,11 @@ public class Stl {
         for (int j = 0; j < spec.ni; ++j) {
 
             for (int i = 0; i < n; ++i) {
-                si[i] = y[i] - trend[i];
+                if (spec.isMultiplicative()) {
+                    si[i] = y[i] / trend[i];
+                } else {
+                    si[i] = y[i] - trend[i];
+                }
             }
             // Step 2: C=smooth(SI) (extended series)
             stlss(k -> si[k], c);
@@ -371,11 +383,19 @@ public class Stl {
             stless(k -> w[k], n, spec.nl, spec.ldeg, spec.nljump, null, l);
             // Step 4: S = C - L
             for (int i = 0; i < n; ++i) {
-                season[i] = c[spec.np + i] - l[i];
+                if (spec.isMultiplicative()) {
+                    season[i] = c[spec.np + i] / l[i];
+                } else {
+                    season[i] = c[spec.np + i] - l[i];
+                }
             }
             // Step 5: seasonal adjustment
             for (int i = 0; i < n; ++i) {
-                w[i] = y[i] - season[i];
+                if (spec.isMultiplicative()) {
+                    w[i] = y[i] / season[i];
+                } else {
+                    w[i] = y[i] - season[i];
+                }
             }
             // Step 6: T=smooth(sa)
             stless(k -> w[k], n, spec.nt, spec.tdeg, spec.ntjump, weights == null ? null : k -> weights[k], trend);

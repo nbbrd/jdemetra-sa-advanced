@@ -42,6 +42,19 @@ public class StlTest {
     }
 
     @Test
+    public void testMul() {
+        StlSpecification spec = StlSpecification.defaultSpec(12, 7, false);
+        spec.setMultiplicative(true);
+        Stl stl = new Stl(spec);
+        spec.setNo(5);
+        stl.process(Data.X);
+        System.out.println(new DataBlock(stl.trend));
+        System.out.println(new DataBlock(stl.season));
+        System.out.println(new DataBlock(stl.irr));
+    }
+
+    @Test
+    @Ignore
     public void stressTest() {
         long t0 = System.currentTimeMillis();
         for (int i = 0; i < 10000; ++i) {

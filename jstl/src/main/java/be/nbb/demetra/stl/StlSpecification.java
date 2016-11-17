@@ -64,6 +64,7 @@ public class StlSpecification {
         return i % 2 == 1 ? i : (i + 1);
     }
 
+    private boolean multiplicative;
 
     protected final int np;
     /**
@@ -346,5 +347,19 @@ public class StlSpecification {
      */
     public void setWfn(RealFunction wfn) {
         this.wfn = wfn;
+    }
+
+    /**
+     * @return the multiplicative
+     */
+    public boolean isMultiplicative() {
+        return multiplicative;
+    }
+
+    /**
+     * @param multiplicative the multiplicative to set
+     */
+    public void setMultiplicative(boolean multiplicative) {
+        this.multiplicative = multiplicative;
     }
 }
