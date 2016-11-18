@@ -134,7 +134,7 @@ public class Stl {
         int n = n();
         for (int i = 0; i < n; ++i) {
             if (missing[i]) {
-                w[i] = spec.isMultiplicative()?1:0;
+                w[i] = spec.isMultiplicative() ? 1 : 0;
             } else {
                 w[i] = Math.abs(spec.isMultiplicative() ? y[i] / fit[i] - 1 : y[i] - fit[i]);
             }
@@ -199,7 +199,8 @@ public class Stl {
     }
 
     protected double stlest(IntToDoubleFunction y, int n, int len, int degree, double xs, int nleft, int nright, IntToDoubleFunction userWeights) {
-        double[] w = new double[n];
+        int nj = nright - nleft + 1;
+        double[] w = new double[nj];
         double range = n - 1;
         double h = Math.max(xs - nleft, nright - xs);
         if (len > n) {
@@ -208,21 +209,21 @@ public class Stl {
         double h9 = 0.999 * h;
         double h1 = 0.001 * h;
         double a = 0;
-        for (int j = nleft; j <= nright; ++j) {
+        for (int j = nleft, jw = 0; j <= nright; ++j, ++jw) {
             boolean available = Double.isFinite(y.applyAsDouble(j));
             if (available) {
                 double r = Math.abs(j - xs);
                 if (r < h9) {
                     if (r < h1) {
-                        w[j] = 1;
+                        w[jw] = 1;
                     } else {
-                        w[j] = spec.loessfn.apply(r / h);
+                        w[jw] = spec.loessfn.apply(r / h);
                     }
 
                     if (userWeights != null) {
-                        w[j] *= userWeights.applyAsDouble(j);
+                        w[jw] *= userWeights.applyAsDouble(j);
                     }
-                    a += w[j];
+                    a += w[jw];
                 }
             }
         }
@@ -230,33 +231,33 @@ public class Stl {
         if (a <= 0) {
             return Double.NaN;
         } else {
-            for (int j = nleft; j <= nright; ++j) {
+            for (int j = 0; j < nj; ++j) {
                 w[j] /= a;
             }
             if (h > 0 && degree > 0) {
                 a = 0;
-                for (int j = nleft; j <= nright; ++j) {
+                for (int j = 0; j < nj; ++j) {
                     a += w[j] * j;
                 }
-                double b = xs - a;
+                double b = xs - nleft - a;
                 double c = 0;
-                for (int j = nleft; j <= nright; ++j) {
+                for (int j = 0; j < nj; ++j) {
                     double ja = j - a;
                     c += w[j] * ja * ja;
                 }
                 if (Math.sqrt(c) > .001 * range) {
                     b /= c;
 
-                    for (int j = nleft; j <= nright; ++j) {
+                    for (int j = 0; j < nj; ++j) {
                         w[j] *= b * (j - a) + 1;
                     }
                 }
             }
             double ys = 0;
-            for (int j = nleft; j <= nright; ++j) {
+            for (int j = nleft, jw = 0; j <= nright; ++j, ++jw) {
                 double yj = y.applyAsDouble(j);
                 if (Double.isFinite(yj)) {
-                    ys += w[j] * yj;
+                    ys += w[jw] * yj;
                 }
             }
             return ys;
@@ -282,69 +283,68 @@ public class Stl {
                     ys[i] = y.applyAsDouble(i);
                 }
             }
-        } else {
-            if (newnj == 1) {
-                int nsh = (len - 1) >> 1;
-                nleft = 0;
-                nright = len - 1;
-                for (int i = 0; i < n; ++i) {
-                    if (i > nsh && nright != n - 1) {
-                        ++nleft;
-                        ++nright;
-                    }
-                    double yscur = stlest(y, n, len, degree, i, nleft, nright, userWeights);
-                    if (Double.isFinite(yscur)) {
-                        ys[i] = yscur;
-                    } else {
-                        ys[i] = y.applyAsDouble(i);
-                    }
+        } else if (newnj == 1) {
+            int nsh = (len - 1) >> 1;
+            nleft = 0;
+            nright = len - 1;
+            for (int i = 0; i < n; ++i) {
+                if (i > nsh && nright != n - 1) {
+                    ++nleft;
+                    ++nright;
                 }
-            } else {
-                int nsh = (len - 1) >> 1;
-                for (int i = 0; i < n; i += newnj) {
-                    if (i < nsh) {
-                        nleft = 0;
-                        nright = len - 1;
-                    } else if (i >= n - nsh) {
-                        nleft = n - len;
-                        nright = n - 1;
-                    } else {
-                        nleft = i - nsh;
-                        nright = i + nsh;
-                    }
-
-                    double yscur = stlest(y, n, len, degree, i, nleft, nright, userWeights);
-                    if (Double.isFinite(yscur)) {
-                        ys[i] = yscur;
-                    } else {
-                        ys[i] = y.applyAsDouble(i);
-                    }
+                double yscur = stlest(y, n, len, degree, i, nleft, nright, userWeights);
+                if (Double.isFinite(yscur)) {
+                    ys[i] = yscur;
+                } else {
+                    ys[i] = y.applyAsDouble(i);
                 }
             }
-            if (newnj != 1) {
-
-                int i = 0;
-                for (; i < n - newnj; i += newnj) {
-                    double delta = (ys[i + newnj] - ys[i]) / newnj;
-                    for (int j = i + 1; j < i + newnj; ++j) {
-                        ys[j] = ys[i] + delta * (j - i);
-                    }
+        } else {
+            int nsh = (len - 1) >> 1;
+            for (int i = 0; i < n; i += newnj) {
+                if (i < nsh) {
+                    nleft = 0;
+                    nright = len - 1;
+                } else if (i >= n - nsh) {
+                    nleft = n - len;
+                    nright = n - 1;
+                } else {
+                    nleft = i - nsh;
+                    nright = i + nsh;
                 }
 
-                if (i != n - 1) {
-                    double yscur = stlest(y, n, len, degree, n - 1, nleft, nright, userWeights);
-                    if (Double.isFinite(yscur)) {
-                        ys[n - 1] = yscur;
-                    } else {
-                        ys[n - 1] = y.applyAsDouble(n - 1);
-                    }
-                    double delta = (ys[n - 1] - ys[i]) / (n - i - 1);
-                    for (int j = i + 1; j < n - 1; ++j) {
-                        ys[j] = ys[i] + delta * (j - i);
-                    }
+                double yscur = stlest(y, n, len, degree, i, nleft, nright, userWeights);
+                if (Double.isFinite(yscur)) {
+                    ys[i] = yscur;
+                } else {
+                    ys[i] = y.applyAsDouble(i);
                 }
             }
         }
+        if (newnj != 1) {
+
+            int i = 0;
+            for (; i < n - newnj; i += newnj) {
+                double delta = (ys[i + newnj] - ys[i]) / newnj;
+                for (int j = i + 1; j < i + newnj; ++j) {
+                    ys[j] = ys[i] + delta * (j - i);
+                }
+            }
+
+            if (i != n - 1) {
+                double yscur = stlest(y, n, len, degree, n - 1, nleft, nright, userWeights);
+                if (Double.isFinite(yscur)) {
+                    ys[n - 1] = yscur;
+                } else {
+                    ys[n - 1] = y.applyAsDouble(n - 1);
+                }
+                double delta = (ys[n - 1] - ys[i]) / (n - i - 1);
+                for (int j = i + 1; j < n - 1; ++j) {
+                    ys[j] = ys[i] + delta * (j - i);
+                }
+            }
+        }
+
     }
 
     protected void stlss(IntToDoubleFunction fn, double[] season) {

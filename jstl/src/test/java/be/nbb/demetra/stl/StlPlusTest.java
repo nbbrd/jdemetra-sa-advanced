@@ -45,6 +45,18 @@ public class StlPlusTest {
     }
 
     @Test
+//    @Ignore
+    public void testLargeFilter() {
+
+        StlPlus stl = new StlPlus(12, 21);
+        stl.process(Data.X);
+//        System.out.println(new DataBlock(stl.trend));
+//        System.out.println(new DataBlock(stl.season[0]));
+//        System.out.println(new DataBlock(stl.irr));
+    }
+
+
+    @Test
     //@Ignore
     public void testSpec() {
 
