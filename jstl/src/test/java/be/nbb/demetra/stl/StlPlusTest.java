@@ -17,7 +17,9 @@
 package be.nbb.demetra.stl;
 
 import data.Data;
+import ec.demetra.timeseries.simplets.TsData;
 import ec.tstoolkit.data.DataBlock;
+import java.util.Random;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
@@ -55,7 +57,7 @@ public class StlPlusTest {
     }
 
     @Test
-    //@Ignore
+//    @Ignore
     public void testMul() {
 
         StlPlusSpecification spec = StlPlusSpecification.createDefault(12, false);
@@ -69,13 +71,33 @@ public class StlPlusTest {
     }
 
     @Test
-    @Ignore
+//    @Ignore
+    public void testMissing() {
+
+        StlPlusSpecification spec = StlPlusSpecification.createDefault(12, false);
+        spec.setMultiplicative(true);
+        spec.setNumberOfOuterIterations(5);
+        StlPlus stl = spec.build();
+        TsData s = Data.X.clone();
+        Random rnd = new Random();
+        for (int i = 0; i < 30; ++i) {
+            s.set(rnd.nextInt(s.getLength()), Double.NaN);
+        }
+        stl.process(s);
+//        System.out.println(new DataBlock(stl.trend));
+//        System.out.println(new DataBlock(stl.season[0]));
+//        System.out.println(new DataBlock(stl.irr));
+    }
+
+    @Test
+      @Ignore
     public void stressTest() {
         long t0 = System.currentTimeMillis();
-        for (int i = 0; i < 100000; ++i) {
+        for (int i = 0; i < 10000; ++i) {
 //            StlPlus stl = new StlPlus(12, 7);
-        StlPlusSpecification spec = StlPlusSpecification.createDefault(12, 7, false);
-        StlPlus stl = spec.build();
+            StlPlusSpecification spec = StlPlusSpecification.createDefault(12, 7, false);
+            spec.setNumberOfOuterIterations(5);
+            StlPlus stl = spec.build();
             stl.process(Data.X);
         }
         long t1 = System.currentTimeMillis();

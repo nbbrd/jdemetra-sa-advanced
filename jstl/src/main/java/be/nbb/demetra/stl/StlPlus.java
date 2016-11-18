@@ -31,24 +31,24 @@ import java.util.function.IntToDoubleFunction;
  * @author Jean Palate
  */
 public class StlPlus {
-
+    
     protected static final RealFunction W = x -> {
         double t = 1 - x * x * x;
         return t * t * t;
     };
-
+    
     private final LoessFilter tfilter;
     private final SeasonalFilter[] sfilter;
     protected RealFunction wfn = x -> {
         double t = 1 - x * x;
         return t * t;
     };
-
+    
     protected RealFunction loessfn = x -> {
         double t = 1 - x * x * x;
         return t * t * t;
     };
-
+    
     protected double[] y;
     protected double[][] season;
     protected double[] trend;
@@ -56,24 +56,24 @@ public class StlPlus {
     protected double[] weights;
     protected double[] fit;
     private boolean mul;
-
+    
     private int ni = 2, no = 0;
     private double wthreshold = .001;
-
+    
     private int n() {
         return y.length;
     }
-
+    
     public StlPlus(final LoessFilter tfilter, final SeasonalFilter sfilter) {
         this.tfilter = tfilter;
         this.sfilter = new SeasonalFilter[]{sfilter};
     }
-
+    
     public StlPlus(final LoessFilter tfilter, final SeasonalFilter[] sfilter) {
         this.tfilter = tfilter;
         this.sfilter = sfilter;
     }
-
+    
     public StlPlus(final int period, final int swindow) {
         LoessSpecification sspec = LoessSpecification.of(swindow, 0);
         int twindow = (int) Math.ceil((1.5 * period) / (1 - 1.5 / swindow));
@@ -84,9 +84,9 @@ public class StlPlus {
         tfilter = new LoessFilter(tspec);
         sfilter = new SeasonalFilter[]{new SeasonalFilter(sspec, LoessSpecification.of(period + 1), period)};
     }
-
+    
     public boolean process(IReadDataBlock data) {
-
+        
         if (!initializeProcessing(data)) {
             return false;
         }
@@ -109,18 +109,22 @@ public class StlPlus {
             computeRobustWeights(fit, weights);
         } while (true);
     }
-
+    
     private boolean finishProcessing() {
         for (int i = 0; i < n(); ++i) {
             fit[i] = trend[i];
             for (int j = 0; j < season.length; ++j) {
                 fit[i] = op(fit[i], season[j][i]);
             }
-            irr[i] = invop(y[i], fit[i]);
+            if (Double.isFinite(y[i])) {
+                irr[i] = invop(y[i], fit[i]);
+            } else {
+                irr[i] = mean();
+            }
         }
         return true;
     }
-
+    
     private boolean initializeProcessing(IReadDataBlock data) {
         int n = data.getLength();
         y = new double[n];
@@ -137,7 +141,7 @@ public class StlPlus {
         irr = new double[n];
         return true;
     }
-
+    
     private static double mad(double[] r) {
         double[] sr = r.clone();
         Arrays.sort(sr);
@@ -149,19 +153,21 @@ public class StlPlus {
             return 3 * (sr[n2 - 1] + sr[n2]);
         }
     }
-
+    
     private void computeRobustWeights(double[] fit, double[] w) {
-
+        
         int n = n();
         for (int i = 0; i < n; ++i) {
-            w[i] = Math.abs(invop(y[i], fit[i]) - mean());
+            if (Double.isFinite(y[i])) {
+                w[i] = Math.abs(invop(y[i], fit[i]) - mean());
+            }
         }
-
+        
         double mad = mad(w);
-
+        
         double c1 = wthreshold * mad;
         double c9 = (1 - wthreshold) * mad;
-
+        
         for (int i = 0; i < n; ++i) {
             double r = w[i];
             if (r <= c1) {
@@ -172,15 +178,11 @@ public class StlPlus {
                 w[i] = 0;
             }
         }
-
+        
     }
 
     /**
      *
-     * @param np
-     * @param n
-     * @param x
-     * @param t
      */
     protected void innerLoop() {
         int n = n();
@@ -189,7 +191,7 @@ public class StlPlus {
         // Step 1: SI=Y-T
 
         for (int j = 0; j < ni; ++j) {
-
+            
             for (int i = 0; i < n; ++i) {
                 si[i] = invop(y[i], trend[i]);
             }
@@ -311,7 +313,7 @@ public class StlPlus {
     public void setWthreshold(double wthreshold) {
         this.wthreshold = wthreshold;
     }
-
+    
     public void setMultiplicative(boolean multiplicative) {
         mul = multiplicative;
     }
@@ -322,15 +324,15 @@ public class StlPlus {
     public boolean isMultiplicative() {
         return mul;
     }
-
+    
     private double op(double l, double r) {
         return mul ? l * r : l + r;
     }
-
+    
     private double invop(double l, double r) {
         return mul ? l / r : l - r;
     }
-
+    
     private double mean() {
         return mul ? 1 : 0;
     }

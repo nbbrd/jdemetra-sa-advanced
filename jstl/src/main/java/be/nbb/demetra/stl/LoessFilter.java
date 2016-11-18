@@ -155,7 +155,8 @@ public class LoessFilter {
 
     private double loess(IDataGetter y, double xs, int nleft, int nright, IntToDoubleFunction userWeights) {
         int n = y.getLength();
-        double[] w = new double[n];
+        int nw = nright - nleft + 1;
+        double[] w = new double[nw];
         double range = n - 1;
         double h = Math.max(xs - nleft, nright - xs);
         if (spec.getWindow() > n) {
@@ -164,50 +165,61 @@ public class LoessFilter {
         double h9 = 0.999 * h;
         double h1 = 0.001 * h;
         double a = 0;
-        for (int j = nleft; j <= nright; ++j) {
-            double r = Math.abs(j - xs);
-            if (r < h9) {
-                if (r < h1) {
-                    w[j] = 1;
-                } else {
-                    w[j] = spec.getWeights().apply(r / h);
-                }
+        for (int j = nleft, jw = 0; j <= nright; ++j, ++jw) {
+            boolean ok = Double.isFinite(y.get(j));
+            if (ok) {
+                double r = Math.abs(j - xs);
+                if (r < h9) {
+                    if (r < h1) {
+                        w[jw] = 1;
+                    } else {
+                        w[jw] = spec.getWeights().apply(r / h);
+                    }
 
-                if (userWeights != null) {
-                    w[j] *= userWeights.applyAsDouble(j);
+                    if (userWeights != null) {
+                        w[jw] *= userWeights.applyAsDouble(j);
+                    }
+                    a += w[jw];
                 }
-                a += w[j];
             }
         }
 
         if (a <= 0) {
             return Double.NaN;
         } else {
-            for (int j = nleft; j <= nright; ++j) {
+            for (int j = 0; j < nw; ++j) {
                 w[j] /= a;
             }
             if (h > 0 && spec.getDegree() > 0) {
                 a = 0;
-                for (int j = nleft; j <= nright; ++j) {
-                    a += w[j] * j;
+                for (int j = 0; j < nw; ++j) {
+                    if (w[j] != 0) {
+                        a += w[j] * j;
+                    }
                 }
-                double b = xs - a;
+                double b = xs - nleft - a;
                 double c = 0;
-                for (int j = nleft; j <= nright; ++j) {
-                    double ja = j - a;
-                    c += w[j] * ja * ja;
+                for (int j = 0; j < nw; ++j) {
+                    if (w[j] != 0) {
+                        double ja = j - a;
+                        c += w[j] * ja * ja;
+                    }
                 }
                 if (Math.sqrt(c) > .001 * range) {
                     b /= c;
 
-                    for (int j = nleft; j <= nright; ++j) {
-                        w[j] *= b * (j - a) + 1;
+                    for (int j = 0; j < nw; ++j) {
+                        if (w[j] != 0) {
+                            w[j] *= b * (j - a) + 1;
+                        }
                     }
                 }
             }
             double ys = 0;
-            for (int j = nleft; j <= nright; ++j) {
-                ys += w[j] * y.get(j);
+            for (int j = nleft, jw = 0; j <= nright; ++j, ++jw) {
+                if (w[jw] != 0) {
+                    ys += w[jw] * y.get(j);
+                }
             }
             return ys;
         }
