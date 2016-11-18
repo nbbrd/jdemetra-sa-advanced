@@ -17,7 +17,9 @@
 package be.nbb.demetra.stl;
 
 import data.Data;
+import ec.demetra.timeseries.simplets.TsData;
 import ec.tstoolkit.data.DataBlock;
+import java.util.Random;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -34,8 +36,26 @@ public class StlTest {
     public void testDefault() {
         StlSpecification spec = StlSpecification.defaultSpec(12, 7, false);
         Stl stl = new Stl(spec);
-//        spec.setNo(5);
+        spec.setNo(5);
+        spec.setMultiplicative(true);
         stl.process(Data.X);
+//        System.out.println(new DataBlock(stl.trend));
+//        System.out.println(new DataBlock(stl.season));
+//        System.out.println(new DataBlock(stl.irr));
+    }
+
+    @Test
+    public void testMissing() {
+        StlSpecification spec = StlSpecification.defaultSpec(12, 7, false);
+        Stl stl = new Stl(spec);
+        spec.setNo(5);
+        spec.setMultiplicative(true);
+        TsData s = Data.X.clone();
+        Random rnd=new Random();
+        for (int i=0; i<10; ++i){
+            s.set(rnd.nextInt(s.getLength()), Double.NaN);
+        }
+        stl.process(s);
 //        System.out.println(new DataBlock(stl.trend));
 //        System.out.println(new DataBlock(stl.season));
 //        System.out.println(new DataBlock(stl.irr));
@@ -57,9 +77,9 @@ public class StlTest {
     @Ignore
     public void stressTest() {
         long t0 = System.currentTimeMillis();
-        for (int i = 0; i < 100000; ++i) {
+        for (int i = 0; i < 10000; ++i) {
             StlSpecification spec = StlSpecification.defaultSpec(12, 7, false);
-//            spec.setNo(5);
+            spec.setNo(5);
             Stl stl = new Stl(spec);
             stl.process(Data.X);
         }

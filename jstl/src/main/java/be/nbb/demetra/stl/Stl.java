@@ -39,6 +39,7 @@ public class Stl {
 
     protected final StlSpecification spec;
     protected double[] y;
+    protected boolean[] missing;
     protected double[] season;
     protected double[] trend;
     protected double[] irr;
@@ -81,10 +82,18 @@ public class Stl {
         for (int i = 0; i < n(); ++i) {
             if (spec.isMultiplicative()) {
                 fit[i] = trend[i] * season[i];
-                irr[i] = y[i] / fit[i];
+                if (missing[i]) {
+                    irr[i] = 1;
+                } else {
+                    irr[i] = y[i] / fit[i];
+                }
             } else {
                 fit[i] = trend[i] + season[i];
-                irr[i] = y[i] - fit[i];
+                if (missing[i]) {
+                    irr[i] = 0;
+                } else {
+                    irr[i] = y[i] - fit[i];
+                }
             }
         }
         return true;
@@ -94,6 +103,10 @@ public class Stl {
         int n = data.getLength();
         y = new double[n];
         data.copyTo(y, 0);
+        missing = new boolean[n];
+        for (int i = 0; i < n(); ++i) {
+            missing[i] = !Double.isFinite(y[i]);
+        }
         fit = new double[n];
         season = new double[n];
         trend = new double[n];
@@ -120,7 +133,11 @@ public class Stl {
 
         int n = n();
         for (int i = 0; i < n; ++i) {
-            w[i] = Math.abs(spec.isMultiplicative() ? y[i] / fit[i] - 1 : y[i] - fit[i]);
+            if (missing[i]) {
+                w[i] = spec.isMultiplicative()?1:0;
+            } else {
+                w[i] = Math.abs(spec.isMultiplicative() ? y[i] / fit[i] - 1 : y[i] - fit[i]);
+            }
         }
 
         double mad = mad(w);
@@ -192,18 +209,21 @@ public class Stl {
         double h1 = 0.001 * h;
         double a = 0;
         for (int j = nleft; j <= nright; ++j) {
-            double r = Math.abs(j - xs);
-            if (r < h9) {
-                if (r < h1) {
-                    w[j] = 1;
-                } else {
-                    w[j] = spec.loessfn.apply(r / h);
-                }
+            boolean available = Double.isFinite(y.applyAsDouble(j));
+            if (available) {
+                double r = Math.abs(j - xs);
+                if (r < h9) {
+                    if (r < h1) {
+                        w[j] = 1;
+                    } else {
+                        w[j] = spec.loessfn.apply(r / h);
+                    }
 
-                if (userWeights != null) {
-                    w[j] *= userWeights.applyAsDouble(j);
+                    if (userWeights != null) {
+                        w[j] *= userWeights.applyAsDouble(j);
+                    }
+                    a += w[j];
                 }
-                a += w[j];
             }
         }
 
@@ -234,7 +254,10 @@ public class Stl {
             }
             double ys = 0;
             for (int j = nleft; j <= nright; ++j) {
-                ys += w[j] * y.applyAsDouble(j);
+                double yj = y.applyAsDouble(j);
+                if (Double.isFinite(yj)) {
+                    ys += w[j] * yj;
+                }
             }
             return ys;
         }
@@ -370,7 +393,9 @@ public class Stl {
         for (int j = 0; j < spec.ni; ++j) {
 
             for (int i = 0; i < n; ++i) {
-                if (spec.isMultiplicative()) {
+                if (missing[i]) {
+                    si[i] = Double.NaN;
+                } else if (spec.isMultiplicative()) {
                     si[i] = y[i] / trend[i];
                 } else {
                     si[i] = y[i] - trend[i];
@@ -391,10 +416,14 @@ public class Stl {
             }
             // Step 5: seasonal adjustment
             for (int i = 0; i < n; ++i) {
-                if (spec.isMultiplicative()) {
-                    w[i] = y[i] / season[i];
+                if (!missing[i]) {
+                    if (spec.isMultiplicative()) {
+                        w[i] = y[i] / season[i];
+                    } else {
+                        w[i] = y[i] - season[i];
+                    }
                 } else {
-                    w[i] = y[i] - season[i];
+                    w[i] = Double.NaN;
                 }
             }
             // Step 6: T=smooth(sa)
