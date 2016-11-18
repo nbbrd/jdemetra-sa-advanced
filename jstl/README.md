@@ -1,4 +1,4 @@
-### Java implementation of the original FORTRAN routine.
+### Java implementation of the STL algorithm.
 
 Source; R.B. Cleveland, W.S.Cleveland, J.E. McRae, and I. Terpenning, STL: A Seasonal-Trend Decomposition Procedure Based on Loess, Statistics Research. 
 
