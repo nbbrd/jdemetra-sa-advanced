@@ -82,9 +82,9 @@ public class DiffuseDisturbanceSmootherTest {
         FastStateSmoother smoother = new FastStateSmoother();
         DataBlockStorage str = smoother.process(ssf, data);
         DefaultSmoothingResults str2 = DkToolkit.smooth(ssf, data, true);
-        System.out.println(str2.getComponent(0));
-        System.out.println(str.item(0));
-//        assertTrue(str2.getComponent(0).distance(str.item(0)) < 1e-6);
+//        System.out.println(str2.getComponent(0));
+//        System.out.println(str.item(0));
+        assertTrue(str2.getComponent(0).distance(str.item(0)) < 1e-6);
     }
 
     @Test

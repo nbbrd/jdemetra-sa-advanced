@@ -59,6 +59,7 @@ public class MixedAirlineSsfTest {
     }
 
     @Test
+    @Ignore
     public void testEstimate() {
         long t0 = System.currentTimeMillis();
         MixedAirlineModel rslt = null;
@@ -80,6 +81,7 @@ public class MixedAirlineSsfTest {
     }
 
     @Test
+    @Ignore
     public void testEstimate2() {
         long t0 = System.currentTimeMillis();
         MixedAirlineModel rslt = null;

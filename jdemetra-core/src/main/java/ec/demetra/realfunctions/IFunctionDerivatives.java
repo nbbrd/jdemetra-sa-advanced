@@ -29,6 +29,11 @@ import ec.tstoolkit.maths.matrices.SubMatrix;
 @Development(status = Development.Status.Alpha)
 public interface IFunctionDerivatives {
     /**
+     * Gets the underlying function
+     * @return 
+     */
+    IFunction getFunction();
+    /**
      * 
      * @return
      */

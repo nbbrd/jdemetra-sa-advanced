@@ -68,8 +68,8 @@ public class TrendCycleDecomposerTest {
         ArimaModel tc = ucm.getComponent(0);
         decomposer.decompose(tc);
         assertTrue(tc.minus(decomposer.getTrend().plus(decomposer.getCycle())).isNull());
-        System.out.println(decomposer.getTrend());
-        System.out.println(decomposer.getCycle());
+//        System.out.println(decomposer.getTrend());
+//        System.out.println(decomposer.getCycle());
     }
     
     static UcarimaModel ucmD2(double th, double bth) {

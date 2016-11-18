@@ -6,7 +6,6 @@
 package be.nbb.demetra.sts;
 
 import ec.demetra.realfunctions.IFunction;
-import ec.demetra.realfunctions.IFunctionInstance;
 import ec.demetra.ssf.dk.DkConcentratedLikelihood;
 import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import ec.tstoolkit.algorithm.IProcResults;
@@ -20,6 +19,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import ec.demetra.realfunctions.IFunctionPoint;
 
 /**
  *
@@ -92,7 +92,7 @@ public class StsEstimation implements IProcResults{
         return monitor_.likelihoodFunction();
     }
 
-    public IFunctionInstance maxLikelihoodFunction() {
+    public IFunctionPoint maxLikelihoodFunction() {
         return monitor_.maxLikelihoodFunction();
     }
 

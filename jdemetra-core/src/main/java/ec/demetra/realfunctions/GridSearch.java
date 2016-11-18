@@ -37,7 +37,7 @@ public class GridSearch implements IFunctionMinimizer {
 
     private IFunction fn;
 
-    private IFunctionInstance m_ftry;
+    private IFunctionPoint m_ftry;
 
     private int maxIter = 100, niter;
 
@@ -123,7 +123,7 @@ public class GridSearch implements IFunctionMinimizer {
     }
 
     @Override
-    public IFunctionInstance getResult() {
+    public IFunctionPoint getResult() {
         return m_ftry;
     }
 
@@ -185,7 +185,7 @@ public class GridSearch implements IFunctionMinimizer {
     // / <param name="start">Unused. Should be null</param>
     // / <returns></returns>
     @Override
-    public boolean minimize(IFunctionInstance start) {
+    public boolean minimize(IFunctionPoint start) {
         clear();
         IFunction function = start.getFunction();
         if (function.getDomain().getDim() != 1 || lbound >= ubound
@@ -209,7 +209,7 @@ public class GridSearch implements IFunctionMinimizer {
 
     private double evaluate(double x) {
         try {
-            IFunctionInstance fx = this.fn.evaluate(new SingleParameter(x));
+            IFunctionPoint fx = this.fn.evaluate(new SingleParameter(x));
             return fx.getValue();
         } catch (Exception err) {
             return Double.NaN;

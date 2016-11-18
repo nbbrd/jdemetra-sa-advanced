@@ -23,7 +23,7 @@ import ec.tstoolkit.design.Development;
 import ec.demetra.realfunctions.FunctionException;
 import ec.demetra.realfunctions.ISsqFunction;
 import ec.demetra.realfunctions.ISsqFunctionDerivatives;
-import ec.demetra.realfunctions.ISsqFunctionInstance;
+import ec.demetra.realfunctions.ISsqFunctionPoint;
 
 /**
  *
@@ -35,7 +35,7 @@ public class SsqEstimationProblem implements IEstimationProblem {
     private ISsqFunction m_fn;
 
     private DataBlock m_p;
-    private ISsqFunctionInstance m_ftry;
+    private ISsqFunctionPoint m_ftry;
     private ISsqFunctionDerivatives m_derivatives;
 
     /**
@@ -50,7 +50,7 @@ public class SsqEstimationProblem implements IEstimationProblem {
      * 
      * @param start
      */
-    public SsqEstimationProblem(ISsqFunctionInstance start) {
+    public SsqEstimationProblem(ISsqFunctionPoint start) {
 	m_fn = start.getSsqFunction();
 	m_ftry = start;
 	IReadDataBlock p = start.getParameters();
@@ -160,7 +160,7 @@ public class SsqEstimationProblem implements IEstimationProblem {
      * 
      * @return
      */
-    public ISsqFunctionInstance getResult() {
+    public ISsqFunctionPoint getResult() {
 	if (m_ftry == null) {
 	    calc();
 	}

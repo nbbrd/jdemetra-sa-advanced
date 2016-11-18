@@ -38,59 +38,59 @@ public class NumericalDerivatives implements IFunctionDerivatives {
 
     private static final int NTHREADS = Runtime.getRuntime().availableProcessors();
 
-    private double[] m_eps, m_fp, m_fm, m_grad;
-    private Matrix m_h;
+    private double[] eps, fp, fm, grad;
+    private Matrix hessian;
     
-    private final IFunction m_fn;
-    private final IReadDataBlock m_pt;
+    private final IFunction fn;
+    private final IReadDataBlock x;
 
-    private double m_fcur;
+    private double fx;
 
-    private static int g_nsteps = 2;
+    private static final int NSTEPS = 2;
 
     /**
      *
      * @param point
      * @param sym
      */
-    public NumericalDerivatives(IFunctionInstance point, boolean sym) {
+    public NumericalDerivatives(IFunctionPoint point, boolean sym) {
         this(point, sym, false);
     }
 
-    public NumericalDerivatives(IFunctionInstance point,
+    public NumericalDerivatives(IFunctionPoint point,
             boolean sym, boolean mt) {
-        m_fn = point.getFunction();
-        m_fcur = point.getValue();
-        m_pt = point.getParameters();
-        int n = m_pt.getLength();
-        m_fp = new double[n];
-        m_eps = new double[n];
+        fn = point.getFunction();
+        fx = point.getValue();
+        x = point.getParameters();
+        int n = x.getLength();
+        fp = new double[n];
+        eps = new double[n];
         if (!mt || n < 2) {
             if (!sym) {
                 for (int i = 0; i < n; ++i) {
-                    m_eps[i] = m_fn.getDomain().epsilon(m_pt, i);
+                    eps[i] = fn.getDomain().epsilon(x, i);
                     checkepsilon(i);
-                    m_fp[i] = newval(i, m_eps[i]);
+                    fp[i] = newval(i, eps[i]);
                 }
             } else {
-                m_fm = new double[n];
+                fm = new double[n];
                 for (int i = 0; i < n; ++i) {
-                    m_eps[i] = m_fn.getDomain().epsilon(m_pt, i);
+                    eps[i] = fn.getDomain().epsilon(x, i);
                     checkepsilon(i);
-                    m_fp[i] = newval(i, m_eps[i]);
-                    m_fm[i] = newval(i, -m_eps[i]);
+                    fp[i] = newval(i, eps[i]);
+                    fm[i] = newval(i, -eps[i]);
                 }
             }
         } else {
             if (!sym) {
                 for (int i = 0; i < n; ++i) {
-                    m_eps[i] = m_fn.getDomain().epsilon(m_pt, i);
+                    eps[i] = fn.getDomain().epsilon(x, i);
                     checkepsilon(i);
                 }
             } else {
-                m_fm = new double[n];
+                fm = new double[n];
                 for (int i = 0; i < n; ++i) {
-                    m_eps[i] = m_fn.getDomain().epsilon(m_pt, i);
+                    eps[i] = fn.getDomain().epsilon(x, i);
                     checkepsilon(i);
                 }
             }
@@ -106,34 +106,34 @@ public class NumericalDerivatives implements IFunctionDerivatives {
     }
 
     private void calcgrad() {
-        int n = m_fn.getDomain().getDim();
-        m_grad = new double[n];
+        int n = fn.getDomain().getDim();
+        grad = new double[n];
         for (int i = 0; i < n; ++i) {
-            if (m_fp[i] == m_fcur) {
-                m_grad[i] = 0;
-            } else if (m_fm == null) {
-                m_grad[i] = (m_fp[i] - m_fcur) / m_eps[i];
+            if (fp[i] == fx) {
+                grad[i] = 0;
+            } else if (fm == null) {
+                grad[i] = (fp[i] - fx) / eps[i];
             } else {
-                m_grad[i] = (m_fp[i] - m_fm[i]) / (2 * m_eps[i]);
+                grad[i] = (fp[i] - fm[i]) / (2 * eps[i]);
             }
         }
     }
 
     private void calch() {
-        int n = m_fn.getDomain().getDim();
+        int n = fn.getDomain().getDim();
         double[] e = new double[n];
         for (int i = 0; i < n; ++i) {
-            e[i] = Math.sqrt(Math.abs(m_eps[i]));
+            e[i] = Math.sqrt(Math.abs(eps[i]));
          }
-        m_h = new Matrix(n, n);
+        hessian = new Matrix(n, n);
         // compute the diagonal
         // df/di(x) = (f(x+ei)-f(x))/ei
         // d2f/di2(x) = (df/di(x)-df/di(x-ei))/ei=(f(x+ei)-f(x)-f(x)+f(x-ei))/ei*ei
-        DataBlock diag = m_h.diagonal();
+        DataBlock diag = hessian.diagonal();
         for (int i = 0; i < n; ++i) {
             double di = e[i];
-            double num = newval(i, di) - 2 * m_fcur + newval(i, -di);
-            if (num != 0 && m_eps[i] != 0) {
+            double num = newval(i, di) - 2 * fx + newval(i, -di);
+            if (num != 0 && eps[i] != 0) {
                 diag.set(i, num / (di*di));
             }
         }
@@ -146,109 +146,62 @@ public class NumericalDerivatives implements IFunctionDerivatives {
                 double num = newval(i, j, di/2, dj/2) + newval(i, j, -di/2, -dj/2)
                         - newval(i, j, di/2, -dj/2) - newval(i, j, -di/2, dj/2);
                 if (num != 0 && di != 0 && dj != 0) {
-                    m_h.set(i, j, num / (di * dj));
+                    hessian.set(i, j, num / (di * dj));
                 }
             }
         }
-        SymmetricMatrix.fromLower(m_h);
+        SymmetricMatrix.fromLower(hessian);
     }
 
     private void checkepsilon(int i) {
-        double eps = m_eps[i];
+        double eps = this.eps[i];
         if (eps == 0) {
             return;
         }
-        DataBlock pcur=new DataBlock(m_pt);
+        DataBlock pcur=new DataBlock(x);
         double pi = pcur.get(i);
         pcur.add(i, eps);
-        if (m_fn.getDomain().checkBoundaries(pcur)) {
+        if (fn.getDomain().checkBoundaries(pcur)) {
             return;
         }
         int k = 0;
         do {
             eps /= 2;
             pcur.set(i, pi + eps);
-        } while (++k <= g_nsteps && !m_fn.getDomain().checkBoundaries(pcur));
-        if (k <= g_nsteps) {
-            m_eps[i] = eps;
+        } while (++k <= NSTEPS && !fn.getDomain().checkBoundaries(pcur));
+        if (k <= NSTEPS) {
+            this.eps[i] = eps;
             return;
         }
-        eps = -m_eps[i];
+        eps = -this.eps[i];
         pcur.set(i, pi + eps);
-        if (m_fn.getDomain().checkBoundaries(pcur)) {
-            m_eps[i] = eps;
+        if (fn.getDomain().checkBoundaries(pcur)) {
+            this.eps[i] = eps;
             return;
         }
         k = 0;
         do {
             eps /= 2;
             pcur.set(i, pi + eps);
-        } while (++k <= g_nsteps && !m_fn.getDomain().checkBoundaries(pcur));
-        if (k <= g_nsteps) {
-            m_eps[i] = eps;
+        } while (++k <= NSTEPS && !fn.getDomain().checkBoundaries(pcur));
+        if (k <= NSTEPS) {
+            this.eps[i] = eps;
             return;
         }
-        m_eps[i] = 0;
+        this.eps[i] = 0;
     }
 
-//    /**
-//     * 
-//     * @param iparam
-//     * @return
-//     */
-//    public double D1(int iparam) {
-//	calcpm();
-//	double num = m_fp[iparam] - m_fm[iparam];
-//	if (num == 0) {
-//	    return 0;
-//	}
-//
-//	return (num) / (2 * m_eps[iparam]);
-//    }
-//
-//    /**
-//     * 
-//     * @param iparam
-//     * @return
-//     */
-//    public double D2(int iparam) {
-//	calcpm();
-//	double num = m_fp[iparam] - 2 * m_fcur + m_fm[iparam];
-//	if (num == 0) {
-//	    return 0;
-//	} else {
-//	    return num / (m_eps[iparam] * m_eps[iparam]);
-//	}
-//    }
-//
-//    /**
-//     * 
-//     * @param iparam
-//     * @param jparam
-//     * @return
-//     */
-//    public double D2(int iparam, int jparam) {
-//	if (iparam == jparam) {
-//	    return D2(jparam);
-//	}
-//
-//	double di = m_eps[iparam], dj = m_eps[jparam];
-//	double num = newval(iparam, jparam, di, dj)
-//		+ newval(iparam, jparam, -di, -dj)
-//		- newval(iparam, jparam, di, -dj)
-//		- newval(iparam, jparam, -di, dj);
-//	if (num == 0) {
-//	    return 0;
-//	} else {
-//	    return num / (4 * di * dj);
-//	}
-//    }
+    @Override
+    public IFunction getFunction(){
+        return fn;
+    }
+    
     @Override
     public IReadDataBlock getGradient() {
-        if (m_grad == null) {
+        if (grad == null) {
             calcgrad();
         }
-        return new ReadDataBlock(m_grad);
+        return new ReadDataBlock(grad);
     }
 
     /**
@@ -257,43 +210,43 @@ public class NumericalDerivatives implements IFunctionDerivatives {
      */
     @Override
     public void getHessian(SubMatrix h) {
-        if (m_h == null) {
+        if (hessian == null) {
             calch();
         }
-        h.copy(m_h.all());
+        h.copy(hessian.all());
     }
 
     private double newval(int i, double dx) {
         try {
-            DataBlock cur = new DataBlock(m_pt);
+            DataBlock cur = new DataBlock(x);
             cur.add(i, dx);
-            IFunctionInstance fn = m_fn.evaluate(cur);
+            IFunctionPoint fn = this.fn.evaluate(cur);
             return fn.getValue();
         } catch (Exception err) {
-            return m_fcur;
+            return fx;
         }
     }
 
     private double newval(int i, int j, double dxi, double dxj) {
         try {
-            DataBlock cur = new DataBlock(m_pt);
+            DataBlock cur = new DataBlock(x);
             cur.add(i, dxi);
             cur.add(j, dxj);
-            IFunctionInstance fn = m_fn.evaluate(cur);
+            IFunctionPoint fn = this.fn.evaluate(cur);
             return fn.getValue();
         } catch (Exception err) {
-            return m_fcur;
+            return fx;
         }
     }
 
     private List<Callable<Void>> createTasks(int n, boolean sym) {
         List<Callable<Void>> result = new ArrayList<>();
         for (int i = 0; i < n; ++i) {
-            result.add(new NewVal(m_fp, i, m_eps[i]));
+            result.add(new NewVal(fp, i, eps[i]));
         }
         if (sym) {
             for (int i = 0; i < n; ++i) {
-                result.add(new NewVal(m_fm, i, -m_eps[i]));
+                result.add(new NewVal(fm, i, -eps[i]));
             }
         }
         return result;
@@ -315,12 +268,12 @@ public class NumericalDerivatives implements IFunctionDerivatives {
         @Override
         public Void call() throws Exception {
             try {
-                DataBlock cur = new DataBlock(m_pt);
+                DataBlock cur = new DataBlock(x);
                 cur.add(pos, eps);
-                IFunctionInstance fn = m_fn.evaluate(cur);
+                IFunctionPoint fn = NumericalDerivatives.this.fn.evaluate(cur);
                 rslt[pos] = fn.getValue();
             } catch (Exception err) {
-                rslt[pos] = m_fcur;
+                rslt[pos] = fx;
             }
             return null;
         }

@@ -67,7 +67,7 @@ public interface ISsqFunctionMinimizer {
      *
      * @return
      */
-    ISsqFunctionInstance getResult();
+    ISsqFunctionPoint getResult();
 
     IReadDataBlock getGradient();
 
@@ -78,7 +78,7 @@ public interface ISsqFunctionMinimizer {
      * @param start
      * @return
      */
-    boolean minimize(ISsqFunctionInstance start);
+    boolean minimize(ISsqFunctionPoint start);
 
     /**
      *

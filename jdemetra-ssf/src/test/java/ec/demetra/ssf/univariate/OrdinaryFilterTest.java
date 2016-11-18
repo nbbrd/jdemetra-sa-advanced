@@ -191,8 +191,8 @@ public class OrdinaryFilterTest {
         x.difference();
         Periodogram p=new Periodogram(x.drop(1, 0));
         p.setWindowLength(12);
-        System.out.println(new ReadDataBlock(p.getP()));
-        System.out.println(new ReadDataBlock(p.getS()));
+//        System.out.println(new ReadDataBlock(p.getP()));
+//        System.out.println(new ReadDataBlock(p.getS()));
     }
 
 }

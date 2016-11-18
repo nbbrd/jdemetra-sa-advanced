@@ -69,7 +69,7 @@ public interface IFunctionMinimizer {
      * 
      * @return
      */
-    IFunctionInstance getResult();
+    IFunctionPoint getResult();
 
     double getObjective();
 
@@ -79,7 +79,7 @@ public interface IFunctionMinimizer {
      * @param start
      * @return
      */
-    boolean minimize(IFunctionInstance start);
+    boolean minimize(IFunctionPoint start);
 
     /**
      * 

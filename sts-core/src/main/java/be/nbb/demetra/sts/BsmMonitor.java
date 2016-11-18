@@ -19,7 +19,6 @@ package be.nbb.demetra.sts;
 import ec.demetra.ssf.implementations.structural.SsfBsm;
 import be.nbb.demetra.sts.BsmMapping.Transformation;
 import ec.demetra.realfunctions.IFunction;
-import ec.demetra.realfunctions.IFunctionInstance;
 import ec.demetra.realfunctions.IFunctionMinimizer;
 import ec.demetra.realfunctions.ProxyMinimizer;
 import ec.demetra.realfunctions.TransformedFunction;
@@ -36,6 +35,7 @@ import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.data.ReadDataBlock;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.maths.matrices.SubMatrix;
+import ec.demetra.realfunctions.IFunctionPoint;
 
 /**
  *
@@ -449,7 +449,7 @@ public class BsmMonitor {
         return new TransformedFunction(fn, TransformedFunction.linearTransformation(-a, 1));
     }
 
-    public IFunctionInstance maxLikelihoodFunction() {
+    public IFunctionPoint maxLikelihoodFunction() {
         BsmMapping mapping = new BsmMapping(m_bsm.getSpecification(), m_bsm.getFrequency(), Transformation.None);
         IFunction ll = likelihoodFunction();
         return ll.evaluate(mapping.map(m_bsm));

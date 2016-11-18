@@ -19,13 +19,13 @@ package ec.demetra.ssf.dk;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.demetra.eco.ILikelihood;
-import ec.demetra.realfunctions.IFunctionInstance;
-import ec.demetra.realfunctions.ISsqFunctionInstance;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.realfunctions.IFunction;
 import ec.demetra.realfunctions.ISsqFunction;
 import ec.demetra.ssf.univariate.IConcentratedLikelihoodComputer;
 import ec.demetra.ssf.univariate.SsfRegressionModel;
+import ec.demetra.realfunctions.IFunctionPoint;
+import ec.demetra.realfunctions.ISsqFunctionPoint;
 
 /**
  *
@@ -33,7 +33,7 @@ import ec.demetra.ssf.univariate.SsfRegressionModel;
  * @param <S>
  */
 public class SsfFunctionInstance<S, F extends ISsf> implements
-        ISsqFunctionInstance, IFunctionInstance {
+        ISsqFunctionPoint, IFunctionPoint {
 
     /**
      *
