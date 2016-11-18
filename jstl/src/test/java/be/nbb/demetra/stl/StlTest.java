@@ -62,6 +62,18 @@ public class StlTest {
     }
 
     @Test
+//    @Ignore
+    public void testLargeFilter() {
+
+        StlSpecification spec = StlSpecification.defaultSpec(12, 21, false);
+        Stl stl = new Stl(spec);
+        stl.process(Data.X);
+//        System.out.println(new DataBlock(stl.trend));
+//        System.out.println(new DataBlock(stl.season));
+//        System.out.println(new DataBlock(stl.irr));
+    }
+
+    @Test
     public void testMul() {
         StlSpecification spec = StlSpecification.defaultSpec(12, 7, false);
         spec.setMultiplicative(true);
