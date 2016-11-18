@@ -37,7 +37,7 @@ public class LoessFilterTest {
     public void testNormal() {
         TsData s=Data.X;
         double[] d = s.internalStorage();
-        LoessSpecification spec = LoessSpecification.of(25, 0,1);
+        LoessSpecification spec = LoessSpecification.of(25, 0,1, null);
         LoessFilter filter=new LoessFilter(spec);
         double[] sd=new double[d.length];
         filter.filter(IDataGetter.of(d), null, IDataSelector.of(sd));
@@ -49,7 +49,7 @@ public class LoessFilterTest {
     public void testBF() {
         TsData s=Data.X;
         double[] d = s.internalStorage();
-        LoessSpecification spec = LoessSpecification.of(25, 1, 5);
+        LoessSpecification spec = LoessSpecification.of(25, 1, 5, null);
         LoessFilter filter=new LoessFilter(spec);
         int nf=5;
         double[] sd=new double[d.length+2*nf];

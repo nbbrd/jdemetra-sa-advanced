@@ -20,6 +20,7 @@ import data.Data;
 import ec.tstoolkit.data.DataBlock;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -31,23 +32,51 @@ public class StlPlusTest {
     }
 
     @Test
+//    @Ignore
     public void testDefault() {
 
         StlPlus stl = new StlPlus(12, 7);
-        stl.setNo(5);
         stl.process(Data.X);
-        System.out.println(new DataBlock(stl.trend));
-        System.out.println(new DataBlock(stl.season[0]));
-        System.out.println(new DataBlock(stl.irr));
+//        System.out.println(new DataBlock(stl.trend));
+//        System.out.println(new DataBlock(stl.season[0]));
+//        System.out.println(new DataBlock(stl.irr));
     }
 
     @Test
+    //@Ignore
+    public void testSpec() {
+
+        StlPlusSpecification spec = StlPlusSpecification.createDefault(12, false);
+        StlPlus stl = spec.build();
+        stl.process(Data.X);
+//        System.out.println(new DataBlock(stl.trend));
+//        System.out.println(new DataBlock(stl.season[0]));
+//        System.out.println(new DataBlock(stl.irr));
+    }
+
+    @Test
+    //@Ignore
+    public void testMul() {
+
+        StlPlusSpecification spec = StlPlusSpecification.createDefault(12, false);
+        spec.setMultiplicative(true);
+        spec.setNumberOfOuterIterations(5);
+        StlPlus stl = spec.build();
+        stl.process(Data.X);
+//        System.out.println(new DataBlock(stl.trend));
+//        System.out.println(new DataBlock(stl.season[0]));
+//        System.out.println(new DataBlock(stl.irr));
+    }
+
+    @Test
+    @Ignore
     public void stressTest() {
         long t0 = System.currentTimeMillis();
-        for (int i = 0; i < 10000; ++i) {
-            StlPlus stl = new StlPlus(12, 7);
-          stl.setNo(5);
-          stl.process(Data.X);
+        for (int i = 0; i < 100000; ++i) {
+//            StlPlus stl = new StlPlus(12, 7);
+        StlPlusSpecification spec = StlPlusSpecification.createDefault(12, 7, false);
+        StlPlus stl = spec.build();
+            stl.process(Data.X);
         }
         long t1 = System.currentTimeMillis();
         System.out.println(t1 - t0);

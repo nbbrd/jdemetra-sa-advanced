@@ -36,7 +36,7 @@ public class SeasonalFilter {
         this.lfilter=new LowPassLoessFilter(lspec, np);
     }
     
-    public boolean filter(IDataGetter y, IntToDoubleFunction userWeights, IDataSelector ys) {
+    public boolean filter(IDataGetter y, IntToDoubleFunction userWeights, boolean mul, IDataSelector ys) {
         int n=y.getLength();
         int np=sfilter.getPeriod();
         double[] l = new double[n];
@@ -46,7 +46,7 @@ public class SeasonalFilter {
         if (! lfilter.filter(IDataGetter.of(c), IDataSelector.of(l)))
             return false;
         for (int i=0; i<n; ++i)
-            ys.set(i, c[i+np]-l[i]);
+            ys.set(i, mul ? c[i+np]/l[i]:c[i+np]-l[i]);
         return true;
     }
 }

@@ -55,8 +55,7 @@ public class StlPlus {
     protected double[] irr;
     protected double[] weights;
     protected double[] fit;
-
-    private static final int MAXSTEP = 100;
+    private boolean mul;
 
     private int ni = 2, no = 0;
     private double wthreshold = .001;
@@ -104,10 +103,10 @@ public class StlPlus {
             for (int i = 0; i < n(); ++i) {
                 fit[i] = trend[i];
                 for (int j = 0; j < season.length; ++j) {
-                    fit[i] += season[j][i];
+                    fit[i] = op(fit[i], season[j][i]);
                 }
             }
-            stlrwt(fit, weights);
+            computeRobustWeights(fit, weights);
         } while (true);
     }
 
@@ -115,9 +114,9 @@ public class StlPlus {
         for (int i = 0; i < n(); ++i) {
             fit[i] = trend[i];
             for (int j = 0; j < season.length; ++j) {
-                fit[i] += season[j][i];
+                fit[i] = op(fit[i], season[j][i]);
             }
-            irr[i] = y[i] - fit[i];
+            irr[i] = invop(y[i], fit[i]);
         }
         return true;
     }
@@ -132,6 +131,9 @@ public class StlPlus {
             season[i] = new double[n];
         }
         trend = new double[n];
+        if (mul) {
+            Arrays.setAll(trend, i -> 1);
+        }
         irr = new double[n];
         return true;
     }
@@ -148,11 +150,11 @@ public class StlPlus {
         }
     }
 
-    private void stlrwt(double[] fit, double[] w) {
+    private void computeRobustWeights(double[] fit, double[] w) {
 
         int n = n();
         for (int i = 0; i < n; ++i) {
-            w[i] = Math.abs(y[i] - fit[i]);
+            w[i] = Math.abs(invop(y[i], fit[i]) - mean());
         }
 
         double mad = mad(w);
@@ -189,21 +191,22 @@ public class StlPlus {
         for (int j = 0; j < ni; ++j) {
 
             for (int i = 0; i < n; ++i) {
-                si[i] = y[i] - trend[i];
+                si[i] = invop(y[i], trend[i]);
             }
             // compute S
             for (int s = 0; s < sfilter.length; ++s) {
-                sfilter[s].filter(IDataGetter.of(si), weights == null ? null : k -> weights[k], IDataSelector.of(season[s]));
-                if (s != sfilter.length-1)
-                for (int i = 0; i < n; ++i) {
-                    si[i] -= season[s][i];
+                sfilter[s].filter(IDataGetter.of(si), weights == null ? null : k -> weights[k], mul, IDataSelector.of(season[s]));
+                if (s != sfilter.length - 1) {
+                    for (int i = 0; i < n; ++i) {
+                        si[i] = invop(si[i], season[s][i]);
+                    }
                 }
             }
             // seasonal adjustment
             for (int i = 0; i < n; ++i) {
                 w[i] = y[i];
                 for (int s = 0; s < sfilter.length; ++s) {
-                    w[i] -= season[s][i];
+                    w[i] = invop(w[i], season[s][i]);
                 }
             }
             // Step 6: T=smooth(sa)
@@ -307,5 +310,28 @@ public class StlPlus {
      */
     public void setWthreshold(double wthreshold) {
         this.wthreshold = wthreshold;
+    }
+
+    public void setMultiplicative(boolean multiplicative) {
+        mul = multiplicative;
+    }
+
+    /**
+     * @return the mul
+     */
+    public boolean isMultiplicative() {
+        return mul;
+    }
+
+    private double op(double l, double r) {
+        return mul ? l * r : l + r;
+    }
+
+    private double invop(double l, double r) {
+        return mul ? l / r : l - r;
+    }
+
+    private double mean() {
+        return mul ? 1 : 0;
     }
 }

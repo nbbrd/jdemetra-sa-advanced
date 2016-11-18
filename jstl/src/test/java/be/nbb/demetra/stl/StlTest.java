@@ -34,11 +34,11 @@ public class StlTest {
     public void testDefault() {
         StlSpecification spec = StlSpecification.defaultSpec(12, 7, false);
         Stl stl = new Stl(spec);
-        spec.setNo(5);
+//        spec.setNo(5);
         stl.process(Data.X);
-        System.out.println(new DataBlock(stl.trend));
-        System.out.println(new DataBlock(stl.season));
-        System.out.println(new DataBlock(stl.irr));
+//        System.out.println(new DataBlock(stl.trend));
+//        System.out.println(new DataBlock(stl.season));
+//        System.out.println(new DataBlock(stl.irr));
     }
 
     @Test
@@ -48,18 +48,18 @@ public class StlTest {
         Stl stl = new Stl(spec);
         spec.setNo(5);
         stl.process(Data.X);
-        System.out.println(new DataBlock(stl.trend));
-        System.out.println(new DataBlock(stl.season));
-        System.out.println(new DataBlock(stl.irr));
+//        System.out.println(new DataBlock(stl.trend));
+//        System.out.println(new DataBlock(stl.season));
+//        System.out.println(new DataBlock(stl.irr));
     }
 
     @Test
     @Ignore
     public void stressTest() {
         long t0 = System.currentTimeMillis();
-        for (int i = 0; i < 10000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             StlSpecification spec = StlSpecification.defaultSpec(12, 7, false);
-            spec.setNo(5);
+//            spec.setNo(5);
             Stl stl = new Stl(spec);
             stl.process(Data.X);
         }
@@ -68,81 +68,14 @@ public class StlTest {
     }
 
     @Test
-    @Ignore
+//    @Ignore
     public void testInner() {
         StlSpecification spec = StlSpecification.defaultSpec(12, 9, true);
         Stl stl = new Stl(spec);
         stl.process(Data.X);
-        System.out.println(new DataBlock(stl.trend));
-        System.out.println(new DataBlock(stl.season));
-        System.out.println(new DataBlock(stl.irr));
+//        System.out.println(new DataBlock(stl.trend));
+//        System.out.println(new DataBlock(stl.season));
+//        System.out.println(new DataBlock(stl.irr));
     }
 
-//    @Test
-//    public void testMA() {
-//
-//        double[] x = new double[20];
-//        for (int i = 0; i < 20; ++i) {
-//            x[i] = i + 1;
-//        }
-//        double[] y = new double[16];
-//        StlPlus.stlma(5, x.length, x, y);
-//        for (int i = 1; i < y.length; ++i) {
-//            assertEquals(y[i] - y[i - 1], 1, 1e-9);
-//        }
-//    }
-//
-//    @Test
-//    public void testFTS() {
-//        int np = 12;
-//        int n = 240;
-//        SarimaModel airline = new SarimaModelBuilder().createAirlineModel(np, -.6, -.8);
-//        ArimaModelBuilder builder = new ArimaModelBuilder();
-//        double[] x = builder.generate(airline, n);
-//        double[] y = new double[x.length - 2 * np];
-//        StlPlus.stlfts(np, x.length, x, y);
-////        System.out.println(new DataBlock(x));
-////        System.out.println(new DataBlock(y));
-//    }
-//
-//    @Test
-//    public void testEst() {
-//        int np = 12;
-//        int n = 240;
-//        SarimaModel airline = new SarimaModelBuilder().createAirlineModel(np, -.6, -.8);
-//        ArimaModelBuilder builder = new ArimaModelBuilder();
-//        double[] x = builder.generate(airline, n);
-//        double ys = StlPlus.stlest(i->x[i], n, 13, 1, 65, 65-6, 65+6, null);
-////        System.out.println(ys);
-////        System.out.println(new DataBlock(x, 59, 72, 1));
-//    }
-//    
-//    @Test
-//    public void testEss() {
-//        int np = 12;
-//        int n = 120;
-//        SarimaModel airline = new SarimaModelBuilder().createAirlineModel(np, -.6, -.8);
-//        ArimaModelBuilder builder = new ArimaModelBuilder();
-//        double[] x = builder.generate(airline, n);
-//        double[] y =new double[n];
-//        double[] z =new double[n];
-//        StlPlus.stless(i->x[i], n, np+1, 1, 1, null, y);
-//        StlPlus.stless(i->x[i], n, np+1, 1, 5, null, z);
-////        System.out.println(new DataBlock(x));
-////        System.out.println(new DataBlock(y));
-////        System.out.println(new DataBlock(z));
-//    }
-//    
-//    @Test
-//    public void testss() {
-//        int np = 12;
-//        int n = 119;
-//        SarimaModel airline = new SarimaModelBuilder().createAirlineModel(np, -.6, -.8);
-//        ArimaModelBuilder builder = new ArimaModelBuilder();
-//        double[] x = builder.generate(airline, n);
-//        double[] y=new double[x.length+2*np];
-//        StlPlus.stlss(i->x[i], n, 12, 5, 1, 1, null, y);
-//        System.out.println(new DataBlock(y));
-//        System.out.println(new DataBlock(x));
-//    }
 }

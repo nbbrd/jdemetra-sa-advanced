@@ -71,7 +71,7 @@ public class Stl {
                 fit = new double[n()];
             }
             for (int i = 0; i < n(); ++i) {
-                fit[i] = trend[i] + season[i];
+                fit[i] = spec.isMultiplicative() ? trend[i] * season[i] : trend[i] + season[i];
             }
             stlrwt(fit, weights);
         } while (true);
@@ -79,12 +79,12 @@ public class Stl {
 
     private boolean finishProcessing() {
         for (int i = 0; i < n(); ++i) {
-            if (spec.isMultiplicative()){
-            fit[i] = trend[i] * season[i];
-            irr[i] = y[i] / fit[i];
-            }else{
-            fit[i] = trend[i] + season[i];
-            irr[i] = y[i] - fit[i];
+            if (spec.isMultiplicative()) {
+                fit[i] = trend[i] * season[i];
+                irr[i] = y[i] / fit[i];
+            } else {
+                fit[i] = trend[i] + season[i];
+                irr[i] = y[i] - fit[i];
             }
         }
         return true;
@@ -120,7 +120,7 @@ public class Stl {
 
         int n = n();
         for (int i = 0; i < n; ++i) {
-            w[i] = Math.abs(y[i] - fit[i]);
+            w[i] = Math.abs(spec.isMultiplicative() ? y[i] / fit[i] - 1 : y[i] - fit[i]);
         }
 
         double mad = mad(w);
