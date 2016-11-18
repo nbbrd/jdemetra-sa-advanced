@@ -43,9 +43,9 @@ public class LowPassLoessFilterTest {
         LoessSpecification lspec = LoessSpecification.of(13, 1);
         LowPassLoessFilter lfilter = new LowPassLoessFilter(lspec, 12);
         lfilter.filter(IDataGetter.of(sd), IDataSelector.of(l));
-        System.out.println(new DataBlock(d));
-        System.out.println(new DataBlock(sd));
-        System.out.println(new DataBlock(l));
+//        System.out.println(new DataBlock(d));
+//        System.out.println(new DataBlock(sd));
+//        System.out.println(new DataBlock(l));
     }
 
 }

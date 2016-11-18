@@ -12,6 +12,7 @@ import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -23,7 +24,7 @@ public class MixedAirlineMonitorTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testSimulation() {
         MaSpecification mspec=new MaSpecification();
         //mspec.method= EstimationMethod.Iterative;

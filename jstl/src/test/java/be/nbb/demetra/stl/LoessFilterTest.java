@@ -54,7 +54,7 @@ public class LoessFilterTest {
         int nf=5;
         double[] sd=new double[d.length+2*nf];
         filter.filter(IDataGetter.of(d), null, IDataSelector.of(sd, nf));
-        System.out.println(new DataBlock(d));
-        System.out.println(new DataBlock(sd));
+//        System.out.println(new DataBlock(d));
+//        System.out.println(new DataBlock(sd));
     }
 }

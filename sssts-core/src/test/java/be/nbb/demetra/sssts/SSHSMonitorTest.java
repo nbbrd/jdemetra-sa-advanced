@@ -57,7 +57,7 @@ public class SSHSMonitorTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testSimulation() {
         ModelSpecification mspec = new ModelSpecification();
         SeasonalSpecification sspec = new SeasonalSpecification();

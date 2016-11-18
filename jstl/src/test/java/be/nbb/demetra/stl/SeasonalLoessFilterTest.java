@@ -39,8 +39,8 @@ public class SeasonalLoessFilterTest {
         SeasonalLoessFilter filter=new SeasonalLoessFilter(spec, 12);
         double[] sd=new double[d.length+24];
         filter.filter(IDataGetter.of(d), null, IDataSelector.of(sd, -12));
-        System.out.println(new DataBlock(d));
-        System.out.println(new DataBlock(sd));
+//        System.out.println(new DataBlock(d));
+//        System.out.println(new DataBlock(sd));
     }
     
 }

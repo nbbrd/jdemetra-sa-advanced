@@ -83,9 +83,9 @@ public class DiffuseSmootherTest {
         DefaultSmoothingResults srslts3 = AkfToolkit.smooth(ssf, data, true);
         assertTrue(srslts.getComponent(ssf.getComponentPosition(0)).distance(srslts2.getComponent(0)) < 1e-6);
         assertTrue(srslts.getComponent(0).distance(srslts3.getComponent(0)) < 1e-6);
-        System.out.println(srslts.getComponentVariance(ssf.getComponentPosition(0)));
-        System.out.println(srslts.getComponentVariance(ssf.getComponentPosition(1)));
-        System.out.println(srslts.getComponentVariance(ssf.getComponentPosition(2)));
+//        System.out.println(srslts.getComponentVariance(ssf.getComponentPosition(0)));
+//        System.out.println(srslts.getComponentVariance(ssf.getComponentPosition(1)));
+//        System.out.println(srslts.getComponentVariance(ssf.getComponentPosition(2)));
         
         // old 
         ec.tstoolkit.ssf.Smoother osm=new ec.tstoolkit.ssf.Smoother();
@@ -96,9 +96,9 @@ public class DiffuseSmootherTest {
         ec.tstoolkit.ssf.SsfData odata=new ec.tstoolkit.ssf.SsfData(d.getData(), null);
         ec.tstoolkit.ssf.SmoothingResults sr=new ec.tstoolkit.ssf.SmoothingResults(true, true);
         osm.process(odata, sr);
-        System.out.println(new DataBlock(sr.componentStdev(0)));
-        System.out.println(new DataBlock(sr.componentStdev(3)));
-        System.out.println(new DataBlock(sr.componentStdev(15)));
+//        System.out.println(new DataBlock(sr.componentStdev(0)));
+//        System.out.println(new DataBlock(sr.componentStdev(3)));
+//        System.out.println(new DataBlock(sr.componentStdev(15)));
     }
 
     @Test

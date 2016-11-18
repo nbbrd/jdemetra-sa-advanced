@@ -40,7 +40,7 @@ public class SeasonalFilterTest {
         SeasonalFilter filter=new SeasonalFilter(spec, lspec, 12);
         double[] sd=new double[d.length];
         filter.filter(IDataGetter.of(d), null, false, IDataSelector.of(sd));
-        System.out.println(new DataBlock(d));
-        System.out.println(new DataBlock(sd));
+//        System.out.println(new DataBlock(d));
+//        System.out.println(new DataBlock(sd));
     }
 }
