@@ -17,10 +17,10 @@
 package be.nbb.demetra.sssts;
 
 import data.Data;
-import be.nbb.demetra.sssts.SeasonalSpecification.EstimationMethod;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.tstoolkit.algorithm.CompositeResults;
+import ec.tstoolkit.modelling.arima.Method;
 import ec.tstoolkit.timeseries.Day;
 import ec.tstoolkit.timeseries.Month;
 import ec.tstoolkit.timeseries.TsPeriodSelector;
@@ -34,20 +34,19 @@ import org.junit.Ignore;
  *
  * @author Jean Palate
  */
-public class SSHSProcessingFactoryTest {
-
+public class SSSTSProcessingFactoryTest {
+    
     private TsData s;
 
-    public SSHSProcessingFactoryTest() {
-        TsPeriodSelector sel = new TsPeriodSelector();
-        sel.to(new Day(1984, Month.December, 30));
-        s = Data.Hous_MW.select(sel);
+    public SSSTSProcessingFactoryTest() {
+       TsPeriodSelector sel=new TsPeriodSelector();
+       sel.to(new Day(1984, Month.December, 30));
+       s=Data.Hous_MW.select(sel);
     }
 
-    private SSHSSpecification spec() {
-        SSHSSpecification spec = new SSHSSpecification();
-        spec.getDecompositionSpec().noisyComponent = Component.Seasonal;
-        spec.getModelSpecification().setSeasonalModel(SeasonalModel.HarrisonStevens);
+    private SSSTSSpecification spec() {
+        SSSTSSpecification spec = new SSSTSSpecification();
+        spec.getDecompositionSpec().noisyComponent = Component.Noise;
         spec.getPreprocessingSpec().ao = false;
         spec.getPreprocessingSpec().ls = false;
         spec.getPreprocessingSpec().tc = false;
@@ -58,11 +57,12 @@ public class SSHSProcessingFactoryTest {
     @Test
     //@Ignore
     public void testGradient() {
-        SSHSSpecification spec = spec();
-        spec.getDecompositionSpec().method = EstimationMethod.LikelihoodGradient;
-        CompositeResults process = SSHSProcessingFactory.process(s, spec);
-        SSHSResults results = process.get(SSHSProcessingFactory.DECOMPOSITION, SSHSResults.class);
-        for (SSHSMonitor.MixedEstimation me : results.getAllModels()) {
+        System.out.println("Gradient");
+        SSSTSSpecification spec = spec();
+        spec.getDecompositionSpec().method = SeasonalSpecification.EstimationMethod.LikelihoodGradient;
+        CompositeResults process = SSSTSProcessingFactory.process(s, spec);
+        SSSTSResults results = process.get(SSSTSProcessingFactory.DECOMPOSITION, SSSTSResults.class);
+        for (SSSTSMonitor.MixedEstimation me : results.getAllModels()) {
             System.out.print(me.model);
             System.out.print('\t');
             System.out.print(me.model.getNoisyPeriodsVariance());
@@ -74,16 +74,13 @@ public class SSHSProcessingFactoryTest {
     @Test
     //@Ignore
     public void testIterative() {
-        SSHSSpecification spec = spec();
-        spec.getDecompositionSpec().method = EstimationMethod.Iterative;
-        CompositeResults process = SSHSProcessingFactory.process(s, spec);
-        SSHSResults results = process.get(SSHSProcessingFactory.DECOMPOSITION, SSHSResults.class);
-        for (SSHSMonitor.MixedEstimation me : results.getAllModels()) {
+        System.out.println("Iterative");
+        SSSTSSpecification spec = spec();
+        spec.getDecompositionSpec().method = SeasonalSpecification.EstimationMethod.Iterative;
+        CompositeResults process = SSSTSProcessingFactory.process(s, spec);
+        SSSTSResults results = process.get(SSSTSProcessingFactory.DECOMPOSITION, SSSTSResults.class);
+        for (SSSTSMonitor.MixedEstimation me : results.getAllModels()) {
             System.out.print(me.model);
-            System.out.print('\t');
-            System.out.print(me.model.getBasicStructuralModel().getVariance(Component.Level));
-            System.out.print('\t');
-            System.out.print(me.model.getBasicStructuralModel().getVariance(Component.Noise));
             System.out.print('\t');
             System.out.print(me.model.getNoisyPeriodsVariance());
             System.out.print('\t');

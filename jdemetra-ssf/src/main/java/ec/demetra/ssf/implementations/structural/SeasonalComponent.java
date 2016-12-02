@@ -251,11 +251,11 @@ public class SeasonalComponent {
     }
 
     public static ISsf harrisonStevens(final int period, final double v) {
-        return new Ssf(new HarrisonStevensDynamics(period, v), Measurement.cyclical(period));
+        return new Ssf(new HarrisonStevensDynamics(period, v), Measurement.circular(period));
     }
 
     public static ISsf harrisonStevens(final double[] var) {
-        return new Ssf(new HarrisonStevensDynamics(var), Measurement.cyclical(var.length));
+        return new Ssf(new HarrisonStevensDynamics(var), Measurement.circular(var.length));
     }
 
     public static class Dynamics implements ISsfDynamics {
@@ -463,11 +463,29 @@ public class SeasonalComponent {
         public HarrisonStevensDynamics(final double[] var) {
             period = var.length;
             this.var = var.clone();
-            Matrix C = new Matrix(period - 1, period);
-            C.set(-1.0 / period);
-            C.diagonal().add(1);
-            Matrix D = Matrix.diagonal(var);
-            V = SymmetricMatrix.quadraticFormT(D, C);
+//            Matrix C = new Matrix(period - 1, period);
+//            C.set(-1.0 / period);
+//            C.diagonal().add(1);
+//            Matrix D = Matrix.diagonal(var);
+//            V = SymmetricMatrix.quadraticFormT(D, C);
+            DataBlock xvar = new DataBlock(var);
+            V = Matrix.square(period - 1);
+//            V.diagonal().copyFrom(var, 0);
+//            V.add(xvar.sum() / (period * period));
+//            for (int i = 0; i < period - 1; ++i) {
+//                for (int j = 0; j < period - 1; ++j) {
+//                    V.add(i, j, -(var[i] + var[j]) / period);
+//                }
+//            }
+            double mvar = xvar.sum() / (period * period);
+            double dp= 2.0 / period;
+            for (int i = 0; i < period - 1; ++i) {
+                V.set(i, i, var[i] * (1 - dp) + mvar);
+                for (int j = 0; j < i; ++j) {
+                    V.set(i, j, mvar - (var[i] + var[j]) / period);
+                }
+            }
+            SymmetricMatrix.fromLower(V);
         }
 
         public double[] getVariances() {
@@ -572,7 +590,7 @@ public class SeasonalComponent {
 
         @Override
         public boolean Pf0(SubMatrix pf0) {
-            V(0,pf0);
+            V(0, pf0);
             return true;
         }
 

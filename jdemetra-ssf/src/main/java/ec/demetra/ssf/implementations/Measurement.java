@@ -72,14 +72,21 @@ public class Measurement {
         return new Proxy(m);
     }
 
-    public static ISsfMeasurement cyclical(final int period) {
-        return new CyclicalMeasurement(period, 0);
+    public static ISsfMeasurement circular(final int period) {
+        return new CircularMeasurement(period, 0);
     }
 
-    public static ISsfMeasurement cyclical(final int period, final int pstart) {
-        return new CyclicalMeasurement(period, pstart);
+    public static ISsfMeasurement circular(final int period, final int pstart) {
+        return new CircularMeasurement(period, pstart);
     }
 
+    public static ISsfMeasurement cyclical(final int period, final int dim) {
+        return new CyclicalMeasurement(period, 0, dim);
+    }
+
+    public static ISsfMeasurement cyclical(final int period, final int pstart, final int dim) {
+        return new CyclicalMeasurement(period, pstart, dim);
+    }
     private static class Proxy implements ISsfMeasurement {
 
         private final ISsfMeasurements m_;
@@ -601,11 +608,11 @@ public class Measurement {
 
     }
 
-    static class CyclicalMeasurement implements ISsfMeasurement {
+    static class CircularMeasurement implements ISsfMeasurement {
 
         private final int period, start;
 
-        public CyclicalMeasurement(int period, int start) {
+        public CircularMeasurement(int period, int start) {
             this.period = period;
             this.start = start;
         }
@@ -710,4 +717,87 @@ public class Measurement {
 
     }
 
+    static class CyclicalMeasurement implements ISsfMeasurement {
+
+        private final int period, start, dim;
+
+        public CyclicalMeasurement(int period, int start, int dim) {
+            this.period = period;
+            this.start = start;
+            this.dim=dim;
+        }
+
+        @Override
+        public boolean isTimeInvariant() {
+            return false;
+        }
+
+        @Override
+        public void Z(int pos, DataBlock z) {
+            int spos = (start + pos) % period;
+                z.set(spos, 1);
+         }
+
+        @Override
+        public boolean hasErrors() {
+            return false;
+        }
+
+        @Override
+        public boolean hasError(int pos) {
+            return false;
+        }
+
+        @Override
+        public double errorVariance(int pos) {
+            return 0;
+        }
+
+        @Override
+        public double ZX(int pos, DataBlock x) {
+            int spos = (start + pos) % period;
+                return x.get(spos);
+        }
+
+        @Override
+        public void ZM(int pos, SubMatrix m, DataBlock x) {
+            int spos = (start + pos) % period;
+                 x.copy(m.row(spos));
+        }
+
+        @Override
+        public double ZVZ(int pos, SubMatrix vm) {
+            int spos = (start + pos) % period;
+                 return vm.get(spos, spos);
+        }
+
+        @Override
+        public void VpZdZ(int pos, SubMatrix vm, double d) {
+            if (d == 0) {
+                return;
+            }
+            int spos = (start + pos) % period;
+                 vm.add(spos, spos, d);
+        }
+
+        @Override
+        public void XpZd(int pos, DataBlock x, double d) {
+            if (d == 0) {
+                return;
+            }
+            int spos = (start + pos) % period;
+                  x.add(spos, d);
+        }
+
+        @Override
+        public int getStateDim() {
+            return dim;
+        }
+
+        @Override
+        public boolean isValid() {
+            return true;
+        }
+
+    }
 }

@@ -103,7 +103,7 @@ public abstract class SSHSMapping implements IParametricMapping<SSHSModel> {
 
         @Override
         public double epsilon(IReadDataBlock inparams, int idx) {
-            return 1e-6;
+            return 1e-4;
         }
 
         @Override
@@ -172,7 +172,7 @@ public abstract class SSHSMapping implements IParametricMapping<SSHSModel> {
 
         @Override
         public double epsilon(IReadDataBlock inparams, int idx) {
-            return 1e-6;
+            return 1e-4;
         }
 
         @Override
@@ -242,7 +242,7 @@ public abstract class SSHSMapping implements IParametricMapping<SSHSModel> {
 
         @Override
         public double epsilon(IReadDataBlock inparams, int idx) {
-            return 1e-3;
+            return 1e-4;
         }
 
         @Override

@@ -41,7 +41,7 @@ public class SeasonalSpecification implements Cloneable {
     public int[] noisyPeriods; // pre-specified periods
     public Component noisyComponent=Component.Noise;
     // search method
-    public double step=.1;
+    public double step=.5;
     
     public EstimationMethod method=EstimationMethod.LikelihoodGradient;
 

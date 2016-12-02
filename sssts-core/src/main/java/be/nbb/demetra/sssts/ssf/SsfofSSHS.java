@@ -172,7 +172,7 @@ public class SsfofSSHS {
             }
             ISsfDynamics sdyn = new SeasonalComponent.HarrisonStevensDynamics(var);
             dyn.add(sdyn);
-            m.add(Measurement.cyclical(freq, pstart));
+            m.add(Measurement.circular(freq, pstart));
         }
         CompositeDynamics cdyn = new CompositeDynamics(dyn.toArray(new ISsfDynamics[dyn.size()]));
         ISsfMeasurement cm = CompositeMeasurement.of(bsm.getVariance(Component.Noise), m.toArray(new ISsfMeasurement[m.size()]));

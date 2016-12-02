@@ -4,10 +4,10 @@
  */
 package be.nbb.demetra.sssts;
 
-import be.nbb.demetra.sssts.descriptors.SSHSSpecUI;
-import be.nbb.demetra.sssts.document.SSHSDocument;
-import be.nbb.demetra.sssts.document.SSHSProcessor;
-import be.nbb.demetra.sssts.ui.SSHSViewFactory;
+import be.nbb.demetra.sssts.descriptors.SSSTSSpecUI;
+import be.nbb.demetra.sssts.document.SSSTSDocument;
+import be.nbb.demetra.sssts.document.SSSTSProcessor;
+import be.nbb.demetra.sssts.ui.SSSTSViewFactory;
 import ec.nbdemetra.ui.DocumentUIServices;
 import ec.nbdemetra.ui.properties.l2fprod.CustomPropertyEditorRegistry;
 import ec.nbdemetra.ws.AbstractWorkspaceTsItemManager;
@@ -22,33 +22,33 @@ import org.openide.util.lookup.ServiceProvider;
 
 @ServiceProvider(service = IWorkspaceItemManager.class,
         position = 1840)
-public class SSHSDocumentManager extends AbstractWorkspaceTsItemManager<SSHSSpecification, SSHSDocument> {
+public class SSSTSDocumentManager extends AbstractWorkspaceTsItemManager<SSSTSSpecification, SSSTSDocument> {
 
     static {
-        SaManager.instance.add(new SSHSProcessor());
+        SaManager.instance.add(new SSSTSProcessor());
         CustomPropertyEditorRegistry.INSTANCE.registerEnumEditor(SeasonalSpecification.EstimationMethod.class);
-        DocumentUIServices.getDefault().register(SSHSDocument.class, new DocumentUIServices.AbstractUIFactory<SSHSSpecification, SSHSDocument>() {
+        DocumentUIServices.getDefault().register(SSSTSDocument.class, new DocumentUIServices.AbstractUIFactory<SSSTSSpecification, SSSTSDocument>() {
 
             @Override
-            public IProcDocumentView<SSHSDocument> getDocumentView(SSHSDocument document) {
-                return SSHSViewFactory.getDefault().create(document);
+            public IProcDocumentView<SSSTSDocument> getDocumentView(SSSTSDocument document) {
+                return SSSTSViewFactory.getDefault().create(document);
             }
 
             @Override
-            public IObjectDescriptor<SSHSSpecification> getSpecificationDescriptor(SSHSDocument doc) {
-                return new SSHSSpecUI(doc.getSpecification().clone());
+            public IObjectDescriptor<SSSTSSpecification> getSpecificationDescriptor(SSSTSDocument doc) {
+                return new SSSTSSpecUI(doc.getSpecification().clone());
             }
         });
     }
 
-    public static final LinearId ID = new LinearId(SSHSProcessor.DESCRIPTOR.family, "documents", SSHSProcessor.DESCRIPTOR.name);
-    public static final String PATH = "sshs.doc";
-    public static final String ITEMPATH = "sshs.doc.item";
-    public static final String CONTEXTPATH = "sshs.doc.context";
+    public static final LinearId ID = new LinearId(SSSTSProcessor.DESCRIPTOR.family, "documents", SSSTSProcessor.DESCRIPTOR.name);
+    public static final String PATH = "sssts.doc";
+    public static final String ITEMPATH = "sssts.doc.item";
+    public static final String CONTEXTPATH = "sssts.doc.context";
 
     @Override
     protected String getItemPrefix() {
-        return "SSHS";
+        return "SSSTS";
     }
 
     @Override
@@ -57,8 +57,8 @@ public class SSHSDocumentManager extends AbstractWorkspaceTsItemManager<SSHSSpec
     }
 
     @Override
-    protected SSHSDocument createNewObject() {
-        return new SSHSDocument();
+    protected SSSTSDocument createNewObject() {
+        return new SSSTSDocument();
     }
 
     @Override
@@ -77,11 +77,11 @@ public class SSHSDocumentManager extends AbstractWorkspaceTsItemManager<SSHSSpec
     }
 
     @Override
-    public void openDocument(WorkspaceItem<SSHSDocument> doc) {
+    public void openDocument(WorkspaceItem<SSSTSDocument> doc) {
         if (doc.isOpen()) {
             doc.getView().requestActive();
         } else {
-            SSHSTopComponent view = new SSHSTopComponent(doc);
+            SSSTSTopComponent view = new SSSTSTopComponent(doc);
             doc.setView(view);
             view.open();
             view.requestActive();
@@ -89,7 +89,7 @@ public class SSHSDocumentManager extends AbstractWorkspaceTsItemManager<SSHSSpec
     }
 
     @Override
-    public Class<SSHSDocument> getItemClass() {
-        return SSHSDocument.class;
+    public Class<SSSTSDocument> getItemClass() {
+        return SSSTSDocument.class;
     }
 }

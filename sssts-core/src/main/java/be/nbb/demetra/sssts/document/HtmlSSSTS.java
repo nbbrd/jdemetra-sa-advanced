@@ -17,7 +17,7 @@
 
 package be.nbb.demetra.sssts.document;
 
-import be.nbb.demetra.sssts.SSHSMonitor;
+import be.nbb.demetra.sssts.SSSTSMonitor;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.tss.html.AbstractHtmlElement;
 import ec.tss.html.HtmlStream;
@@ -35,13 +35,13 @@ import java.util.List;
  *
  * @author Jean Palate
  */
-public class HtmlSSHS extends AbstractHtmlElement implements IHtmlElement {
+public class HtmlSSSTS extends AbstractHtmlElement implements IHtmlElement {
 
-    public HtmlSSHS(List<SSHSMonitor.MixedEstimation> models, int best) {
+    public HtmlSSSTS(List<SSSTSMonitor.MixedEstimation> models, int best) {
         this.models = models;
         this.best = best;
     }
-    private final List<SSHSMonitor.MixedEstimation> models;
+    private final List<SSSTSMonitor.MixedEstimation> models;
     private final int best;
 
     @Override
@@ -57,7 +57,7 @@ public class HtmlSSHS extends AbstractHtmlElement implements IHtmlElement {
         stream.write(new HtmlTableHeader("Additional noise"));
         stream.close(HtmlTag.TABLEROW);
         int icur = 0;
-        for (SSHSMonitor.MixedEstimation cur : models) {
+        for (SSSTSMonitor.MixedEstimation cur : models) {
             stream.open(HtmlTag.TABLEROW);
             HtmlStyle[] style;
             if (icur++ == best) {
@@ -67,10 +67,10 @@ public class HtmlSSHS extends AbstractHtmlElement implements IHtmlElement {
             }
             stream.write(new HtmlTableCell(cur.model.toString(), 100, style));
             stream.write(new HtmlTableCell(df4.format(cur.ll.getLogLikelihood()+.5*cur.ll.getDiffuseCorrection()), 100, style));
-            stream.write(new HtmlTableCell(df4.format(cur.model.getBasicStructuralModel().getVariance(Component.Level)), 100, style));
-            stream.write(new HtmlTableCell(df4.format(cur.model.getBasicStructuralModel().getVariance(Component.Slope)), 100, style));
-            stream.write(new HtmlTableCell(df4.format(cur.model.getBasicStructuralModel().getVariance(Component.Seasonal)), 100, style));
-            stream.write(new HtmlTableCell(df4.format(cur.model.getBasicStructuralModel().getVariance(Component.Noise)), 100, style));
+            stream.write(new HtmlTableCell(df4.format(cur.model.getLvar()), 100, style));
+            stream.write(new HtmlTableCell(df4.format(cur.model.getSvar()), 100, style));
+            stream.write(new HtmlTableCell(df4.format(cur.model.getSeasvar()), 100, style));
+            stream.write(new HtmlTableCell(df4.format(cur.model.getNvar()), 100, style));
             stream.write(new HtmlTableCell(df4.format(cur.model.getNoisyPeriodsVariance()), 100, style));
             stream.close(HtmlTag.TABLEROW);
         }

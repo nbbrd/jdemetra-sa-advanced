@@ -76,23 +76,22 @@ public class DefaultDisturbanceSmoothingResults implements IDisturbanceSmoothing
             evar.save(t, v);
         }
     }
-    
-    public DataBlock uComponent(int item){
+
+    public DataBlock uComponent(int item) {
         return U.item(item);
     }
 
-    public DataBlock uComponentVar(int item){
+    public DataBlock uComponentVar(int item) {
         return UVar.item(item, item);
     }
 
-    public DataBlock e(){
+    public DataBlock e() {
         return e.all();
     }
-    
-   public DataBlock evar(){
+
+    public DataBlock evar() {
         return evar.all();
     }
-
 
     @Override
     public DataBlock u(int pos) {
@@ -120,10 +119,12 @@ public class DefaultDisturbanceSmoothingResults implements IDisturbanceSmoothing
 
     public void prepare(ISsf ssf, int start, int end) {
         ISsfDynamics dynamics = ssf.getDynamics();
-        int dim = dynamics.getStateDim(), edim=dynamics.getInnovationsDim();
-        if (e != null && ssf.getMeasurement().hasErrors()) {
+        int dim = dynamics.getStateDim(), edim = dynamics.getInnovationsDim();
+        if (e != null) {
             e.prepare(start, end);
-            evar.prepare(start, end);
+            if (evar != null) {
+                evar.prepare(start, end);
+            }
         }
         U.prepare(edim, start, end);
 
@@ -133,7 +134,7 @@ public class DefaultDisturbanceSmoothingResults implements IDisturbanceSmoothing
     }
 
     public void rescale(double factor) {
-        double se=Math.sqrt(factor);
+        double se = Math.sqrt(factor);
         U.rescale(se);
 //        if (UVar != null) {
 //            UVar.rescale(factor);

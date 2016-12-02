@@ -36,7 +36,7 @@ import ec.tstoolkit.ucarima.UcarimaModel;
  * @author Jean Palate
  */
 public class BasicStructuralModel implements Cloneable {
-
+    
     private static ComponentUse getUse(double var) {
         if (var < 0) {
             return ComponentUse.Unused;
