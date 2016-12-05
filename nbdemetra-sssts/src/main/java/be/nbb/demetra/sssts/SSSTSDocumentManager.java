@@ -5,6 +5,7 @@
 package be.nbb.demetra.sssts;
 
 import be.nbb.demetra.sssts.descriptors.SSSTSSpecUI;
+import be.nbb.demetra.sssts.descriptors.SeasonalSpecUI2;
 import be.nbb.demetra.sssts.document.SSSTSDocument;
 import be.nbb.demetra.sssts.document.SSSTSProcessor;
 import be.nbb.demetra.sssts.ui.SSSTSViewFactory;
@@ -26,7 +27,7 @@ public class SSSTSDocumentManager extends AbstractWorkspaceTsItemManager<SSSTSSp
 
     static {
         SaManager.instance.add(new SSSTSProcessor());
-        CustomPropertyEditorRegistry.INSTANCE.registerEnumEditor(SeasonalSpecification.EstimationMethod.class);
+        CustomPropertyEditorRegistry.INSTANCE.registerEnumEditor(SeasonalSpecUI2.NoisyComponent.class);
         DocumentUIServices.getDefault().register(SSSTSDocument.class, new DocumentUIServices.AbstractUIFactory<SSSTSSpecification, SSSTSDocument>() {
 
             @Override

@@ -20,6 +20,10 @@ import java.util.List;
  * @author Jean Palate
  */
 public class SeasonalSpecUI2 implements IPropertyDescriptors {
+    
+    public static enum NoisyComponent{
+        Noise, Level, Slope
+    }
 
     final SeasonalSpecification core;
 
@@ -67,12 +71,20 @@ public class SeasonalSpecUI2 implements IPropertyDescriptors {
         core.step=value;
     }
     
-    public boolean isNoise(){
-        return core.noisyComponent == Component.Noise;
+    public NoisyComponent getNoisyComponent(){
+        switch (core.noisyComponent){
+            case Level : return NoisyComponent.Level;
+            case Slope : return NoisyComponent.Slope;
+            default : return NoisyComponent.Noise;
+       }
     }
     
-    public void setNoise(boolean noise){
-        core.noisyComponent = noise ? Component.Noise : Component.Level;
+    public void setNoisyComponent(NoisyComponent cmp){
+        switch (cmp){
+            case Level: core.noisyComponent=Component.Level;break;
+            case Slope: core.noisyComponent=Component.Slope;break;
+            case Noise: core.noisyComponent=Component.Noise;break;
+        }
     }
     
     public SeasonalSpecification.EstimationMethod getEstimationMethod(){
@@ -99,7 +111,7 @@ public class SeasonalSpecUI2 implements IPropertyDescriptors {
         if (core.noisyPeriods != null)
             return null;
         try {
-            PropertyDescriptor desc = new PropertyDescriptor("noise", this.getClass());
+            PropertyDescriptor desc = new PropertyDescriptor("noisyComponent", this.getClass());
             EnhancedPropertyDescriptor edesc = new EnhancedPropertyDescriptor(desc, A_ID);
             desc.setDisplayName(A_NAME);
             desc.setShortDescription(A_DESC);
@@ -163,9 +175,9 @@ public class SeasonalSpecUI2 implements IPropertyDescriptors {
 
     public static final int NP_ID = 0, A_ID = 1, M_ID = 2, S_ID=3;
     public static final String NP_NAME = "Noisy periods",
-            A_NAME = "Noise", M_NAME = "Estimation method", S_NAME = "Step";
+            A_NAME = "Seasonal specific innovations", M_NAME = "Estimation method", S_NAME = "Step";
     public static final String NP_DESC = "Noisy periods",
-            A_DESC = "Consider noisy irregular", M_DESC = "Estimation method: iterative = Bell's solution, "
+            A_DESC = "Consider noise", M_DESC = "Estimation method: iterative = Bell's solution, "
             + "errorvariance = based on the variance of the prediction error",
             S_DESC = "Step for err. variance in the computation of the likelihood difference"; 
             

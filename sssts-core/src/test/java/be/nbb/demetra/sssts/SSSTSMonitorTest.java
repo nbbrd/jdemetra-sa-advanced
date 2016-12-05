@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
  */
 public class SSSTSMonitorTest {
     
-    private final TsData series=Data.X;
+    private final TsData series=Data.P;
     private final SeasonalSpecification sspec=new SeasonalSpecification();
     private final ModelSpecification mspec=new ModelSpecification();
     

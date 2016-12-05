@@ -50,7 +50,7 @@ public class SSSTSEstimation {
 
     public SSSTSModel compute2(SSSTSModel model, TsData s) {
         try {
-            if (model.getNoisyPeriods() == null) {
+            if (model.getNoisyPeriods().length == 0) {
                 return searchBsm(model, s, 1e-12);
             }
             for (int i = 0; i < 5; ++i) {

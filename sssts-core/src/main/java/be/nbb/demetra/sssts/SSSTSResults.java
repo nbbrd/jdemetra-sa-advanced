@@ -27,6 +27,7 @@ import ec.satoolkit.DefaultSeriesDecomposition;
 import ec.satoolkit.ISaResults;
 import ec.satoolkit.ISeriesDecomposition;
 import ec.tstoolkit.algorithm.ProcessingInformation;
+import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.information.InformationMapper;
 import ec.tstoolkit.information.InformationSet;
@@ -62,7 +63,8 @@ public class SSSTSResults implements ISaResults {
     private TsData t, sa, s, irr, level, slope, cycle, fy, ft, fsa, fs;
 
     private void computeDecomposition(SSSTSModel model, boolean noise) {
-        int nf = y.getFrequency().intValue();
+        int freq=y.getFrequency().intValue();
+        int nf = freq;
         ISsfData data = new ExtendedSsfData(y, nf);
         int start = y.getStart().getPosition();
         ISsf of = SsfofSSSTS.of(model, start);
@@ -70,53 +72,41 @@ public class SSSTSResults implements ISaResults {
         double[] xt = new double[y.getLength()];
         double[] xi = new double[y.getLength()];
         double[] xft = new double[nf];
+        double[] xs = new double[y.getLength()];
+        double[] xfs = new double[nf];
         int cur = 0, j = start;
+        // we compute the common part by average and the seasonal part by difference
         for (; cur < xt.length; ++cur) {
-            xt[cur] = srslts.a(cur).get(j);
+            DataBlock a = srslts.a(cur);
+            double m=a.range(0, freq).sum()/freq;
+            double l=a.get(j);
+            xt[cur] = m;
+            xs[cur]=l-m;
             if ((++j) % nf == 0) {
                 j = 0;
             }
-            xi[cur] = y.get(cur) - xt[cur];
+            xi[cur] = y.get(cur) - l;
         }
         for (int i = 0; i < nf; ++i, ++cur) {
-            xft[i] = srslts.a(cur).get(j);
+            DataBlock a = srslts.a(cur);
+            double m=a.range(0, freq).sum()/freq;
+            xft[i] = m;
+            xfs[i]=a.get(j)-m;
             if ((++j) % nf == 0) {
                 j = 0;
             }
         }
+        
         t = new TsData(y.getStart(), xt, false);
         irr = new TsData(y.getStart(), xi, false);
-        s=new TsData(y.getStart(), y.getLength());
-        s.set(()->0);
+        s=new TsData(y.getStart(), xs, false);
         fs=new TsData(y.getEnd(), nf);
         fs.set(()->0);
         ft = new TsData(y.getEnd(), xft, false);
+        fs = new TsData(y.getEnd(), xfs, false);
+        fy = TsData.add(ft, fs);
         sa=TsData.subtract(y, s);
-//        if (noise) {
-//            ISsf ssf = SsfofSSSTS.ofNoise2(model, start);
-//            srslts = DkToolkit.sqrtSmooth(ssf, data, true);
-//            NoisyMeasurement m = (NoisyMeasurement) ssf.getMeasurement();
-//            CompositeMeasurement cm = (CompositeMeasurement) m.getMeasurement();
-//            cmps = new Matrix(data.getLength(), cm.getComponentsCount());
-//            for (int i = 0; i < cmps.getRowsCount(); ++i) {
-//                cm.ZX(i, srslts.a(i), cmps.row(i));
-//            }
-//
-//        } else {
-//            ISsf ssf = SsfofSSSTS.ofSeasonal(model, start);
-//            srslts = DkToolkit.sqrtSmooth(ssf, data, true);
-//            CompositeMeasurement cm = (CompositeMeasurement) ssf.getMeasurement();
-//            cmps = new Matrix(data.getLength(), cm.getComponentsCount());
-//            for (int i = 0; i < cmps.getRowsCount(); ++i) {
-//                cm.ZX(i, srslts.a(i), cmps.row(i));
-//            }
-//        }
-//        t = new TsData(y.getStart(), cmps.column(0).drop(0, nf));
-//        ft = new TsData(y.getEnd(), cmps.column(0).drop(y.getLength(), 0));
-//        s = new TsData(y.getStart(), cmps.column(1).drop(0, nf));
-//        fs = new TsData(y.getEnd(), cmps.column(1).drop(y.getLength(), 0));
-//        irr=TsData.subtract(y, TsData.add(t, s));
-//        sa=TsData.subtract(y, s);
+        fsa=ft;
     }
 
     @Override

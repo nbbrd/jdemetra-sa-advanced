@@ -114,7 +114,7 @@ public class SSSTSMonitor {
         m.setSvar(bsm.getVariance(Component.Slope));
         m.setSeasvar(bsm.getVariance(Component.Seasonal));
         m.setNvar(bsm.getVariance(Component.Noise));
-        m.setNoisyPeriodsVariance(1);
+        m.setNoisyPeriodsVariance(0);
     }
 
 

@@ -81,7 +81,7 @@ public class SsfofSSSTS {
 
     private static ISsf ofSlope(final SSSTSModel model, final int pstart) {
         int s = model.getFrequency();
-        ISsfDynamics dyn = new SSLLTFullDyn(model);
+        ISsfDynamics dyn = new SSLLTDyn2(model);
         ISsfMeasurement m = Measurement.cyclical(s, pstart, dyn.getStateDim());
 
         final double evar = model.getNvar();
@@ -299,6 +299,136 @@ public class SsfofSSSTS {
         @Override
         public int getStateDim() {
             return s + 1;
+        }
+
+        @Override
+        public boolean isTimeInvariant() {
+            return true;
+        }
+
+        @Override
+        public boolean isValid() {
+            return true;
+        }
+
+        @Override
+        public void addSU(int pos, DataBlock x, DataBlock u) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+    }
+
+    static class SSLLTDyn2 implements ISsfDynamics {
+
+        private final int s;
+        private final double lvar, svar1, svar2, seasvar;
+        private final int[] ins;
+
+        SSLLTDyn2(SSSTSModel model) {
+            s = model.getFrequency();
+            svar1 = model.getSvar();
+            lvar = model.getLvar();
+            seasvar = model.getSeasvar();
+            ins = new int[s];
+            int[] np = model.getNoisyPeriods().clone();
+            svar2 = model.getNoisyPeriodsVariance();
+            for (int i = 0; i < np.length; ++i) {
+                ins[np[i]] = 1;
+            }
+        }
+
+        @Override
+        public int getInnovationsDim() {
+            return s + s;
+        }
+
+        @Override
+        public void V(int pos, SubMatrix qm) {
+            SubMatrix lv = qm.extract(0, s, 0, s);
+            lv.set(lvar);
+            lv.diagonal().add(seasvar);
+            qm.set(s, s, svar1);
+            qm.set(s + 1, s + 1, svar2);
+        }
+
+        @Override
+        public void S(int pos, SubMatrix cm) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public boolean hasInnovations(int pos) {
+            return true;
+        }
+
+        @Override
+        public void T(int pos, SubMatrix tr) {
+            tr.diagonal().set(1);
+            for (int i = 0; i < s; ++i) {
+                tr.set(i, s + ins[i], 1);
+            }
+        }
+
+        @Override
+        public boolean isDiffuse() {
+            return true;
+        }
+
+        @Override
+        public int getNonStationaryDim() {
+            return s + 2;
+        }
+
+        @Override
+        public void diffuseConstraints(SubMatrix b) {
+            b.diagonal().set(1);
+        }
+
+        @Override
+        public boolean a0(DataBlock a0) {
+            return true;
+        }
+
+        @Override
+        public boolean Pf0(SubMatrix pf0) {
+            return true;
+        }
+
+        @Override
+        public void TX(int pos, DataBlock x) {
+            double z0 = x.get(s), z1 = x.get(s + 1);
+            for (int i = 0; i < s; ++i) {
+                x.add(i, ins[i] == 0 ? z0 : z1);
+            }
+        }
+
+        @Override
+        public void addV(int pos, SubMatrix p) {
+            SubMatrix lv = p.extract(0, s, 0, s);
+            lv.add(lvar);
+            lv.diagonal().add(seasvar);
+            p.add(s, s, svar1);
+            p.add(s + 1, s + 1, svar2);
+        }
+
+        @Override
+        public void XT(int pos, DataBlock x) {
+            for (int i=0; i<s; ++i){
+                if (ins[i] == 0)
+                    x.add(s, x.get(i));
+                else
+                    x.add(s+1, x.get(i));
+            }
+        }
+
+        @Override
+        public void XS(int pos, DataBlock x, DataBlock xs) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public int getStateDim() {
+            return s + 2;
         }
 
         @Override

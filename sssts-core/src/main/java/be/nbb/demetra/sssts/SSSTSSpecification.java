@@ -84,7 +84,7 @@ public class SSSTSSpecification implements ISaSpecification, Cloneable {
     
     @Override
     public String toString() {
-        return SSHSProcessingFactory.DESCRIPTOR.name;
+        return SSSTSProcessingFactory.DESCRIPTOR.name;
     }
 
 //    @Override

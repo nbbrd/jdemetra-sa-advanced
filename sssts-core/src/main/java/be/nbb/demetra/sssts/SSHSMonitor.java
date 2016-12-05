@@ -86,7 +86,7 @@ public class SSHSMonitor {
             if (nrslt != null) {
                 m_models.add(nrslt);
                 double ll = nrslt.ll.getLogLikelihood();
-                if (ll > rslt.ll.getLogLikelihood() + 2) {
+                if (ll > rslt.ll.getLogLikelihood() ) {
                     m_best = 1;
                 } else {
                     m_best = 0;
@@ -186,10 +186,13 @@ public class SSHSMonitor {
         IReadDataBlock res = m_models.get(0).ll.getResiduals();
         TsData residuals = new TsData(m_series.getStart().plus(m_series.getLength() - res.getLength()), res);
         int[] np = sortNoisyPeriods(residuals);
+        int[] usednp=new int[np.length];
+        int nused=0;
         for (int i = 1; i < np.length - 1; ++i) {
+            usednp[nused]=np[i];
             SSHSModel m = new SSHSModel();
             m.setBasicStructuralMode(bsm.clone());
-            int[] noisyPeriods = Arrays.copyOf(np, i);
+            int[] noisyPeriods = Arrays.copyOf(usednp, nused+1);
             m.setNoisyPeriods(noisyPeriods);
             String name = m.toString();
             m_computed.add(name);
@@ -200,6 +203,7 @@ public class SSHSMonitor {
                 if (ll > refll) {
                     m_best = m_models.size() - 1;
                     refll = ll;
+                    ++nused;
                 }
             }
 
