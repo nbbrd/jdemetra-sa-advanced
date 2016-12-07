@@ -96,7 +96,6 @@ public class SSHSEstimation {
         SSHSMapping mapper = SSHSMapping.noise(model);
         SsfFunction<SSHSModel, ISsf> fn = new SsfFunction<>(new SsfData(s), mapper, 
             (SSHSModel m) ->noise ? SsfofSSHS.ofNoise(m, start):SsfofSSHS.ofSeasonal(m, start));
-               minimizer.setConvergenceCriterion(1e-6);
         minimizer.minimize(fn);
         SsfFunctionInstance<SSHSModel, ISsf> rfn = (SsfFunctionInstance<SSHSModel, ISsf>) minimizer.getResult();
         return rfn.getCore();

@@ -21,6 +21,11 @@ import be.nbb.demetra.sssts.SeasonalSpecification.EstimationMethod;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.tstoolkit.algorithm.CompositeResults;
+import ec.tstoolkit.timeseries.Day;
+import ec.tstoolkit.timeseries.Month;
+import ec.tstoolkit.timeseries.TsPeriodSelector;
+import ec.tstoolkit.timeseries.calendars.TradingDaysType;
+import ec.tstoolkit.timeseries.simplets.TsData;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
@@ -31,16 +36,31 @@ import org.junit.Ignore;
  */
 public class SSHSProcessingFactoryTest {
 
+    private TsData s;
+
     public SSHSProcessingFactoryTest() {
+        TsPeriodSelector sel = new TsPeriodSelector();
+        sel.to(new Day(1984, Month.December, 30));
+        s = Data.Hous_MW.select(sel);
+    }
+
+    private SSHSSpecification spec() {
+        SSHSSpecification spec = new SSHSSpecification();
+        spec.getDecompositionSpec().noisyComponent = Component.Seasonal;
+        spec.getModelSpecification().setSeasonalModel(SeasonalModel.HarrisonStevens);
+        spec.getPreprocessingSpec().ao = false;
+        spec.getPreprocessingSpec().ls = false;
+        spec.getPreprocessingSpec().tc = false;
+        spec.getPreprocessingSpec().dtype = TradingDaysType.WorkingDays;
+        return spec;
     }
 
     @Test
     @Ignore
     public void testGradient() {
-        SSHSSpecification spec = new SSHSSpecification();
-        spec.getDecompositionSpec().noisyComponent = Component.Seasonal;
-        spec.getModelSpecification().setSeasonalModel(SeasonalModel.HarrisonStevens);
-        CompositeResults process = SSHSProcessingFactory.process(Data.Hous_MW, spec);
+        SSHSSpecification spec = spec();
+        spec.getDecompositionSpec().method = EstimationMethod.LikelihoodGradient;
+        CompositeResults process = SSHSProcessingFactory.process(s, spec);
         SSHSResults results = process.get(SSHSProcessingFactory.DECOMPOSITION, SSHSResults.class);
         for (SSHSMonitor.MixedEstimation me : results.getAllModels()) {
             System.out.print(me.model);
@@ -54,14 +74,16 @@ public class SSHSProcessingFactoryTest {
     @Test
     @Ignore
     public void testIterative() {
-        SSHSSpecification spec = new SSHSSpecification();
-        spec.getModelSpecification().setSeasonalModel(SeasonalModel.HarrisonStevens);
-        spec.getDecompositionSpec().noisyComponent = Component.Seasonal;
+        SSHSSpecification spec = spec();
         spec.getDecompositionSpec().method = EstimationMethod.Iterative;
-        CompositeResults process = SSHSProcessingFactory.process(Data.Hous_MW, spec);
+        CompositeResults process = SSHSProcessingFactory.process(s, spec);
         SSHSResults results = process.get(SSHSProcessingFactory.DECOMPOSITION, SSHSResults.class);
         for (SSHSMonitor.MixedEstimation me : results.getAllModels()) {
             System.out.print(me.model);
+            System.out.print('\t');
+            System.out.print(me.model.getBasicStructuralModel().getVariance(Component.Level));
+            System.out.print('\t');
+            System.out.print(me.model.getBasicStructuralModel().getVariance(Component.Noise));
             System.out.print('\t');
             System.out.print(me.model.getNoisyPeriodsVariance());
             System.out.print('\t');

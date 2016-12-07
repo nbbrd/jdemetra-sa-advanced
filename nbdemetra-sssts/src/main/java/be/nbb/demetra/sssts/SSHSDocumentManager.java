@@ -42,13 +42,13 @@ public class SSHSDocumentManager extends AbstractWorkspaceTsItemManager<SSHSSpec
     }
 
     public static final LinearId ID = new LinearId(SSHSProcessor.DESCRIPTOR.family, "documents", SSHSProcessor.DESCRIPTOR.name);
-    public static final String PATH = "sssts.doc";
-    public static final String ITEMPATH = "sssts.doc.item";
-    public static final String CONTEXTPATH = "sssts.doc.context";
+    public static final String PATH = "sshs.doc";
+    public static final String ITEMPATH = "sshs.doc.item";
+    public static final String CONTEXTPATH = "sshs.doc.context";
 
     @Override
     protected String getItemPrefix() {
-        return "SSSTS";
+        return "SSHS";
     }
 
     @Override

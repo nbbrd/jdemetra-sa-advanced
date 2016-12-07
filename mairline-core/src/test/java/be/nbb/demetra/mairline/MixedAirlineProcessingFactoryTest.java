@@ -19,6 +19,11 @@ package be.nbb.demetra.mairline;
 import be.nbb.demetra.mairline.MaSpecification.EstimationMethod;
 import data.Data;
 import ec.tstoolkit.algorithm.CompositeResults;
+import ec.tstoolkit.timeseries.Day;
+import ec.tstoolkit.timeseries.Month;
+import ec.tstoolkit.timeseries.TsPeriodSelector;
+import ec.tstoolkit.timeseries.calendars.TradingDaysType;
+import ec.tstoolkit.timeseries.simplets.TsData;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -28,14 +33,27 @@ import org.junit.Test;
  */
 public class MixedAirlineProcessingFactoryTest {
 
+    private TsData s;
+
     public MixedAirlineProcessingFactoryTest() {
+        TsPeriodSelector sel = new TsPeriodSelector();
+        sel.to(new Day(1984, Month.December, 30));
+        s = Data.Hous_MW.select(sel);
+    }
+    
+    private MixedAirlineSpecification spec(){
+       MixedAirlineSpecification spec = new MixedAirlineSpecification();
+        spec.getPreprocessingSpec().ao=false;
+        spec.getPreprocessingSpec().ls=false;
+        spec.getPreprocessingSpec().tc=false;
+        spec.getPreprocessingSpec().dtype=TradingDaysType.WorkingDays;
+        return spec;
     }
 
     @Test
     @Ignore
     public void testGradient() {
-        MixedAirlineSpecification spec = new MixedAirlineSpecification();
-        CompositeResults process = MixedAirlineProcessingFactory.process(Data.Hous_MW, spec);
+        CompositeResults process = MixedAirlineProcessingFactory.process(s, spec());
         MixedAirlineResults results = process.get(MixedAirlineProcessingFactory.DECOMPOSITION, MixedAirlineResults.class);
         for (MixedAirlineMonitor.MixedEstimation me : results.getAllModels()) {
             System.out.print(me.model);
@@ -47,9 +65,9 @@ public class MixedAirlineProcessingFactoryTest {
     @Test
     @Ignore
     public void testIterative() {
-        MixedAirlineSpecification spec = new MixedAirlineSpecification();
+        MixedAirlineSpecification spec = spec();
         spec.getDecompositionSpec().method = EstimationMethod.Iterative;
-        CompositeResults process = MixedAirlineProcessingFactory.process(Data.Hous_MW, spec);
+        CompositeResults process = MixedAirlineProcessingFactory.process(s, spec);
         MixedAirlineResults results = process.get(MixedAirlineProcessingFactory.DECOMPOSITION, MixedAirlineResults.class);
         for (MixedAirlineMonitor.MixedEstimation me : results.getAllModels()) {
             System.out.print(me.model);

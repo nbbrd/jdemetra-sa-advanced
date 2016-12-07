@@ -74,6 +74,8 @@ public interface IParametersDomain {
     
     IReadDataBlock getDefault();
     
-    String getDescription(int idx);
+    default String getDescription(int idx){
+        return "parameter-"+(idx+1);
+    };
 
 }

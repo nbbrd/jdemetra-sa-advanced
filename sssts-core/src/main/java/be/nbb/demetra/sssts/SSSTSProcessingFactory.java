@@ -35,17 +35,17 @@ import java.util.Map;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public class SSHSProcessingFactory extends GenericSaProcessingFactory implements IProcessingFactory<SSHSSpecification, TsData, CompositeResults> {
+public class SSSTSProcessingFactory extends GenericSaProcessingFactory implements IProcessingFactory<SSSTSSpecification, TsData, CompositeResults> {
     
-    public static final AlgorithmDescriptor DESCRIPTOR = new AlgorithmDescriptor(FAMILY, "SSHS", null);
+    public static final AlgorithmDescriptor DESCRIPTOR = new AlgorithmDescriptor(FAMILY, "SSSTS", null);
     
-    private static SequentialProcessing<TsData> create(SSHSSpecification xspec, ProcessingContext context) {
+    private static SequentialProcessing<TsData> create(SSSTSSpecification xspec, ProcessingContext context) {
         SequentialProcessing processing = new SequentialProcessing();
         DefaultPreprocessingFilter filter = new DefaultPreprocessingFilter();
         if (xspec.getPreprocessingSpec().method != Method.None) {
             addPreprocessingStep(xspec.buildPreprocessor(context), processing);
         }
-        addDecompositionStep(new SSHSDecomposer(xspec.getModelSpecification(), xspec.getDecompositionSpec()), filter, processing);
+        addDecompositionStep(new SSSTSDecomposer(xspec.getModelSpecification(), xspec.getDecompositionSpec()), filter, processing);
         addFinalStep(filter, processing);
         // TODO For test only
         SaBenchmarkingSpec bspec = xspec.getBenchmarkingSpec();
@@ -55,22 +55,22 @@ public class SSHSProcessingFactory extends GenericSaProcessingFactory implements
         return processing;
     }
     
-    public static final SSHSProcessingFactory instance = new SSHSProcessingFactory();
+    public static final SSSTSProcessingFactory instance = new SSSTSProcessingFactory();
     
-    protected SSHSProcessingFactory() {
+    protected SSSTSProcessingFactory() {
     }
     
-    public static CompositeResults process(TsData s, SSHSSpecification xspec) {
+    public static CompositeResults process(TsData s, SSSTSSpecification xspec) {
         SequentialProcessing<TsData> processing = create(xspec, null);
         return processing.process(s);
     }
     
     @Override
-    public SequentialProcessing<TsData> generateProcessing(SSHSSpecification xspec, ProcessingContext context) {
+    public SequentialProcessing<TsData> generateProcessing(SSSTSSpecification xspec, ProcessingContext context) {
         return create(xspec, context);
     }
     
-    public SequentialProcessing<TsData> generateProcessing(SSHSSpecification xspec) {
+    public SequentialProcessing<TsData> generateProcessing(SSSTSSpecification xspec) {
         return create(xspec, null);
     }
     
@@ -85,13 +85,13 @@ public class SSHSProcessingFactory extends GenericSaProcessingFactory implements
     
     @Override
     public boolean canHandle(IProcSpecification spec) {
-        return spec instanceof SSHSSpecification;
+        return spec instanceof SSSTSSpecification;
     }
     
     @Override
-    public Map<String, Class> getSpecificationDictionary(Class<SSHSSpecification> specClass) {
+    public Map<String, Class> getSpecificationDictionary(Class<SSSTSSpecification> specClass) {
         HashMap<String, Class> dic = new HashMap<>();
-        SSHSSpecification.fillDictionary(null, dic);
+        SSSTSSpecification.fillDictionary(null, dic);
         return dic;
     }
     

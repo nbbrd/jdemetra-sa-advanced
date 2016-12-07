@@ -4,7 +4,7 @@
  */
 package be.nbb.demetra.sssts;
 
-import be.nbb.demetra.sssts.document.SSHSDocument;
+import be.nbb.demetra.sssts.document.SSSTSDocument;
 import ec.nbdemetra.ws.WorkspaceFactory;
 import ec.nbdemetra.ws.WorkspaceItem;
 import ec.nbdemetra.ws.ui.WorkspaceTsTopComponent;
@@ -18,39 +18,39 @@ import org.openide.windows.TopComponent;
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(dtd = "-//be.nbb.nbdemetra.sssts//SSHSS//EN",
+@ConvertAsProperties(dtd = "-//be.nbb.nbdemetra.sssts//SSSTS//EN",
 autostore = false)
-@TopComponent.Description(preferredID = "SSHSTopComponent",
+@TopComponent.Description(preferredID = "SSSTSTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "editor", openAtStartup = false)
-@ActionID(category = "Seasonal Adjustment", id = "be.nbb.nbdemetra.sssts.SSHSTopComponent")
+@ActionID(category = "Seasonal Adjustment", id = "be.nbb.nbdemetra.sssts.SSSTSTopComponent")
 @ActionReference(path = "Menu/Statistical methods/Seasonal Adjustment/Single Analysis", position = 1600)
-@TopComponent.OpenActionRegistration(displayName = "#CTL_SSHSAction")
+@TopComponent.OpenActionRegistration(displayName = "#CTL_SSSTSAction")
 @NbBundle.Messages({
-    "CTL_SSHSAction=Seasonal specific Harrison-Stevens",
-    "CTL_SSHSTopComponent=Seasonal specific HS Window",
-    "HINT_SSHSTopComponent=This is a Seasonal specific HS window"
+    "CTL_SSSTSAction=Seasonal specific STS",
+    "CTL_SSSTSTopComponent=Seasonal specific STS Window",
+    "HINT_SSSTSTopComponent=This is a Seasonal specific STS window"
 })
-public final class SSHSTopComponent extends WorkspaceTsTopComponent<SSHSDocument> {
+public final class SSSTSTopComponent extends WorkspaceTsTopComponent<SSSTSDocument> {
 
-    private static SSHSDocumentManager manager(){
-        return WorkspaceFactory.getInstance().getManager(SSHSDocumentManager.class);
+    private static SSSTSDocumentManager manager(){
+        return WorkspaceFactory.getInstance().getManager(SSSTSDocumentManager.class);
     }
 
-    public SSHSTopComponent() {
+    public SSSTSTopComponent() {
         super(manager().create(WorkspaceFactory.getInstance().getActiveWorkspace()));
         initDocument();
     }
 
-    public SSHSTopComponent(WorkspaceItem<SSHSDocument> doc) {
+    public SSSTSTopComponent(WorkspaceItem<SSSTSDocument> doc) {
         super(doc);
         initDocument();
     }
 
     private void initDocument() {
         initComponents();
-        setToolTipText(NbBundle.getMessage(SSHSTopComponent.class, "HINT_SSHSTopComponent"));
+        setToolTipText(NbBundle.getMessage(SSSTSTopComponent.class, "HINT_SSSTSTopComponent"));
         setName(getDocument().getDisplayName());
         panel = TsProcessingViewer.create(getDocument().getElement());
         this.add(panel);
@@ -82,6 +82,6 @@ public final class SSHSTopComponent extends WorkspaceTsTopComponent<SSHSDocument
 
     @Override
     protected String getContextPath() {
-        return SSHSDocumentManager.CONTEXTPATH;
+        return SSSTSDocumentManager.CONTEXTPATH;
     }
 }
