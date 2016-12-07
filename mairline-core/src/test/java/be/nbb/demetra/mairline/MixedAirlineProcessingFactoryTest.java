@@ -51,7 +51,7 @@ public class MixedAirlineProcessingFactoryTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testGradient() {
         CompositeResults process = MixedAirlineProcessingFactory.process(s, spec());
         MixedAirlineResults results = process.get(MixedAirlineProcessingFactory.DECOMPOSITION, MixedAirlineResults.class);
@@ -63,7 +63,7 @@ public class MixedAirlineProcessingFactoryTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testIterative() {
         MixedAirlineSpecification spec = spec();
         spec.getDecompositionSpec().method = EstimationMethod.Iterative;

@@ -24,7 +24,7 @@ public class CroutDoolittleTest {
         gauss.solve(x);
         cd.solve(y);
         assertTrue(y.distance(x)<1e-9);
-        System.out.println(x);
-        System.out.println(y);
+//        System.out.println(x);
+//        System.out.println(y);
     }
 }

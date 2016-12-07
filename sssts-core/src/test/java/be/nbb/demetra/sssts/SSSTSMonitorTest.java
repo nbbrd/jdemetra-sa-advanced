@@ -23,91 +23,99 @@ import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
  * @author Jean Palate
  */
 public class SSSTSMonitorTest {
-    
-    private final TsData series=Data.P;
-    private final SeasonalSpecification sspec=new SeasonalSpecification();
-    private final ModelSpecification mspec=new ModelSpecification();
-    
+
+    private final TsData series = Data.P;
+    private final SeasonalSpecification sspec = new SeasonalSpecification();
+    private final ModelSpecification mspec = new ModelSpecification();
+
     public SSSTSMonitorTest() {
     }
 
     @Test
     public void testNoiseIterative() {
-        sspec.method=EstimationMethod.Iterative;
-        sspec.noisyComponent=Component.Noise;
-        SSSTSMonitor monitor=new SSSTSMonitor();
+        sspec.method = EstimationMethod.Iterative;
+        sspec.noisyComponent = Component.Noise;
+        SSSTSMonitor monitor = new SSSTSMonitor();
         boolean ok = monitor.process(series, mspec, sspec);
-        System.out.println("Noise");
-        System.out.println("Iterative");
-        System.out.println(monitor.getBestModel().model.toString());
-        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
-        System.out.println(monitor.getAllResults().get(0).ll.getLogLikelihood());
+        assertTrue(ok);
+//        System.out.println("Noise");
+//        System.out.println("Iterative");
+//        System.out.println(monitor.getBestModel().model.toString());
+//        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
+//        System.out.println(monitor.getAllResults().get(0).ll.getLogLikelihood());
     }
-    
+
     @Test
     public void testNoiseGrad() {
-        sspec.method=EstimationMethod.LikelihoodGradient;
-        sspec.noisyComponent=Component.Noise;
-        SSSTSMonitor monitor=new SSSTSMonitor();
+        sspec.method = EstimationMethod.LikelihoodGradient;
+        sspec.noisyComponent = Component.Noise;
+        SSSTSMonitor monitor = new SSSTSMonitor();
         boolean ok = monitor.process(series, mspec, sspec);
-        System.out.println("Noise");
-        System.out.println("Gradient");
-        System.out.println(monitor.getBestModel().model.toString());
-        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
+        assertTrue(ok);
+//        System.out.println("Noise");
+//        System.out.println("Gradient");
+//        System.out.println(monitor.getBestModel().model.toString());
+//        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
     }
 
     @Test
     public void testLevelIterative() {
-        sspec.noisyComponent=Component.Level;
-        sspec.method=EstimationMethod.Iterative;
-        SSSTSMonitor monitor=new SSSTSMonitor();
+        sspec.noisyComponent = Component.Level;
+        sspec.method = EstimationMethod.Iterative;
+        SSSTSMonitor monitor = new SSSTSMonitor();
         boolean ok = monitor.process(series, mspec, sspec);
-        System.out.println("Level");
-        System.out.println("Iterative");
-        System.out.println(monitor.getBestModel().model.toString());
-        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
-        System.out.println(monitor.getAllResults().get(0).ll.getLogLikelihood());
+        assertTrue(ok);
+//        System.out.println("Level");
+//        System.out.println("Iterative");
+//        System.out.println(monitor.getBestModel().model.toString());
+//        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
+//        System.out.println(monitor.getAllResults().get(0).ll.getLogLikelihood());
     }
-    
+
     @Test
     public void testLevelGrad() {
-        sspec.noisyComponent=Component.Level;
-        sspec.method=EstimationMethod.LikelihoodGradient;
-        SSSTSMonitor monitor=new SSSTSMonitor();
+        sspec.noisyComponent = Component.Level;
+        sspec.method = EstimationMethod.LikelihoodGradient;
+        SSSTSMonitor monitor = new SSSTSMonitor();
         boolean ok = monitor.process(series, mspec, sspec);
-        System.out.println("Level");
-        System.out.println("Gradient");
-        System.out.println(monitor.getBestModel().model.toString());
-        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
+        assertTrue(ok);
+//        System.out.println("Level");
+//        System.out.println("Gradient");
+//        System.out.println(monitor.getBestModel().model.toString());
+//        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
     }
+
     @Test
     public void testSlopeIterative() {
-        sspec.noisyComponent=Component.Slope;
-        sspec.method=EstimationMethod.Iterative;
-        SSSTSMonitor monitor=new SSSTSMonitor();
+        sspec.noisyComponent = Component.Slope;
+        sspec.method = EstimationMethod.Iterative;
+        SSSTSMonitor monitor = new SSSTSMonitor();
         boolean ok = monitor.process(series, mspec, sspec);
-        System.out.println("Slope");
-        System.out.println("Iterative");
-        System.out.println(monitor.getBestModel().model.toString());
-        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
-        System.out.println(monitor.getAllResults().get(0).ll.getLogLikelihood());
+        assertTrue(ok);
+//        System.out.println("Slope");
+//        System.out.println("Iterative");
+//        System.out.println(monitor.getBestModel().model.toString());
+//        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
+//        System.out.println(monitor.getAllResults().get(0).ll.getLogLikelihood());
     }
-    
+
     @Test
     public void testSlopeGrad() {
-        sspec.noisyComponent=Component.Slope;
-        sspec.method=EstimationMethod.LikelihoodGradient;
-        SSSTSMonitor monitor=new SSSTSMonitor();
+        sspec.noisyComponent = Component.Slope;
+        sspec.method = EstimationMethod.LikelihoodGradient;
+        SSSTSMonitor monitor = new SSSTSMonitor();
         boolean ok = monitor.process(series, mspec, sspec);
-        System.out.println("Slope");
-        System.out.println("Gradient");
-        System.out.println(monitor.getBestModel().model.toString());
-        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
+        assertTrue(ok);
+//        System.out.println("Slope");
+//        System.out.println("Gradient");
+//        System.out.println(monitor.getBestModel().model.toString());
+//        System.out.println(monitor.getBestModel().ll.getLogLikelihood());
     }
 }

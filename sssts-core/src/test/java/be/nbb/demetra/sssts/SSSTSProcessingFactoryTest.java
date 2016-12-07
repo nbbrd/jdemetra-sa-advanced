@@ -62,13 +62,13 @@ public class SSSTSProcessingFactoryTest {
         spec.getDecompositionSpec().method = SeasonalSpecification.EstimationMethod.LikelihoodGradient;
         CompositeResults process = SSSTSProcessingFactory.process(s, spec);
         SSSTSResults results = process.get(SSSTSProcessingFactory.DECOMPOSITION, SSSTSResults.class);
-        for (SSSTSMonitor.MixedEstimation me : results.getAllModels()) {
-            System.out.print(me.model);
-            System.out.print('\t');
-            System.out.print(me.model.getNoisyPeriodsVariance());
-            System.out.print('\t');
-            System.out.println(me.ll.getLogLikelihood());
-        }
+//        for (SSSTSMonitor.MixedEstimation me : results.getAllModels()) {
+//            System.out.print(me.model);
+//            System.out.print('\t');
+//            System.out.print(me.model.getNoisyPeriodsVariance());
+//            System.out.print('\t');
+//            System.out.println(me.ll.getLogLikelihood());
+//        }
     }
 
     @Test
@@ -79,12 +79,12 @@ public class SSSTSProcessingFactoryTest {
         spec.getDecompositionSpec().method = SeasonalSpecification.EstimationMethod.Iterative;
         CompositeResults process = SSSTSProcessingFactory.process(s, spec);
         SSSTSResults results = process.get(SSSTSProcessingFactory.DECOMPOSITION, SSSTSResults.class);
-        for (SSSTSMonitor.MixedEstimation me : results.getAllModels()) {
-            System.out.print(me.model);
-            System.out.print('\t');
-            System.out.print(me.model.getNoisyPeriodsVariance());
-            System.out.print('\t');
-            System.out.println(me.ll.getLogLikelihood());
-        }
+//        for (SSSTSMonitor.MixedEstimation me : results.getAllModels()) {
+//            System.out.print(me.model);
+//            System.out.print('\t');
+//            System.out.print(me.model.getNoisyPeriodsVariance());
+//            System.out.print('\t');
+//            System.out.println(me.ll.getLogLikelihood());
+//        }
     }
 }

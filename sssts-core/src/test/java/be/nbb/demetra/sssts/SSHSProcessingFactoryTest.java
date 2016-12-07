@@ -56,7 +56,7 @@ public class SSHSProcessingFactoryTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testGradient() {
         SSHSSpecification spec = spec();
         spec.getDecompositionSpec().method = EstimationMethod.LikelihoodGradient;
@@ -72,7 +72,7 @@ public class SSHSProcessingFactoryTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testIterative() {
         SSHSSpecification spec = spec();
         spec.getDecompositionSpec().method = EstimationMethod.Iterative;

@@ -26,6 +26,7 @@ import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.timeseries.simplets.TsData;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -52,19 +53,19 @@ public class SSSTSEstimationTest {
         model.setNoisyComponent(Component.Slope);
         SSSTSEstimation estimation = new SSSTSEstimation();
         SSSTSModel rslt = estimation.compute(model, S);
-        System.out.println(rslt.getLvar());
-        System.out.println(rslt.getSvar());
-        System.out.println(rslt.getSeasvar());
-        System.out.println(rslt.getNvar());
-        System.out.println(rslt.getNoisyPeriodsVariance());
-        System.out.println("SSSTS-1");
+//        System.out.println(rslt.getLvar());
+//        System.out.println(rslt.getSvar());
+//        System.out.println(rslt.getSeasvar());
+//        System.out.println(rslt.getNvar());
+//        System.out.println(rslt.getNoisyPeriodsVariance());
+//        System.out.println("SSSTS-1");
         DkLikelihood ll = DkToolkit.likelihoodComputer().compute(SsfofSSSTS.of(rslt, 0), new SsfData(S));
-        System.out.println(ll.getLogLikelihood());
-        System.out.println("");
+//        System.out.println(ll.getLogLikelihood());
+//        System.out.println("");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testCompute2() {
         model.setNoisyComponent(Component.Slope);
         SSSTSEstimation estimation = new SSSTSEstimation();
@@ -81,7 +82,7 @@ public class SSSTSEstimationTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testCompute2bis() {
         model.setNoisyComponent(Component.Slope);
         model.setNoisyPeriods(null);

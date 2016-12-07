@@ -32,6 +32,7 @@ import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.maths.matrices.SymmetricMatrix;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -51,6 +52,7 @@ public class SsfofSSSTSTest {
     }
 
     @Test
+    @Ignore
     public void testSSLLTDyn() {
 
         SSLLTDyn dyn = new SSLLTDyn(model);
@@ -90,11 +92,11 @@ public class SsfofSSSTSTest {
         model.setNoisyComponent(Component.Noise);
         ISsf ssf = SsfofSSSTS.of(model, 0);
         DkLikelihood ll = DkToolkit.likelihoodComputer().compute(ssf, new SsfData(Data.P));
-        System.out.println(ll.getLogLikelihood());
+//        System.out.println(ll.getLogLikelihood());
         model.setSvar(10);
         ssf = SsfofSSSTS.of(model, 0);
         ll = DkToolkit.likelihoodComputer().compute(ssf, new SsfData(Data.P));
-        System.out.println(ll.getLogLikelihood());
+//        System.out.println(ll.getLogLikelihood());
     }
 
 }
