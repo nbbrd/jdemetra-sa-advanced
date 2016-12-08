@@ -200,7 +200,7 @@ public abstract class BaseDiffuseSmoother {
     private void iterateDiffuseR(int pos) {
         dynamics.XT(pos, Rf);
         dynamics.XT(pos, Ri);
-        if (!missing && f != 0) {
+        if (!missing /*&& f != 0*/) {
             // Ri(t-1)=c*Z(t) +Ri(t)*T(t)
             // c = e/fi-(Ri(t)*T(t)*Ci(t))/fi-(Rf(t)*T(t)*Cf(t))/f
             double ci = e / fi - Ri.dot(Ci) - Rf.dot(C);
