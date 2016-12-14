@@ -613,7 +613,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
      * @return A new time series is returned. May be empty, but not null.
      */
     public TsData delta(final int lag) {
-        return autoTransform((x1, x0) -> x1 - x0, lag);
+        return autoTransform(lag, (x1, x0) -> x1 - x0);
     }
 
     /**
@@ -1206,7 +1206,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
      * @return A new time series is returned. May be empty, but not null.
      */
     public TsData pctVariation(final int lag) {
-        return autoTransform((x1, x0) -> (x1 / x0 - 1) * 100, lag);
+        return autoTransform(lag, (x1, x0) -> (x1 / x0 - 1) * 100);
     }
 
     /**
@@ -1440,7 +1440,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
 
     //<editor-fold defaultstate="collapsed" desc="functional methods">
     @Override
-    public double computeRecursively(DoubleBinaryOperator fn, final double initial) {
+    public double computeRecursively(final double initial, DoubleBinaryOperator fn) {
         double cur = initial;
         for (int i = 0; i < vals.length; i++) {
             cur = fn.applyAsDouble(cur, vals[i]);
@@ -1467,7 +1467,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
         applyIf(x -> Double.isFinite(x), fn);
     }
 
-    public void applyRecursively(DoubleBinaryOperator fn, final double initial) {
+    public void applyRecursively(final double initial, DoubleBinaryOperator fn) {
         double cur = initial;
         for (int i = 0; i < vals.length; i++) {
             cur = fn.applyAsDouble(cur, vals[i]);
@@ -1537,7 +1537,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
         return ns;
     }
 
-    public TsData autoTransform(DoubleBinaryOperator fn, int lag) {
+    public TsData autoTransform(int lag, DoubleBinaryOperator fn) {
         int n = vals.length - lag;
         if (n <= 0) {
             return null;
@@ -1554,7 +1554,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
         return ns;
     }
 
-    public void apply(DoubleBinaryOperator fn, IReadDataBlock x) {
+    public void apply(IReadDataBlock x, DoubleBinaryOperator fn) {
         for (int i = 0; i < vals.length; i++) {
             vals[i] = fn.applyAsDouble(vals[i], x.get(i));
         }
