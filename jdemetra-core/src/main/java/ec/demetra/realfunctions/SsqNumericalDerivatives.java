@@ -120,10 +120,10 @@ public class SsqNumericalDerivatives implements ISsqFunctionDerivatives {
             DataBlock de = new DataBlock(ne);
             if (m_sym) {
                 final double eps = m_epsp[i] - m_epsm[i];
-                de.set((x, y) -> (x - y) / eps, ep, em);
+                de.set(ep, em, (x, y) -> (x - y) / eps);
             } else {
                 final double eps = m_epsp[i];
-                de.set((x, y) -> (x - y) / eps, ep, m_ecur);
+                de.set(ep, m_ecur, (x, y) -> (x - y) / eps);
             }
             m_grad[i] = 2 * m_ecur.dot(de);
             m_de[i] = de;
