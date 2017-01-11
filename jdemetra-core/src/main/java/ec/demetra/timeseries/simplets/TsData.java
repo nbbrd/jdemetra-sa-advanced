@@ -16,6 +16,7 @@
  */
 package ec.demetra.timeseries.simplets;
 
+import ec.demetra.timeseries.ITimeSeries;
 import ec.demetra.timeseries.PeriodSelector;
 import ec.demetra.timeseries.TsAggregationType;
 import ec.tstoolkit.arima.ArimaModelBuilder;
@@ -52,7 +53,7 @@ import java.util.stream.StreamSupport;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBlock {
+public class TsData implements ITimeSeries<TsDomain, double[]>, Cloneable, Iterable<TsObservation>, IReadDataBlock {
 
     private static final class TsIterator implements Iterator<TsObservation> {
 
@@ -829,7 +830,8 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
      * modified
      */
     @NewObject
-    public TsDomain getDomain() {
+    @Override
+    public TsDomain domain() {
         return new TsDomain(start, vals.length);
     }
 
@@ -921,7 +923,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
      */
     public TsData index(final TsPeriod refperiod, final double refvalue) {
         LocalDate d0 = refperiod.firstDay(), d1 = refperiod.lastDay();
-        TsDomain dom = getDomain();
+        TsDomain dom = domain();
         int i0 = dom.search(d0), i1 = dom.search(d1);
 
         if (i0 < 0) {
@@ -1113,7 +1115,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
         }
 
         TsDomain dout = null;
-        TsDomain dom = getDomain();
+        TsDomain dom = domain();
 
         if (bcentred) {
             int nw2 = (nw - 1) / 2;
@@ -1161,7 +1163,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
         }
         int np2 = (nperiods - 1) / 2;
         TsDomain dout = null;
-        TsDomain dom = getDomain();
+        TsDomain dom = domain();
         if (bcentred) {
             dout = dom.drop(nperiods - 1 - np2, np2);
         } else {
@@ -1267,7 +1269,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
         if (ps == null) {
             return clone();
         }
-        TsDomain domain = getDomain().select(ps);
+        TsDomain domain = domain().select(ps);
         TsData rslt = new TsData(domain);
         int diff = domain.firstid() - start.id();
         System.arraycopy(vals, diff, rslt.vals, 0, domain.getLength());
@@ -1333,7 +1335,7 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
         if (ts == null) {
             return clone();
         }
-        TsDomain dom = getDomain(), rdom = ts.getDomain();
+        TsDomain dom = domain(), rdom = ts.domain();
         TsDomain uDomain = dom.union(rdom);
         if (uDomain == null) {
             return null;
@@ -1405,7 +1407,8 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
     }
 
     @Unsafe
-    public double[] internalStorage() {
+    @Override
+    public double[] data() {
         return vals;
     }
 
@@ -1594,8 +1597,8 @@ public class TsData implements Cloneable, Iterable<TsObservation>, IReadDataBloc
 
     public static TsData computeOnIntersection(final DoubleBinaryOperator fn, final TsData tsl, final TsData tsr) {
 
-        TsDomain rDomain = tsr.getDomain();
-        TsDomain lDomain = tsl.getDomain();
+        TsDomain rDomain = tsr.domain();
+        TsDomain lDomain = tsl.domain();
         TsDomain iDomain = lDomain.intersection(rDomain);
         if (iDomain == null) {
             return null;

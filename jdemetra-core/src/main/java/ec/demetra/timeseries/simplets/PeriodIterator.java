@@ -40,7 +40,7 @@ public class PeriodIterator implements java.util.Enumeration<TsDataBlock> {
      */
     public static PeriodIterator fullYears(TsData series)
     {
-	TsDomain domain = series.getDomain();
+	TsDomain domain = series.domain();
 	int ifreq = domain.getFrequency().intValue();
 	int nbeg = series.getStart().getPosition();
 	int nend = series.getEnd().getPosition();
