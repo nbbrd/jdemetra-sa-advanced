@@ -27,7 +27,7 @@ import java.util.function.IntToDoubleFunction;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public interface IDoubleArrayReader {
+public interface IArrayOfDoublesReader {
     
     /**
      * Gets the data at a given position
@@ -72,7 +72,7 @@ public interface IDoubleArrayReader {
      * @return A new (read only) data block. Cannot be null (but the length of
      * the result could be 0.
      */
-    IDoubleArrayReader rextract(int start, int length);
+    IArrayOfDoublesReader extract(int start, int length);
 
     default boolean check(DoublePredicate pred) {
         int n = getLength();
@@ -187,7 +187,7 @@ public interface IDoubleArrayReader {
         return s / (n - m);
     }
 
-    default double dot(IDoubleArrayReader data) {
+    default double dot(IArrayOfDoublesReader data) {
         int n = getLength();
         double s = 0;
         for (int i = 0; i < n; i++) {
@@ -196,7 +196,7 @@ public interface IDoubleArrayReader {
         return s;
     }
 
-    default double distance(IDoubleArrayReader data) {
+    default double distance(IArrayOfDoublesReader data) {
         double scale = 0;
         double ssq = 1;
         int n = getLength();

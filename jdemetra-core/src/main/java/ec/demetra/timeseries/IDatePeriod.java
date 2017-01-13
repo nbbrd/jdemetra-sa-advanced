@@ -19,6 +19,7 @@ package ec.demetra.timeseries;
 import ec.tstoolkit.design.Development;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 
 /**
  * interface that defines a time period. The atomic time unit for a IPeriod is the day. 
@@ -64,4 +65,7 @@ public interface IDatePeriod extends ITimePeriod{
         return contains(time.toLocalDate());
     }
     
+    default Period length(){
+        return firstDay().until(lastDay());
+    }
 }

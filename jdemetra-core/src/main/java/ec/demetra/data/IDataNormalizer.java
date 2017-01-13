@@ -54,6 +54,6 @@ public interface IDataNormalizer {
      * @return True if the scaling succeeded. Usually, the scaling will not succeed 
      * when all the data are 0 (or identical in some cases)
      */
-    boolean process(IDoubleArrayReader data);
+    boolean process(IArrayOfDoublesReader data);
     // / <summary>The normalizing factor</summary>
 }

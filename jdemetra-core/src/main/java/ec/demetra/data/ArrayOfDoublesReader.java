@@ -16,17 +16,19 @@
  */
 package ec.demetra.data;
 
+import ec.tstoolkit.design.Immutable;
 import java.util.function.IntToDoubleFunction;
 
 /**
  *
  * @author Jean Palate
  */
-public class DoubleArrayReader implements IDoubleArrayReader{
+@Immutable
+public class ArrayOfDoublesReader implements IArrayOfDoublesReader{
     private final int n;
     private final IntToDoubleFunction fn;
     
-    public DoubleArrayReader(final int n, final IntToDoubleFunction fn){
+    public ArrayOfDoublesReader(final int n, final IntToDoubleFunction fn){
         this.n=n;
         this.fn=fn;
     }
@@ -42,7 +44,7 @@ public class DoubleArrayReader implements IDoubleArrayReader{
     }
 
     @Override
-    public IDoubleArrayReader rextract(int start, int length) {
-        return new DoubleArrayReader(length, i->fn.applyAsDouble(start+i));
+    public IArrayOfDoublesReader extract(int start, int length) {
+        return new ArrayOfDoublesReader(length, i->fn.applyAsDouble(start+i));
     }
 }
