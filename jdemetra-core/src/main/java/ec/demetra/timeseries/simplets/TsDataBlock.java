@@ -58,7 +58,7 @@ public final class TsDataBlock {
      * the series doesn't contain the given domain.
      */
     public static TsDataBlock select(TsData series, TsDomain domain) {
-        if (!series.getDomain().contains(domain)) {
+        if (!series.domain().contains(domain)) {
             return null;
         }
         TsPeriod start = series.getStart(), dstart = domain.getStart();
@@ -74,7 +74,7 @@ public final class TsDataBlock {
      * data are selected.
      */
     public static TsDataBlock select(TsData series, PeriodSelector selector) {
-        TsDomain domain = series.getDomain().select(selector);
+        TsDomain domain = series.domain().select(selector);
         if (domain == null || domain.isEmpty()) {
             return null;
         }
@@ -116,7 +116,7 @@ public final class TsDataBlock {
      * @return The new time data block
      */
     public static TsDataBlock all(TsData series) {
-        return new TsDataBlock(series.getStart(), new DataBlock(series.internalStorage()));
+        return new TsDataBlock(series.getStart(), new DataBlock(series.data()));
     }
     /**
      * Data of this object
@@ -162,7 +162,7 @@ public final class TsDataBlock {
      *            The increment between to consecutive data in the data block
      */
     TsDataBlock(TsData series, int start, int end, int inc) {
-        data = new DataBlock(series.internalStorage(), start, end,
+        data = new DataBlock(series.data(), start, end,
                 inc);
         this.start = series.getStart().plus(start);
     }

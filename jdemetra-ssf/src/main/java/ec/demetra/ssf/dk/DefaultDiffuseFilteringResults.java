@@ -91,10 +91,10 @@ public class DefaultDiffuseFilteringResults extends DefaultFilteringResults impl
     public IReadDataBlock errors(boolean normalized, boolean clean) {
         DataBlock r = new DataBlock(errors());
         // set diffuse elements to Double.NaN
-        r.range(0, enddiffuse).apply((x,y)->y!=0 ? Double.NaN : x, fi.rextract(0, enddiffuse));
+        r.range(0, enddiffuse).apply(fi.rextract(0, enddiffuse), (x,y)->y!=0 ? Double.NaN : x);
         if (normalized) {
             IReadDataBlock allf = errorVariances();
-            r.apply((x, y) -> Double.isFinite(x) && Double.isFinite(y) ? x / Math.sqrt(y) : Double.NaN, allf);
+            r.apply(allf, (x, y) -> Double.isFinite(x) && Double.isFinite(y) ? x / Math.sqrt(y) : Double.NaN);
         }
         if (clean){
             r=r.select((x)->Double.isFinite(x));

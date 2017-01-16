@@ -16,33 +16,42 @@
  */
 package ec.demetra.timeseries;
 
+import ec.tstoolkit.design.Immutable;
+import ec.tstoolkit.design.ImmutableObject;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  *
  * @author Jean Palate
  */
-public abstract class DailyPeriod {
-    
-    public static IDatePeriod of(LocalDate day){
+public abstract class DailyPeriod implements IDatePeriod{
+
+    public static DailyPeriod of(LocalDate day) {
         return new Day(day);
     }
-    
-    public static IDatePeriod of(LocalDate start, LocalDate end){
-        int cmp=start.compareTo(end);
-        switch (cmp){
-            case 0:return new Day(start);
-            case -1:return new Days(start, end);
-            default: return null;
-        }
-    }
 
-    private static class Day extends DailyPeriod implements IDatePeriod{
+    @ImmutableObject
+    public static DailyPeriod of(LocalDate start, LocalDate end) {
+        int cmp = start.compareTo(end);
+        if(cmp == 0) {
+                return new Day(start);
+        }else if (cmp<0){
+                return new Days(start, end);
+        }else
+                throw new IllegalArgumentException("DailyPeriod: start after end");
+    }
+    
+    public abstract int lengthInDays();
+
+    @Immutable
+    private static class Day extends DailyPeriod  {
+
         private final LocalDate day;
-        
-        Day(LocalDate day){
-            this.day=day;
+
+        Day(LocalDate day) {
+            this.day = day;
         }
 
         @Override
@@ -53,7 +62,7 @@ public abstract class DailyPeriod {
         @Override
         public LocalDate firstDay() {
             return day;
-       }
+        }
 
         @Override
         public LocalDate lastDay() {
@@ -64,25 +73,53 @@ public abstract class DailyPeriod {
         public boolean contains(LocalDateTime dt) {
             return dt.toLocalDate().equals(day);
         }
+        
+        @Override
+        public int lengthInDays(){
+            return 1;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return this == obj || (obj instanceof Day && equals((Day) obj));
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 67 * hash + Objects.hashCode(this.day);
+            return hash;
+        }
+
+        public boolean equals(Day other) {
+            return day.compareTo(other.day) == 0;
+        }
+
+        @Override
+        public String toString() {
+            return day.toString();
+        }
     }
 
-    private static class Days implements IDatePeriod{
+    @Immutable
+    private static class Days extends DailyPeriod {
+
         private final LocalDate start, end;
-        
-        Days(LocalDate start, LocalDate end){
-            this.start=start;
-            this.end=end;
+
+        Days(LocalDate start, LocalDate end) {
+            this.start = start;
+            this.end = end;
         }
 
         @Override
         public boolean contains(LocalDate d) {
-            return ! (d.isBefore(start) || d.isAfter(end));
+            return !(d.isBefore(start) || d.isAfter(end));
         }
 
         @Override
         public LocalDate firstDay() {
             return start;
-       }
+        }
 
         @Override
         public LocalDate lastDay() {
@@ -91,8 +128,38 @@ public abstract class DailyPeriod {
 
         @Override
         public boolean contains(LocalDateTime dt) {
-            LocalDate d=dt.toLocalDate();
+            LocalDate d = dt.toLocalDate();
             return contains(d);
         }
+
+        @Override
+        public int lengthInDays(){
+            return start.until(end).getDays();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return this == obj || (obj instanceof Days && equals((Days) obj));
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 79 * hash + Objects.hashCode(this.start);
+            hash = 79 * hash + Objects.hashCode(this.end);
+            return hash;
+        }
+
+        public boolean equals(Days other) {
+            return start.compareTo(other.start) == 0 && end.compareTo(other.end) == 0;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder=new StringBuilder();
+            builder.append(start.toString()).append(('-')).append(end.toString());
+            return builder.toString();
+        }
+
     }
 }

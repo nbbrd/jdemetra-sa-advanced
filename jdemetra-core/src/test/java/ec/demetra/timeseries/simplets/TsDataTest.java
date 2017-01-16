@@ -163,7 +163,7 @@ public class TsDataTest {
         // STEP2. Compute quantities expressed in the average prices of previous year.
         // Create first Qq, an empty series (with the same time domain as the values)
         // that will contain the data 
-        TsData Qq = new TsData(Vq.getDomain());
+        TsData Qq = new TsData(Vq.domain());
 
         // Iterates through the years for computing the series at the price of previous year
         YearIterator yq = new YearIterator(Qq);
@@ -241,7 +241,7 @@ public class TsDataTest {
         for (int i=0; i<12; ++i){
             TsData l=s.drop(i, 0).changeFrequency(TsFrequency.Quarterly, TsAggregationType.Last, true);
             for (int j=0; j<l.getLength(); ++j){
-                TsPeriod q=l.getDomain().get(j);
+                TsPeriod q=l.domain().get(j);
                 assertTrue(l.get(j) == s.get(q.lastPeriod(TsFrequency.Monthly)));
             }
         }

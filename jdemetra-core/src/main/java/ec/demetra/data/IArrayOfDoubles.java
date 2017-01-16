@@ -13,12 +13,8 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the Licence for the specific language governing permissions and 
 * limitations under the Licence.
-*/
-
-
+ */
 package ec.demetra.data;
-
-import ec.tstoolkit.design.Development;
 
 import ec.tstoolkit.design.Development;
 import java.util.function.DoubleBinaryOperator;
@@ -33,7 +29,7 @@ import java.util.function.IntToDoubleFunction;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public interface IDataBlock extends IDoubleArrayReader {
+public interface IArrayOfDoubles extends IArrayOfDoublesReader {
 
     /**
      * Copies data from a given buffer. The buffer must contain enough data for
@@ -42,7 +38,9 @@ public interface IDataBlock extends IDoubleArrayReader {
      * @param buffer The buffer containing the data
      * @param start The position in the buffer of the first data being copied
      */
-    void copyFrom(double[] buffer, int start);
+    default void copyFrom(double[] buffer, int start) {
+        set(start == 0 ? i -> buffer[i] : i -> buffer[start + i]);
+    }
 
     /**
      * Extracts a new data block from an existing data block
@@ -53,8 +51,10 @@ public interface IDataBlock extends IDoubleArrayReader {
      * equivalent to the current object. In that case, the existing data block
      * can be returned.
      */
-    IDataBlock extract(int start, int length);
+    @Override
+    IArrayOfDoubles extract(int start, int length);
 
+   
     /**
      * Sets an element of the data block to a given value
      *
@@ -62,14 +62,14 @@ public interface IDataBlock extends IDoubleArrayReader {
      * @param value The new value.
      */
     void set(int idx, double value);
-    
+
     default void apply(DoubleUnaryOperator fn) {
         int n = getLength();
         for (int i = 0; i < n; i++) {
             set(i, fn.applyAsDouble(get(i)));
         }
     }
-    
+
     default void applyIf(DoublePredicate pred, DoubleUnaryOperator fn) {
         int n = getLength();
         for (int i = 0; i < n; i++) {
@@ -79,8 +79,8 @@ public interface IDataBlock extends IDoubleArrayReader {
             }
         }
     }
-    
-    default void applyRecursively(DoubleBinaryOperator fn, final double initial) {
+
+    default void applyRecursively(final double initial, DoubleBinaryOperator fn) {
         double cur = initial;
         int n = getLength();
         for (int i = 0; i < n; i++) {
@@ -89,14 +89,14 @@ public interface IDataBlock extends IDoubleArrayReader {
         }
     }
 
-    default void apply(DoubleBinaryOperator fn, IDoubleArrayReader x) {
+    default void apply(IArrayOfDoublesReader x, DoubleBinaryOperator fn) {
         int n = getLength();
         for (int i = 0; i < n; i++) {
             set(i, fn.applyAsDouble(get(i), x.get(i)));
         }
     }
-    
-    default void copy(IDoubleArrayReader x) {
+
+    default void copy(IArrayOfDoublesReader x) {
         int n = getLength();
         for (int i = 0; i < n; i++) {
             set(i, x.get(i));
@@ -109,7 +109,7 @@ public interface IDataBlock extends IDoubleArrayReader {
             set(i, fn.getAsDouble());
         }
     }
-    
+
     default void setIf(DoublePredicate pred, DoubleSupplier fn) {
         int n = getLength();
         for (int i = 0; i < n; i++) {
@@ -118,26 +118,83 @@ public interface IDataBlock extends IDoubleArrayReader {
             }
         }
     }
-    
+
     default void set(IntToDoubleFunction fn) {
         int n = getLength();
         for (int i = 0; i < n; i++) {
             set(i, fn.applyAsDouble(i));
         }
     }
-    
-    default void set(DoubleUnaryOperator fn, IDoubleArrayReader x) {
+
+    default void set(IArrayOfDoublesReader x, DoubleUnaryOperator fn) {
         int n = getLength();
         for (int i = 0; i < n; i++) {
             set(i, fn.applyAsDouble(x.get(i)));
         }
     }
-    
-    default void set(DoubleBinaryOperator fn, IDoubleArrayReader x, IDoubleArrayReader y) {
+
+    default void set(IArrayOfDoublesReader x, IArrayOfDoublesReader y, DoubleBinaryOperator fn) {
         int n = getLength();
         for (int i = 0; i < n; i++) {
             set(i, fn.applyAsDouble(x.get(i), y.get(i)));
         }
     }
-    
+
+    // some default shortcuts
+    default void addAY(double a, IArrayOfDoubles y) {
+        if (a == 0) {
+            return;
+        } else if (a == 1) {
+            apply(y, (u, v) -> u + v);
+        } else if (a == -1) {
+            apply(y, (u, v) -> u - v);
+        } else {
+            apply(y, (u, v) -> u + a * v);
+        }
+    }
+
+    default void add(double a) {
+        if (a != 0) {
+            apply(x -> x + a);
+        }
+    }
+
+    default void add(IArrayOfDoublesReader y) {
+        apply(y, (a, b) -> a + b);
+    }
+
+    default void sub(double a) {
+        if (a != 0) {
+            apply(x -> x + a);
+        }
+    }
+
+    default void sub(IArrayOfDoublesReader y) {
+        apply(y, (a, b) -> a - b);
+    }
+
+    default void mul(double a) {
+        if (a == 0) {
+            set(() -> 0);
+        } else if (a != 1) {
+            apply(x -> x * a);
+        }
+    }
+
+    default void mul(IArrayOfDoublesReader y) {
+        apply(y, (a, b) -> a * b);
+    }
+
+    default void div(double a) {
+        if (a == 0) {
+            set(() -> Double.NaN);
+        } else if (a != 1) {
+            apply(x -> x * a);
+        }
+    }
+
+    default void div(IArrayOfDoublesReader y) {
+        apply(y, (a, b) -> a / b);
+    }
+
 }

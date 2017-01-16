@@ -16,6 +16,7 @@
  */
 package ec.demetra.timeseries;
 
+import ec.tstoolkit.design.Immutable;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -23,15 +24,16 @@ import java.time.LocalDateTime;
  *
  * @author Jean Palate
  */
+@Immutable
 public class TimePeriod implements ITimePeriod{
     
     private final LocalDateTime start, end;
     
-    public TimePeriod create(LocalDateTime start, LocalDateTime end){
+    public TimePeriod of(LocalDateTime start, LocalDateTime end){
         if (end.isAfter(start))
             return new TimePeriod(start, end);
         else
-            return null;
+            throw new IllegalArgumentException("TimePeriod: end before start");
     }
     
     public Duration length(){

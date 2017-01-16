@@ -34,7 +34,7 @@ public class SeasonalLoessFilterTest {
     @Test
     public void testSomeMethod() {
         TsData s=Data.X;
-        double[] d = s.internalStorage();
+        double[] d = s.data();
         LoessSpecification spec = LoessSpecification.of(7, 0);
         SeasonalLoessFilter filter=new SeasonalLoessFilter(spec, 12);
         double[] sd=new double[d.length+24];

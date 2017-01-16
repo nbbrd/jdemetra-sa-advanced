@@ -18,6 +18,7 @@ package ec.demetra.timeseries;
 
 import ec.tstoolkit.design.Development;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Date;
 
 /**
@@ -48,5 +49,6 @@ public interface ITimePeriod {
      * @return The end of the period (excluded)
      */
     LocalDateTime end();
+    
 
 }

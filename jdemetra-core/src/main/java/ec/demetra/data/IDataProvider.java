@@ -16,7 +16,7 @@
 */
 
 
-package edemetrait.data;
+package ec.demetra.data;
 
 import ec.tstoolkit.design.Development;
 import java.util.List;
