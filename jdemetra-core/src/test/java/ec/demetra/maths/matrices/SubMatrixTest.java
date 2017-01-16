@@ -18,7 +18,7 @@ public class SubMatrixTest {
     public SubMatrixTest() {
     }
 
-    @Test
+    //@Test
     public void testOldMethod() {
         ec.tstoolkit.maths.matrices.Matrix Q = ec.tstoolkit.maths.matrices.Matrix.square(0);
         long t0 = System.currentTimeMillis();
@@ -34,7 +34,7 @@ public class SubMatrixTest {
         System.out.println(t1 - t0);
     }
 
-    @Test
+    //@Test
     public void testNewMethod() {
         Matrix Q = Matrix.square(0);
         long t0 = System.currentTimeMillis();
@@ -49,6 +49,42 @@ public class SubMatrixTest {
         long t1 = System.currentTimeMillis();
         System.out.println("New");
         System.out.println(t1 - t0);
+    }
+
+    @Test
+    public void testProduct() {
+         {
+            ec.tstoolkit.maths.matrices.Matrix A = new ec.tstoolkit.maths.matrices.Matrix(100, 50);
+            ec.tstoolkit.maths.matrices.Matrix B = new ec.tstoolkit.maths.matrices.Matrix(50, 70);
+            ec.tstoolkit.maths.matrices.Matrix C = new ec.tstoolkit.maths.matrices.Matrix(100, 70);
+
+            A.randomize();
+            B.randomize();
+            long t0 = System.currentTimeMillis();
+            for (int i = 0; i < 100000; ++i) {
+                C.all().product(A.all(), B.all());
+            }
+            long t1 = System.currentTimeMillis();
+            System.out.println("Old");
+            System.out.println(t1 - t0);
+        }
+       {
+            Matrix A = Matrix.of(100, 50);
+            Matrix B = Matrix.of(50, 70);
+            Matrix C = Matrix.of(100, 70);
+
+            Random rnd = new Random(0);
+            A.all().set((r, c) -> rnd.nextDouble());
+            B.all().set((r, c) -> rnd.nextDouble());
+            long t0 = System.currentTimeMillis();
+            for (int i = 0; i < 100000; ++i) {
+                C.all().product(A.all(), B.all());
+            }
+            long t1 = System.currentTimeMillis();
+            System.out.println("New");
+            System.out.println(t1 - t0);
+        }
+
     }
 
 }

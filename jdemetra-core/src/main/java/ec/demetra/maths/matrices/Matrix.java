@@ -15,6 +15,10 @@ public final class Matrix {
         return new Matrix(n,n);
     }
     
+    public static Matrix of(int nrows, int ncols){
+        return new Matrix(nrows, ncols);
+    }
+
     public static Matrix of(double[] data, int nrows){
         if (data.length%nrows != 0)
             throw new IllegalArgumentException("Illegal matrix dimensions");
@@ -69,4 +73,8 @@ public final class Matrix {
     private final double[] data;
     private final int nrows, ncols;
     
+    @Override
+    public String toString(){
+        return all().toString();
+    }
 }

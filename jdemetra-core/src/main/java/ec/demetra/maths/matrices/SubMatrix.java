@@ -6,7 +6,9 @@
 package ec.demetra.maths.matrices;
 
 import ec.demetra.data.DataBlock;
+import ec.demetra.data.DataBlock.Cell;
 import ec.demetra.data.IArrayOfDoubles;
+import ec.demetra.realfunctions.RealFunction;
 import java.util.Iterator;
 
 /**
@@ -35,41 +37,163 @@ public final class SubMatrix implements Cloneable {
         double apply(int row, int column);
     }
 
-    public static class Rows implements Iterable<DataBlock> {
+    public static abstract class RCIterator implements Iterator<DataBlock> {
 
-        private final SubMatrix M;
-        private DataBlock cur;
-        private int pos = 0;
-
-        public Rows(SubMatrix M) {
-            this.M = M;
-        }
+        final SubMatrix M;
+        DataBlock cur;
+        int pos = 0;
 
         public int getPosition() {
             return pos - 1;
         }
 
-        @Override
-        public Iterator<DataBlock> iterator() {
-            return new Iterator<DataBlock>() {
-                @Override
-                public boolean hasNext() {
-                    return pos < M.getRowsCount();
-                }
-
-                @Override
-                public DataBlock next() {
-                    if (cur == null) {
-                        cur = M.row(0);
-                    } else {
-                        cur.slide(M.m_col_inc);
-                    }
-                    ++pos;
-                    return cur;
-                }
-            };
+        public void reset() {
+            pos = 0;
+            cur = null;
         }
 
+        RCIterator(SubMatrix M) {
+            this.M = M;
+        }
+    }
+
+    private static class Rows extends RCIterator {
+
+        Rows(SubMatrix M) {
+            super(M);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return pos < M.m_nrows;
+        }
+
+        @Override
+        public DataBlock next() {
+            if (cur == null) {
+                cur = M.row(0);
+            } else {
+                cur.slide(M.m_row_inc);
+            }
+            ++pos;
+            return cur;
+        }
+    }
+
+    private static class URows extends RCIterator {
+
+        URows(SubMatrix M) {
+            super(M);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return pos < M.m_nrows;
+        }
+
+        @Override
+        public DataBlock next() {
+            if (cur == null) {
+                cur = M.row(0);
+            } else {
+                cur.slide(M.m_row_inc).bshrink();
+            }
+            ++pos;
+            return cur;
+        }
+    }
+
+    private static class LRows extends RCIterator {
+
+        LRows(SubMatrix M) {
+            super(M);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return pos < M.m_nrows;
+        }
+
+        @Override
+        public DataBlock next() {
+            if (cur == null) {
+                cur = DataBlock.of(M.m_data, M.m_start, M.m_start + M.m_col_inc, M.m_col_inc);
+            } else {
+                cur.slide(M.m_row_inc).eexpand();
+            }
+            ++pos;
+            return cur;
+        }
+
+    }
+
+    private static class Columns extends RCIterator {
+
+        Columns(SubMatrix M) {
+            super(M);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return pos < M.m_ncols;
+        }
+
+        @Override
+        public DataBlock next() {
+            if (cur == null) {
+                cur = M.column(0);
+            } else {
+                cur.slide(M.m_col_inc);
+            }
+            ++pos;
+            return cur;
+        }
+    }
+
+    private static class LColumns extends RCIterator {
+
+        LColumns(SubMatrix M) {
+            super(M);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return pos < M.m_ncols;
+        }
+
+        @Override
+        public DataBlock next() {
+            if (cur == null) {
+                cur = M.column(0);
+            } else {
+                cur.slide(M.m_col_inc).bshrink();
+            }
+            ++pos;
+            return cur;
+        }
+    }
+
+    private static class UColumns extends RCIterator {
+
+        UColumns(SubMatrix M) {
+            super(M);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return pos < M.m_ncols;
+        }
+
+        @Override
+        public DataBlock next() {
+            if (cur == null) {
+                cur = DataBlock.of(M.m_data, M.m_start, M.m_start + M.m_row_inc, M.m_row_inc);
+            } else {
+                cur.slide(M.m_col_inc).eexpand();
+            }
+            ++pos;
+            return cur;
+        }
     }
 
     /**
@@ -107,15 +231,18 @@ public final class SubMatrix implements Cloneable {
     }
 
     public void set(final MatrixFunction fn) {
-        DataBlock col = column(0);
         int c = 0;
-        do {
-            final int cur = c;
+        for (DataBlock col : columns()) {
+            final int cur = c++;
             col.set(r -> fn.apply(r, cur));
-            col.slide(m_col_inc);
-        } while (++c < m_ncols);
+        }
     }
-
+    
+ 
+    public void set(int row, int col, double value){
+        m_data[m_start+row*m_row_inc+col*m_col_inc]=value;
+    }
+    
     /**
      *
      * @return
@@ -249,6 +376,27 @@ public final class SubMatrix implements Cloneable {
         }
     }
 
+    public void product(SubMatrix lm, SubMatrix rm) {
+        
+//        for (int c=0; c<m_ncols; ++c){
+//            DataBlock col=rm.column(c);
+//            for (int r=0; r<m_nrows; ++r){
+//                set(r, c, col.dot(lm.row(r)));
+//            }
+//        }
+
+        
+        Iterator<DataBlock> rcols = rm.columns().iterator();
+        for (DataBlock col : columns()) {
+        Iterator<DataBlock> lcols = lm.columns().iterator();
+            DataBlock rcol = rcols.next();
+            int k=0;
+            while (lcols.hasNext()){
+                col.addAY(rcol.get(k++), lcols.next());
+            }
+        }
+    }
+
     /**
      *
      * @param c
@@ -267,6 +415,30 @@ public final class SubMatrix implements Cloneable {
     public DataBlock row(final int r) {
         int beg = m_start + r * m_row_inc, end = beg + m_col_inc * m_ncols;
         return DataBlock.of(m_data, beg, end, m_col_inc);
+    }
+
+    public Iterable<DataBlock> rows() {
+        return () -> new Rows(SubMatrix.this);
+    }
+
+    public RCIterator lrows() {
+        return new LRows(this);
+    }
+
+    public RCIterator urows() {
+        return new URows(this);
+    }
+
+    public Iterable<DataBlock> columns() {
+        return () -> new Columns(SubMatrix.this);
+    }
+
+    public RCIterator lcolumns() {
+        return new LColumns(this);
+    }
+
+    public RCIterator ucolumns() {
+        return new UColumns(this);
     }
 
     /**
@@ -484,4 +656,12 @@ public final class SubMatrix implements Cloneable {
     }
 //</editor-fold>
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (DataBlock row : rows()) {
+            builder.append(row.toString());
+        }
+        return builder.toString();
+    }
 }

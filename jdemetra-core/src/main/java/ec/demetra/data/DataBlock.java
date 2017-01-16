@@ -23,7 +23,7 @@ import java.util.Iterator;
  *
  * @author Jean Palate
  */
-public abstract class DataBlock implements IArrayOfDoubles {
+public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.Cell> {
 
     public static final DataBlock EMPTY = new FullArray(0);
 
@@ -69,6 +69,12 @@ public abstract class DataBlock implements IArrayOfDoubles {
 
     public abstract DataBlock eshrink();
 
+    public abstract DataBlock expand(int nbeg, int nend);
+
+    public abstract DataBlock bexpand();
+
+    public abstract DataBlock eexpand();
+
     public abstract DataBlock slide(int n);
 
     public abstract DataBlock reverse();
@@ -76,6 +82,17 @@ public abstract class DataBlock implements IArrayOfDoubles {
     public abstract DataBlock next(int n);
 
     public abstract DataBlock previous(int n);
+    
+        @Override
+    public String toString() {
+        return IArrayOfDoublesReader.toString(this);
+    }
+
+    public String toString(String fmt) {
+        return IArrayOfDoublesReader.toString(this, fmt);
+    }
+
+
 
     public static class Cell {
 
@@ -108,27 +125,54 @@ public abstract class DataBlock implements IArrayOfDoubles {
             pos -= n * inc;
             return this;
         }
-        
-        public double value(){
+
+        public double value() {
             return data[pos];
         }
-        
-        public Cell set(double nvalue){
-            data[pos]=nvalue;
+
+        public Cell set(double nvalue) {
+            data[pos] = nvalue;
             return this;
         }
-        
-        public Cell setAndIncrement(double nvalue){
-            data[pos++]=nvalue;
+
+        public Cell setAndIncrement(double nvalue) {
+            data[pos++] = nvalue;
             return this;
         }
-        
-        public Cell setAndDecrement(double nvalue){
-            data[pos--]=nvalue;
+
+        public Cell setAndDecrement(double nvalue) {
+            data[pos--] = nvalue;
             return this;
         }
     }
-    
+
+    private static class CellIterator implements Iterator<Cell> {
+
+        private final Cell cell;
+        private final int last;
+
+        private CellIterator(DataBlock owner) {
+            this.cell = new Cell(owner.getData(), owner.getStartPosition(), owner.getIncrement());
+            cell.left();
+            last = owner.getLastPosition();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return cell.pos != last;
+        }
+
+        @Override
+        public Cell next() {
+            return cell.right();
+        }
+
+    }
+
+    @Override
+    public Iterator<Cell> iterator() {
+        return new CellIterator(this);
+    }
 
     private static class FullArray extends DataBlock {
 
@@ -227,35 +271,50 @@ public abstract class DataBlock implements IArrayOfDoubles {
             throw new UnsupportedOperationException();
         }
 
+        @Override
+        public DataBlock expand(int nbeg, int nend) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public DataBlock bexpand() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public DataBlock eexpand() {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
     private static class PartialArray extends DataBlock {
 
         private final double[] data;
-        private int i0, i1;
+        private int beg, end;
 
         PartialArray(double[] data, int start, int end) {
             this.data = data;
-            i0 = start;
-            i1 = end;
+            beg = start;
+            this.end = end;
         }
 
         PartialArray(double[] data, int start) {
             this.data = data;
-            i0 = start;
-            i1 = data.length;
+            beg = start;
+            end = data.length;
         }
 
         @Override
         public void copyFrom(double[] buffer, final int start) {
-            System.arraycopy(buffer, start, data, i0, i1 - i0);
+            System.arraycopy(buffer, start, data, beg, end - beg);
         }
 
         @Override
         public IArrayOfDoubles extract(int start, int length) {
-            int nstart = i0 + start;
+            int nstart = beg + start;
             int nend = nstart + length;
-            if (nend > i1) {
+            if (nend > end) {
                 throw new IllegalArgumentException("Double array: too large extract");
             }
             return DataBlock.of(data, nstart, nend);
@@ -263,39 +322,39 @@ public abstract class DataBlock implements IArrayOfDoubles {
 
         @Override
         public DataBlock reverse() {
-            return new Block(data, i1 - 1, i0 - 1, -1);
+            return new Block(data, end - 1, beg - 1, -1);
         }
 
         @Override
         public void set(int idx, double value) {
-            data[i0 + idx] = value;
+            data[beg + idx] = value;
         }
 
         @Override
         public double get(int idx) {
-            return data[i0 + idx];
+            return data[beg + idx];
         }
 
         @Override
         public int getLength() {
-            return i1 - i0;
+            return end - beg;
         }
 
         @Override
         public DataBlock slide(int n) {
             if (n > 0) {
-                if (i1 + n <= data.length) {
-                    i0 += n;
-                    i1 += n;
+                if (end + n <= data.length) {
+                    beg += n;
+                    end += n;
                 } else {
-                    // throw new java.lang.UnsupportedOperationException();
+                    throw new java.lang.UnsupportedOperationException();
                 }
             } else if (n < 0) {
-                if (i0 + n >= 0) {
-                    i0 += n;
-                    i1 += n;
+                if (beg + n >= 0) {
+                    beg += n;
+                    end += n;
                 } else {
-                    // throw new java.lang.UnsupportedOperationException();
+                    throw new java.lang.UnsupportedOperationException();
                 }
             }
             return this;
@@ -308,47 +367,90 @@ public abstract class DataBlock implements IArrayOfDoubles {
 
         @Override
         public double[] getData() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return data;
         }
 
         @Override
         public int getStartPosition() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return beg;
         }
 
         @Override
         public int getEndPosition() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return end;
         }
 
         @Override
         public int getLastPosition() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return end - 1;
         }
 
         @Override
         public int getIncrement() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return 1;
         }
 
         @Override
         public DataBlock shrink(int nbeg, int nend) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            if (end-beg < nbeg+nend)
+                throw new IllegalArgumentException();
+            beg += nbeg;
+            end -= nend;
+            return this;
         }
 
         @Override
         public DataBlock bshrink() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            if (beg == end)
+                throw new IllegalArgumentException();
+            ++beg;
+            return this;
         }
 
         @Override
         public DataBlock eshrink() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            if (beg == end)
+                throw new IllegalArgumentException();
+            --end;
+            return this;
         }
 
         @Override
         public DataBlock previous(int n) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            if (beg < n)
+                throw new IllegalArgumentException();
+            return new PartialArray(data, beg-n, beg);
+         }
+
+        @Override
+        public DataBlock expand(int nbeg, int nend) {
+            if (beg < nbeg || end > data.length - nend) {
+                throw new UnsupportedOperationException();
+            }
+
+            beg -= nbeg;
+            end += nend;
+            return this;
+        }
+
+        @Override
+        public DataBlock bexpand() {
+            if (beg == 0) {
+                throw new UnsupportedOperationException();
+            }
+
+            --beg;
+            return this;
+        }
+
+        @Override
+        public DataBlock eexpand() {
+            if (end == data.length) {
+                throw new UnsupportedOperationException();
+            }
+
+            ++end;
+            return this;
         }
 
     }
@@ -400,18 +502,17 @@ public abstract class DataBlock implements IArrayOfDoubles {
 
         @Override
         public DataBlock slide(int n) {
-            int del = n * inc;
-            if (del > 0) {
-                if (end + del <= data.length) {
-                    beg += del;
-                    end += del;
+            if (n > 0) {
+                if (end + n <= data.length + inc) {
+                    beg += n;
+                    end += n;
                 } else {
                     throw new java.lang.ArrayIndexOutOfBoundsException();
                 }
-            } else if (del < 0) {
-                if (beg + del >= 0) {
-                    beg += del;
-                    end += del;
+            } else if (n < 0) {
+                if (beg + n >= 0) {
+                    beg += n;
+                    end += n;
                 } else {
                     throw new ArrayIndexOutOfBoundsException();
                 }
@@ -446,6 +547,7 @@ public abstract class DataBlock implements IArrayOfDoubles {
          * @return true if the src block has been correctly shrunk, false
          * otherwise.
          */
+        @Override
         public DataBlock eshrink() {
             if (beg != end) {
                 end -= inc;
@@ -465,6 +567,7 @@ public abstract class DataBlock implements IArrayOfDoubles {
          * @return true if the src block has been correctly shrunk, false
          * otherwise.
          */
+        @Override
         public DataBlock shrink(int nbeg, int nend) {
             if (nbeg + nend <= getLength()) {
                 beg += inc * nbeg;
@@ -485,47 +588,66 @@ public abstract class DataBlock implements IArrayOfDoubles {
          * @return true if the src block has been correctly expanded, false
          * otherwise.
          */
-        public boolean expand(int nbeg, int nend) {
+        @Override
+        public DataBlock expand(int nbeg, int nend) {
             int xbeg = beg - nbeg * inc;
             int xend = end + nend * inc;
 
-            if (xbeg < 0 || xbeg > data.length) {
-                return false;
+            if (xbeg < 0 || xend > data.length) {
+                throw new UnsupportedOperationException();
             } else {
                 beg = xbeg;
                 end = xend;
-                return true;
+                return this;
             }
         }
 
         @Override
         public double[] getData() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return data;
         }
 
         @Override
         public int getStartPosition() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return beg;
         }
 
         @Override
         public int getEndPosition() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return end;
         }
 
         @Override
         public int getLastPosition() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return end - inc;
         }
 
         @Override
         public int getIncrement() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return inc;
         }
 
         @Override
         public DataBlock previous(int n) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public DataBlock bexpand() {
+            if (beg - inc < 0) {
+                throw new UnsupportedOperationException();
+            }
+            beg -= inc;
+            return this;
+        }
+
+        @Override
+        public DataBlock eexpand() {
+            if (end + inc > data.length) {
+                throw new UnsupportedOperationException();
+            }
+            end += inc;
+            return this;
         }
     }
 }
