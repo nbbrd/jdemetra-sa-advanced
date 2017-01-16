@@ -38,7 +38,9 @@ public interface IArrayOfDoubles extends IArrayOfDoublesReader {
      * @param buffer The buffer containing the data
      * @param start The position in the buffer of the first data being copied
      */
-    void copyFrom(double[] buffer, int start);
+    default void copyFrom(double[] buffer, int start) {
+        set(start == 0 ? i -> buffer[i] : i -> buffer[start + i]);
+    }
 
     /**
      * Extracts a new data block from an existing data block
@@ -51,9 +53,8 @@ public interface IArrayOfDoubles extends IArrayOfDoublesReader {
      */
     @Override
     IArrayOfDoubles extract(int start, int length);
-    
-    IArrayOfDoubles reverse();
 
+   
     /**
      * Sets an element of the data block to a given value
      *

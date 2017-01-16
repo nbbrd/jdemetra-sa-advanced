@@ -13,8 +13,9 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the Licence for the specific language governing permissions and 
 * limitations under the Licence.
-*/
+ */
 package ec.demetra.data;
+
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.utilities.IntList;
 import java.util.function.DoubleBinaryOperator;
@@ -28,7 +29,7 @@ import java.util.function.IntToDoubleFunction;
  */
 @Development(status = Development.Status.Alpha)
 public interface IArrayOfDoublesReader {
-    
+
     /**
      * Gets the data at a given position
      *
@@ -44,8 +45,10 @@ public interface IArrayOfDoublesReader {
      * @return The number of data (&gt= 0).
      */
     int getLength();
-    
-    default IntToDoubleFunction asFunction(){return i->get(i);}
+
+    default IntToDoubleFunction asFunction() {
+        return i -> get(i);
+    }
 
     /**
      * Copies the data into a given buffer
@@ -55,10 +58,10 @@ public interface IArrayOfDoublesReader {
      * be copied in the buffer at the indexes [start, start+getLength()[. The
      * length of the buffer is not checked (it could be larger than this array.
      */
-    default void copyTo(double[] buffer, int start){
-        int n=getLength();
-        for (int i=0; i<n; ++i){
-            buffer[start+i]=get(i);
+    default void copyTo(double[] buffer, int start) {
+        int n = getLength();
+        for (int i = 0; i < n; ++i) {
+            buffer[start + i] = get(i);
         }
     }
 
@@ -164,7 +167,7 @@ public interface IArrayOfDoublesReader {
         int n = getLength();
         double s = 0;
         for (int i = 0; i < n; i++) {
-            double cur = get(i)-mean;
+            double cur = get(i) - mean;
             if (Double.isFinite(cur)) {
                 s += cur * cur;
             }
@@ -219,9 +222,78 @@ public interface IArrayOfDoublesReader {
         }
         return scale * Math.sqrt(ssq);
     }
-    
-    default boolean isMissing(int idx){
-        return ! Double.isFinite(get(idx));
+
+    default boolean isMissing(int idx) {
+        return !Double.isFinite(get(idx));
+    }
+
+    /**
+     * Computes the norm1 of this src block (sum of the absolute values)
+     *
+     * @return Returns min{|src(i)|}
+     */
+    default double norm1() {
+        int n = getLength();
+        double nrm = 0;
+        for (int i = 0; i < n; ++i) {
+            nrm += Math.abs(get(i));
+        }
+        return nrm;
+    }
+
+    /**
+     * Computes the euclidian norm of the src block. Based on the "dnrm2" Lapack
+     * function.
+     *
+     * @return The euclidian norm (&gt=0).
+     */
+    default double norm2() {
+        int n = getLength();
+        switch (n) {
+            case 0:
+                return 0;
+            case 1:
+                return Math.abs(get(0));
+            default:
+                double scale = 0;
+                double ssq = 1;
+                for (int i = 0; i < n; ++i) {
+                    double cur = get(i);
+                    if (cur != 0) {
+                        double absxi = Math.abs(cur);
+                        if (scale < absxi) {
+                            double s = scale / absxi;
+                            ssq = 1 + ssq * s * s;
+                            scale = absxi;
+                        } else {
+                            double s = absxi / scale;
+                            ssq += s * s;
+                        }
+                    }
+                }
+                return scale * Math.sqrt(ssq);
+        }
+    }
+
+    /**
+     * Computes the infinite-norm of this src block
+     *
+     * @return Returns min{|src(i)|}
+     */
+    default double normInf() {
+        int n = getLength();
+        if (n == 0) {
+            return 0;
+        } else {
+            double nrm = Math.abs(get(0));
+            for (int i = 1; i < n; ++i) {
+                double tmp = Math.abs(get(i));
+                if (tmp > nrm) {
+                    nrm = tmp;
+                }
+            }
+            return nrm;
+        }
     }
 
     public static double round(double r, final int ndec) {
@@ -243,14 +315,14 @@ public interface IArrayOfDoublesReader {
         return r;
     }
 
-        /**
+    /**
      * Counts the number of identical consecutive values.
      *
      * @return Missing values are omitted.
      */
-     default int getRepeatCount() {
+    default int getRepeatCount() {
         int i = 0;
-        int n=getLength();
+        int n = getLength();
         while ((i < n) && !Double.isFinite(get(i))) {
             ++i;
         }
