@@ -16,6 +16,7 @@
  */
 package ec.demetra.timeseries;
 
+import ec.tstoolkit.design.Immutable;
 import java.time.LocalDateTime;
 import java.time.Period;
 
@@ -23,6 +24,7 @@ import java.time.Period;
  *
  * @author Jean Palate
  */
+@ Immutable
 public class ContinuousDomain implements ITimeDomain{
 
     @Override
