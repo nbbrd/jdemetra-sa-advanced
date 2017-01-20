@@ -237,12 +237,11 @@ public final class SubMatrix implements Cloneable {
             col.set(r -> fn.apply(r, cur));
         }
     }
-    
- 
-    public void set(int row, int col, double value){
-        m_data[m_start+row*m_row_inc+col*m_col_inc]=value;
+
+    public void set(int row, int col, double value) {
+        m_data[m_start + row * m_row_inc + col * m_col_inc] = value;
     }
-    
+
     /**
      *
      * @return
@@ -376,23 +375,54 @@ public final class SubMatrix implements Cloneable {
         }
     }
 
-    public void product(SubMatrix lm, SubMatrix rm) {
-        
-//        for (int c=0; c<m_ncols; ++c){
-//            DataBlock col=rm.column(c);
-//            for (int r=0; r<m_nrows; ++r){
-//                set(r, c, col.dot(lm.row(r)));
-//            }
-//        }
+    private static final int PROD_THRESHOLD = 6;
 
-        
-        Iterator<DataBlock> rcols = rm.columns().iterator();
-        for (DataBlock col : columns()) {
-        Iterator<DataBlock> lcols = lm.columns().iterator();
-            DataBlock rcol = rcols.next();
-            int k=0;
-            while (lcols.hasNext()){
-                col.addAY(rcol.get(k++), lcols.next());
+    /**
+     *
+     * @param lm
+     * @param rm
+     */
+    public void product(final SubMatrix lm, final SubMatrix rm) {
+        if (lm.getColumnsCount() < PROD_THRESHOLD * (lm.getRowsCount())) {
+//            Iterator<DataBlock> rcols = rm.columns().iterator();
+//            for (DataBlock col : columns()) {
+//                Iterator<DataBlock> lcols = lm.columns().iterator();
+//                DataBlock rcol = rcols.next();
+//                int k = 0;
+//                col.setAY(rcol.get(k++), lcols.next());
+//                while (lcols.hasNext()) {
+//                    col.addAY(rcol.get(k++), lcols.next());
+//                }
+//            }
+            DataBlock rcol = rm.column(0), col = column(0);
+            for (int i = 0; i < m_ncols; ++i) {
+                DataBlock lcol = lm.column(0);
+                col.setAY(rcol.get(0), lcol);
+                for (int j = 1; j < lm.m_ncols; ++j) {
+                    lcol.slide(lm.m_col_inc);
+                    col.addAY(rcol.get(j), lcol);
+                }
+                rcol.slide(rm.m_col_inc);
+                col.slide(m_col_inc);
+            }
+        } else {
+//            Iterator<DataBlock> rcols = rm.columns().iterator();
+//            for (DataBlock col : columns()) {
+//                int k = 0;
+//                DataBlock rcol = rcols.next();
+//                for (DataBlock row : lm.rows()) {
+//                    col.set(k++, row.dot(rcol));
+//                }
+//            }
+            DataBlock rcol = rm.column(0), col = column(0);
+            for (int i = 0; i < m_ncols; ++i) {
+                DataBlock lrow = lm.row(0);
+                for (int j = 0; j < lm.m_nrows; ++j) {
+                    col.set(j, lrow.dot(rcol));
+                    lrow.slide(lm.m_row_inc);
+                }
+                rcol.slide(rm.m_col_inc);
+                col.slide(m_col_inc);
             }
         }
     }

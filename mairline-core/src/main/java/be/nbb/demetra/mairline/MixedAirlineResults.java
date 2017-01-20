@@ -30,7 +30,7 @@ import ec.satoolkit.seats.SeatsResults;
 import ec.satoolkit.seats.SeatsToolkit;
 import ec.tstoolkit.algorithm.ProcessingInformation;
 import ec.tstoolkit.data.IReadDataBlock;
-import ec.tstoolkit.information.InformationMapper;
+import ec.tstoolkit.information.InformationMapping;
 import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.modelling.ComponentType;
 import ec.tstoolkit.modelling.ModellingDictionary;
@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  *
@@ -105,14 +106,14 @@ public class MixedAirlineResults implements ISaResults {
     public Map<String, Class> getDictionary() {
         // TODO
         LinkedHashMap<String, Class> map = new LinkedHashMap<>();
-        mapper.fillDictionary(null, map);
+        MAPPING.fillDictionary(null, map, false);
         return map;
     }
 
     @Override
     public <T> T getData(String id, Class<T> tclass) {
-        if (mapper.contains(id)) {
-            return mapper.getData(this, id, tclass);
+        if (MAPPING.contains(id)) {
+            return MAPPING.getData(this, id, tclass);
         }
         if (info_ != null) {
             if (!id.contains(InformationSet.STRSEP)) {
@@ -127,20 +128,18 @@ public class MixedAirlineResults implements ISaResults {
 
     @Override
     public boolean contains(String id) {
-        synchronized (mapper) {
-            if (mapper.contains(id)) {
-                return true;
-            }
-            if (info_ != null) {
-                if (!id.contains(InformationSet.STRSEP)) {
-                    return info_.deepSearch(id, Object.class) != null;
-                } else {
-                    return info_.search(id, Object.class) != null;
-                }
-
+        if (MAPPING.contains(id)) {
+            return true;
+        }
+        if (info_ != null) {
+            if (!id.contains(InformationSet.STRSEP)) {
+                return info_.deepSearch(id, Object.class) != null;
             } else {
-                return false;
+                return info_.search(id, Object.class) != null;
             }
+
+        } else {
+            return false;
         }
     }
 
@@ -215,116 +214,41 @@ public class MixedAirlineResults implements ISaResults {
         return info_;
     }
 
-    // MAPPERS
-    public static <T> void addMapping(String name, InformationMapper.Mapper<MixedAirlineResults, T> mapping) {
-        synchronized (mapper) {
-            mapper.add(name, mapping);
-        }
+    // MAPPING
+    public static InformationMapping<MixedAirlineResults> getMapping() {
+        return MAPPING;
     }
-    private static final InformationMapper<MixedAirlineResults> mapper = new InformationMapper<>();
+
+    public static <T> void setMapping(String name, Class<T> tclass, Function<MixedAirlineResults, T> extractor) {
+        MAPPING.set(name, tclass, extractor);
+    }
+
+    public static <T> void setTsData(String name, Function<MixedAirlineResults, TsData> extractor) {
+        MAPPING.set(name, extractor);
+    }
+
+    private static final InformationMapping<MixedAirlineResults> MAPPING = new InformationMapping<>(MixedAirlineResults.class);
 
     static {
-        mapper.add(ModellingDictionary.Y_CMP, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.mul_ ? source.y_.exp() : source.y_;
+        MAPPING.set(ModellingDictionary.Y_CMP, source -> source.mul_ ? source.y_.exp() : source.y_);
+        MAPPING.set(ModellingDictionary.T_CMP, source -> source.mul_ ? source.t_.exp() : source.t_);
+        MAPPING.set(ModellingDictionary.SA_CMP, source -> source.mul_ ? source.sa_.exp() : source.sa_);
+        MAPPING.set(ModellingDictionary.S_CMP, source -> source.mul_ ? source.s_.exp() : source.s_);
+        MAPPING.set(ModellingDictionary.I_CMP, source -> source.mul_ ? source.i_.exp() : source.i_);
+        MAPPING.set(ModellingDictionary.Y_LIN, source -> source.y_);
+        MAPPING.set(ModellingDictionary.T_LIN, source -> source.t_);
+        MAPPING.set(ModellingDictionary.SA_LIN, source -> source.sa_);
+        MAPPING.set(ModellingDictionary.S_LIN, source -> source.s_);
+        MAPPING.set(ModellingDictionary.I_LIN, source -> source.i_);
+        MAPPING.set(ModellingDictionary.SI_CMP, source -> {
+            TsData si = TsData.add(source.s_, source.i_);
+            if (si == null) {
+                return null;
             }
+            return source.mul_ ? si.exp() : si;
         });
-        mapper.add(ModellingDictionary.T_CMP, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.mul_ ? source.t_.exp() : source.t_;
-            }
-        });
-        mapper.add(ModellingDictionary.SA_CMP, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.mul_ ? source.sa_.exp() : source.sa_;
-            }
-        });
-        mapper.add(ModellingDictionary.S_CMP, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.mul_ ? source.s_.exp() : source.s_;
-            }
-        });
-        mapper.add(ModellingDictionary.I_CMP, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.mul_ ? source.i_.exp() : source.i_;
-            }
-        });
-        mapper.add(ModellingDictionary.Y_LIN, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.y_;
-            }
-        });
-        mapper.add(ModellingDictionary.T_LIN, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.t_;
-            }
-        });
-        mapper.add(ModellingDictionary.SA_LIN, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.sa_;
-            }
-        });
-        mapper.add(ModellingDictionary.S_LIN, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.s_;
-            }
-        });
-        mapper.add(ModellingDictionary.I_LIN, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.i_;
-            }
-        });
-        mapper.add(ModellingDictionary.SI_CMP, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                TsData si = TsData.add(source.s_, source.i_);
-                if (si == null) {
-                    return null;
-                }
-                return source.mul_ ? si.exp() : si;
-            }
-        });
-        mapper.add("residuals", new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.getResiduals();
-            }
-        });
-        mapper.add(IRREGULAR, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.im_;
-            }
-        });
-        mapper.add(NOISE_DATA, new InformationMapper.Mapper<MixedAirlineResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(MixedAirlineResults source) {
-                return source.noise_;
-            }
-        });
+        MAPPING.set("residuals", source -> source.getResiduals());
+        MAPPING.set(IRREGULAR, source -> source.im_);
+        MAPPING.set(NOISE_DATA, source -> source.noise_);
     }
 }

@@ -11,7 +11,6 @@ import ec.demetra.ssf.implementations.structural.BasicStructuralModel;
 import ec.tstoolkit.algorithm.IProcResults;
 import ec.tstoolkit.algorithm.ProcessingInformation;
 import ec.tstoolkit.data.IReadDataBlock;
-import ec.tstoolkit.information.InformationMapper;
 import ec.tstoolkit.timeseries.regression.TsVariableList;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
@@ -20,28 +19,30 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import ec.demetra.realfunctions.IFunctionPoint;
+import ec.tstoolkit.information.InformationMapping;
+import java.util.function.Function;
 
 /**
  *
  * @author Jean Palate
  */
-public class StsEstimation implements IProcResults{
-    
+public class StsEstimation implements IProcResults {
+
+    public static final String RESIDUALS = "residuals";
+
     private final BsmMonitor monitor_;
     private final TsData y_;
     private final TsVariableList x_;
 
     public StsEstimation(TsData y, TsVariableList x, BsmMonitor monitor) {
         monitor_ = monitor;
-        y_=y;
-        x_=x;
+        y_ = y;
+        x_ = x;
     }
 
     @Override
     public boolean contains(String id) {
-        synchronized (mapper) {
-            return mapper.contains(id);
-        }
+        return MAPPING.contains(id);
     }
 
     @Override
@@ -53,34 +54,30 @@ public class StsEstimation implements IProcResults{
     public Map<String, Class> getDictionary() {
         // TODO
         LinkedHashMap<String, Class> map = new LinkedHashMap<>();
-        mapper.fillDictionary(null, map);
+        MAPPING.fillDictionary(null, map, false);
         return map;
     }
 
     @Override
     public <T> T getData(String id, Class<T> tclass) {
-        synchronized (mapper) {
-            
-                return (T) mapper.getData(this, id, tclass);
-        }
+        return (T) MAPPING.getData(this, id, tclass);
     }
-
 
     public BasicStructuralModel getModel() {
         return monitor_.getResult();
     }
-    
-    public TsData getY(){
+
+    public TsData getY() {
         return y_;
     }
 
-    public TsVariableList getX(){
+    public TsVariableList getX() {
         return x_;
     }
 
     public TsData getResiduals() {
         IReadDataBlock res = monitor_.getLikelihood().getResiduals();
-        TsDomain edom=y_.getDomain();
+        TsDomain edom = y_.getDomain();
         return new TsData(edom.getStart().plus(edom.getLength() - res.getLength()), res);
     }
 
@@ -96,25 +93,22 @@ public class StsEstimation implements IProcResults{
         return monitor_.maxLikelihoodFunction();
     }
 
-
-    // MAPPERS
-
-    public static <T> void addMapping(String name, InformationMapper.Mapper<StsEstimation, T> mapping) {
-        synchronized (mapper) {
-            mapper.add(name, mapping);
-        }
+    // MAPPING
+    public static InformationMapping<StsEstimation> getMapping() {
+        return MAPPING;
     }
 
-    private static final InformationMapper<StsEstimation> mapper = new InformationMapper<>();
+    public static <T> void setMapping(String name, Class<T> tclass, Function<StsEstimation, T> extractor) {
+        MAPPING.set(name, tclass, extractor);
+    }
+
+    public static <T> void setTsData(String name, Function<StsEstimation, TsData> extractor) {
+        MAPPING.set(name, extractor);
+    }
+
+    private static final InformationMapping<StsEstimation> MAPPING = new InformationMapping<>(StsEstimation.class);
 
     static {
-        mapper.add("residuals", new InformationMapper.Mapper<StsEstimation, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(StsEstimation source) {
-                return source.getResiduals();
-            }
-        });
+        MAPPING.set(RESIDUALS, source -> source.getResiduals());
     }
 }
-

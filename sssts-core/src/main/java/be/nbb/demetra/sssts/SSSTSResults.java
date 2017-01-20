@@ -29,7 +29,7 @@ import ec.satoolkit.ISeriesDecomposition;
 import ec.tstoolkit.algorithm.ProcessingInformation;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
-import ec.tstoolkit.information.InformationMapper;
+import ec.tstoolkit.information.InformationMapping;
 import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.modelling.ComponentType;
 import ec.tstoolkit.modelling.ModellingDictionary;
@@ -39,12 +39,15 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  *
  * @author Jean Palate
  */
 public class SSSTSResults implements ISaResults {
+
+    public static final String RESIDUALS = "residuals";
 
     SSSTSResults(TsData y, SSSTSMonitor monitor, boolean noise, boolean b) {
         this.y = y;
@@ -63,7 +66,7 @@ public class SSSTSResults implements ISaResults {
     private TsData t, sa, s, irr, level, slope, cycle, fy, ft, fsa, fs;
 
     private void computeDecomposition(SSSTSModel model, boolean noise) {
-        int freq=y.getFrequency().intValue();
+        int freq = y.getFrequency().intValue();
         int nf = freq;
         ISsfData data = new ExtendedSsfData(y, nf);
         int start = y.getStart().getPosition();
@@ -78,10 +81,10 @@ public class SSSTSResults implements ISaResults {
         // we compute the common part by average and the seasonal part by difference
         for (; cur < xt.length; ++cur) {
             DataBlock a = srslts.a(cur);
-            double m=a.range(0, freq).sum()/freq;
-            double l=a.get(j);
+            double m = a.range(0, freq).sum() / freq;
+            double l = a.get(j);
             xt[cur] = m;
-            xs[cur]=l-m;
+            xs[cur] = l - m;
             if ((++j) % nf == 0) {
                 j = 0;
             }
@@ -89,44 +92,42 @@ public class SSSTSResults implements ISaResults {
         }
         for (int i = 0; i < nf; ++i, ++cur) {
             DataBlock a = srslts.a(cur);
-            double m=a.range(0, freq).sum()/freq;
+            double m = a.range(0, freq).sum() / freq;
             xft[i] = m;
-            xfs[i]=a.get(j)-m;
+            xfs[i] = a.get(j) - m;
             if ((++j) % nf == 0) {
                 j = 0;
             }
         }
-        
+
         t = new TsData(y.getStart(), xt, false);
         irr = new TsData(y.getStart(), xi, false);
-        s=new TsData(y.getStart(), xs, false);
-        fs=new TsData(y.getEnd(), nf);
-        fs.set(()->0);
+        s = new TsData(y.getStart(), xs, false);
+        fs = new TsData(y.getEnd(), nf);
+        fs.set(() -> 0);
         ft = new TsData(y.getEnd(), xft, false);
         fs = new TsData(y.getEnd(), xfs, false);
         fy = TsData.add(ft, fs);
-        sa=TsData.subtract(y, s);
-        fsa=ft;
+        sa = TsData.subtract(y, s);
+        fsa = ft;
     }
 
     @Override
     public Map<String, Class> getDictionary() {
         // TODO
         LinkedHashMap<String, Class> map = new LinkedHashMap<>();
-        mapper.fillDictionary(null, map);
+        MAPPING.fillDictionary(null, map, false);
         return map;
     }
 
     @Override
     public <T> T getData(String id, Class<T> tclass) {
-        return mapper.getData(this, id, tclass);
+        return MAPPING.getData(this, id, tclass);
     }
 
     @Override
     public boolean contains(String id) {
-        synchronized (mapper) {
-            return mapper.contains(id);
-        }
+        return MAPPING.contains(id);
     }
 
     @Override
@@ -177,103 +178,40 @@ public class SSSTSResults implements ISaResults {
         return irr;
     }
 
-    // MAPPERS
-    public static <T> void addMapping(String name, InformationMapper.Mapper<SSSTSResults, T> mapping) {
-        synchronized (mapper) {
-            mapper.add(name, mapping);
-        }
+    // MAPPING
+    public static InformationMapping<SSSTSResults> getMapping() {
+        return MAPPING;
     }
-    private static final InformationMapper<SSSTSResults> mapper = new InformationMapper<>();
+
+    public static <T> void setMapping(String name, Class<T> tclass, Function<SSSTSResults, T> extractor) {
+        MAPPING.set(name, tclass, extractor);
+    }
+
+    public static <T> void setTsData(String name, Function<SSSTSResults, TsData> extractor) {
+        MAPPING.set(name, extractor);
+    }
+
+    private static final InformationMapping<SSSTSResults> MAPPING = new InformationMapping<>(SSSTSResults.class);
 
     static {
-        mapper.add(ModellingDictionary.Y_CMP, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.mul ? source.y.exp() : source.y;
+        MAPPING.set(ModellingDictionary.Y_CMP, source -> source.mul ? source.y.exp() : source.y);
+        MAPPING.set(ModellingDictionary.T_CMP, source -> source.mul ? source.t.exp() : source.t);
+        MAPPING.set(ModellingDictionary.SA_CMP, source -> source.mul ? source.sa.exp() : source.sa);
+        MAPPING.set(ModellingDictionary.S_CMP, source -> source.mul ? source.s.exp() : source.s);
+        MAPPING.set(ModellingDictionary.I_CMP, source -> source.mul ? source.irr.exp() : source.irr);
+        MAPPING.set(ModellingDictionary.Y_LIN, source -> source.y);
+        MAPPING.set(ModellingDictionary.T_LIN, source -> source.t);
+        MAPPING.set(ModellingDictionary.SA_LIN, source -> source.sa);
+        MAPPING.set(ModellingDictionary.S_LIN, source -> source.s);
+        MAPPING.set(ModellingDictionary.I_LIN, source -> source.irr);
+        MAPPING.set(ModellingDictionary.SI_CMP, source -> {
+            TsData si = TsData.add(source.s, source.irr);
+            if (si == null) {
+                return null;
             }
+            return source.mul ? si.exp() : si;
         });
-        mapper.add(ModellingDictionary.T_CMP, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.mul ? source.t.exp() : source.t;
-            }
-        });
-        mapper.add(ModellingDictionary.SA_CMP, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.mul ? source.sa.exp() : source.sa;
-            }
-        });
-        mapper.add(ModellingDictionary.S_CMP, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.mul ? source.s.exp() : source.s;
-            }
-        });
-        mapper.add(ModellingDictionary.I_CMP, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.mul ? source.irr.exp() : source.irr;
-            }
-        });
-        mapper.add(ModellingDictionary.Y_LIN, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.y;
-            }
-        });
-        mapper.add(ModellingDictionary.T_LIN, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.t;
-            }
-        });
-        mapper.add(ModellingDictionary.SA_LIN, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.sa;
-            }
-        });
-        mapper.add(ModellingDictionary.S_LIN, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.s;
-            }
-        });
-        mapper.add(ModellingDictionary.I_LIN, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.irr;
-            }
-        });
-        mapper.add(ModellingDictionary.SI_CMP, new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                TsData si = TsData.add(source.s, source.irr);
-                if (si == null) {
-                    return null;
-                }
-                return source.mul ? si.exp() : si;
-            }
-        });
-        mapper.add("residuals", new InformationMapper.Mapper<SSSTSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSSTSResults source) {
-                return source.getResiduals();
-            }
-        });
+        MAPPING.set(RESIDUALS, source -> source.getResiduals());
     }
 
     @Override
