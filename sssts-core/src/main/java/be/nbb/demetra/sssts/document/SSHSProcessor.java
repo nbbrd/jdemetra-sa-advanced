@@ -96,7 +96,7 @@ public class SSHSProcessor implements ISaProcessingFactory<SSHSSpecification> {
         return SSHSProcessingFactory.instance.getSpecificationDictionary(specClass);
     }
     @Override
-    public Map<String, Class> getOutputDictionary() {
-        return SSHSProcessingFactory.instance.getOutputDictionary();
+    public Map<String, Class> getOutputDictionary(boolean compact) {
+        return SSHSProcessingFactory.instance.getOutputDictionary(compact);
     }
 }

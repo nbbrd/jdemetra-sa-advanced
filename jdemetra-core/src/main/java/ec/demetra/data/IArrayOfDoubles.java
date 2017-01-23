@@ -141,6 +141,19 @@ public interface IArrayOfDoubles extends IArrayOfDoublesReader {
     }
 
     // some default shortcuts
+    default void setAY(final double a, IArrayOfDoubles y) {
+        if (a == 0) {
+            set(()->0);
+        } else if (a == 1) {
+            copy(y);
+        } else if (a == -1) {
+            set(y, u -> -u);
+        } else {
+            set(y, u -> a*u);
+        }
+    }
+
+    // some default shortcuts
     default void addAY(double a, IArrayOfDoubles y) {
         if (a == 0) {
             return;

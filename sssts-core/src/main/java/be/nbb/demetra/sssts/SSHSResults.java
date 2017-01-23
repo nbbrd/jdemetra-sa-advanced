@@ -24,30 +24,24 @@ import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.demetra.ssf.univariate.ExtendedSsfData;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.ISsfData;
-import ec.demetra.ssf.univariate.SsfData;
-import ec.tstoolkit.modelling.ComponentInformation;
 import ec.satoolkit.DecompositionMode;
 import ec.satoolkit.DefaultSeriesDecomposition;
 import ec.satoolkit.ISaResults;
 import ec.satoolkit.ISeriesDecomposition;
-import ec.satoolkit.seats.SeatsResults;
-import ec.satoolkit.seats.SeatsToolkit;
 import ec.tstoolkit.algorithm.ProcessingInformation;
-import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
-import ec.tstoolkit.information.InformationMapper;
+import ec.tstoolkit.information.InformationMapping;
 import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.modelling.ComponentType;
 import ec.tstoolkit.modelling.ModellingDictionary;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
-import ec.tstoolkit.ucarima.UcarimaModel;
-import ec.tstoolkit.ucarima.WienerKolmogorovEstimators;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  *
@@ -99,28 +93,26 @@ public class SSHSResults implements ISaResults {
         ft = new TsData(y.getEnd(), cmps.column(0).drop(y.getLength(), 0));
         s = new TsData(y.getStart(), cmps.column(1).drop(0, nf));
         fs = new TsData(y.getEnd(), cmps.column(1).drop(y.getLength(), 0));
-        irr=TsData.subtract(y, TsData.add(t, s));
-        sa=TsData.subtract(y, s);
+        irr = TsData.subtract(y, TsData.add(t, s));
+        sa = TsData.subtract(y, s);
     }
-    
+
     @Override
     public Map<String, Class> getDictionary() {
         // TODO
         LinkedHashMap<String, Class> map = new LinkedHashMap<>();
-        mapper.fillDictionary(null, map);
+        MAPPING.fillDictionary(null, map, false);
         return map;
     }
 
     @Override
     public <T> T getData(String id, Class<T> tclass) {
-        return mapper.getData(this, id, tclass);
+        return MAPPING.getData(this, id, tclass);
     }
 
     @Override
     public boolean contains(String id) {
-        synchronized (mapper) {
-            return mapper.contains(id);
-        }
+        return MAPPING.contains(id);
     }
 
     @Override
@@ -171,103 +163,40 @@ public class SSHSResults implements ISaResults {
         return irr;
     }
 
-    // MAPPERS
-    public static <T> void addMapping(String name, InformationMapper.Mapper<SSHSResults, T> mapping) {
-        synchronized (mapper) {
-            mapper.add(name, mapping);
-        }
+    // MAPPING
+    public static InformationMapping<SSHSResults> getMapping() {
+        return MAPPING;
     }
-    private static final InformationMapper<SSHSResults> mapper = new InformationMapper<>();
+
+    public static <T> void setMapping(String name, Class<T> tclass, Function<SSHSResults, T> extractor) {
+        MAPPING.set(name, tclass, extractor);
+    }
+
+    public static <T> void setTsData(String name, Function<SSHSResults, TsData> extractor) {
+        MAPPING.set(name, extractor);
+    }
+
+    private static final InformationMapping<SSHSResults> MAPPING = new InformationMapping<>(SSHSResults.class);
 
     static {
-        mapper.add(ModellingDictionary.Y_CMP, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.mul ? source.y.exp() : source.y;
+        MAPPING.set(ModellingDictionary.Y_CMP, source -> source.mul ? source.y.exp() : source.y);
+        MAPPING.set(ModellingDictionary.T_CMP, source -> source.mul ? source.t.exp() : source.t);
+        MAPPING.set(ModellingDictionary.SA_CMP, source -> source.mul ? source.sa.exp() : source.sa);
+        MAPPING.set(ModellingDictionary.S_CMP, source -> source.mul ? source.s.exp() : source.s);
+        MAPPING.set(ModellingDictionary.I_CMP, source -> source.mul ? source.irr.exp() : source.irr);
+        MAPPING.set(ModellingDictionary.Y_LIN, source -> source.y);
+        MAPPING.set(ModellingDictionary.T_LIN, source -> source.t);
+        MAPPING.set(ModellingDictionary.SA_LIN, source -> source.sa);
+        MAPPING.set(ModellingDictionary.S_LIN, source -> source.s);
+        MAPPING.set(ModellingDictionary.I_LIN, source -> source.irr);
+        MAPPING.set(ModellingDictionary.SI_CMP, source -> {
+            TsData si = TsData.add(source.s, source.irr);
+            if (si == null) {
+                return null;
             }
+            return source.mul ? si.exp() : si;
         });
-        mapper.add(ModellingDictionary.T_CMP, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.mul ? source.t.exp() : source.t;
-            }
-        });
-        mapper.add(ModellingDictionary.SA_CMP, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.mul ? source.sa.exp() : source.sa;
-            }
-        });
-        mapper.add(ModellingDictionary.S_CMP, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.mul ? source.s.exp() : source.s;
-            }
-        });
-        mapper.add(ModellingDictionary.I_CMP, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.mul ? source.irr.exp() : source.irr;
-            }
-        });
-        mapper.add(ModellingDictionary.Y_LIN, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.y;
-            }
-        });
-        mapper.add(ModellingDictionary.T_LIN, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.t;
-            }
-        });
-        mapper.add(ModellingDictionary.SA_LIN, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.sa;
-            }
-        });
-        mapper.add(ModellingDictionary.S_LIN, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.s;
-            }
-        });
-        mapper.add(ModellingDictionary.I_LIN, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.irr;
-            }
-        });
-        mapper.add(ModellingDictionary.SI_CMP, new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                TsData si = TsData.add(source.s, source.irr);
-                if (si == null) {
-                    return null;
-                }
-                return source.mul ? si.exp() : si;
-            }
-        });
-        mapper.add("residuals", new InformationMapper.Mapper<SSHSResults, TsData>(TsData.class) {
-
-            @Override
-            public TsData retrieve(SSHSResults source) {
-                return source.getResiduals();
-            }
-        });
+        MAPPING.set("residuals", source -> source.getResiduals());
     }
 
     @Override

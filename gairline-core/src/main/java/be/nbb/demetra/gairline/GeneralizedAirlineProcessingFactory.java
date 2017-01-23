@@ -28,6 +28,7 @@ import ec.tstoolkit.modelling.arima.Method;
 import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -93,11 +94,11 @@ public class GeneralizedAirlineProcessingFactory extends GenericSaProcessingFact
     }
 
     @Override
-    public Map<String, Class> getOutputDictionary() {
-        HashMap<String, Class> dic = new HashMap<>();
-        PreprocessingModel.fillDictionary(null, dic);
-        DefaultSeriesDecomposition.fillDictionary(null, dic);
-        SaBenchmarkingResults.fillDictionary(BENCHMARKING, dic);
+    public Map<String, Class> getOutputDictionary(boolean compact) {
+        HashMap<String, Class> dic = new LinkedHashMap<>();
+        PreprocessingModel.fillDictionary(null, dic, compact);
+        DefaultSeriesDecomposition.fillDictionary(null, dic, compact);
+        SaBenchmarkingResults.fillDictionary(BENCHMARKING, dic, compact);
         return dic;
     }
 }

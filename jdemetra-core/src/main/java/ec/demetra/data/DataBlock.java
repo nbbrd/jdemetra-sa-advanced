@@ -342,21 +342,23 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
 
         @Override
         public DataBlock slide(int n) {
-            if (n > 0) {
-                if (end + n <= data.length) {
                     beg += n;
                     end += n;
-                } else {
-                    throw new java.lang.UnsupportedOperationException();
-                }
-            } else if (n < 0) {
-                if (beg + n >= 0) {
-                    beg += n;
-                    end += n;
-                } else {
-                    throw new java.lang.UnsupportedOperationException();
-                }
-            }
+//            if (n > 0) {
+//                if (end + n <= data.length) {
+//                    beg += n;
+//                    end += n;
+//                } else {
+//                    throw new java.lang.UnsupportedOperationException();
+//                }
+//            } else if (n < 0) {
+//                if (beg + n >= 0) {
+//                    beg += n;
+//                    end += n;
+//                } else {
+//                    throw new java.lang.UnsupportedOperationException();
+//                }
+//            }
             return this;
         }
 
@@ -392,8 +394,8 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
 
         @Override
         public DataBlock shrink(int nbeg, int nend) {
-            if (end-beg < nbeg+nend)
-                throw new IllegalArgumentException();
+//            if (end-beg < nbeg+nend)
+//                throw new IllegalArgumentException();
             beg += nbeg;
             end -= nend;
             return this;
@@ -401,32 +403,32 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
 
         @Override
         public DataBlock bshrink() {
-            if (beg == end)
-                throw new IllegalArgumentException();
+//            if (beg == end)
+//                throw new IllegalArgumentException();
             ++beg;
             return this;
         }
 
         @Override
         public DataBlock eshrink() {
-            if (beg == end)
-                throw new IllegalArgumentException();
+//            if (beg == end)
+//                throw new IllegalArgumentException();
             --end;
             return this;
         }
 
         @Override
         public DataBlock previous(int n) {
-            if (beg < n)
-                throw new IllegalArgumentException();
+//            if (beg < n)
+//                throw new IllegalArgumentException();
             return new PartialArray(data, beg-n, beg);
          }
 
         @Override
         public DataBlock expand(int nbeg, int nend) {
-            if (beg < nbeg || end > data.length - nend) {
-                throw new UnsupportedOperationException();
-            }
+//            if (beg < nbeg || end > data.length - nend) {
+//                throw new UnsupportedOperationException();
+//            }
 
             beg -= nbeg;
             end += nend;
@@ -435,9 +437,9 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
 
         @Override
         public DataBlock bexpand() {
-            if (beg == 0) {
-                throw new UnsupportedOperationException();
-            }
+//            if (beg == 0) {
+//                throw new UnsupportedOperationException();
+//            }
 
             --beg;
             return this;
@@ -445,9 +447,9 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
 
         @Override
         public DataBlock eexpand() {
-            if (end == data.length) {
-                throw new UnsupportedOperationException();
-            }
+//            if (end == data.length) {
+//                throw new UnsupportedOperationException();
+//            }
 
             ++end;
             return this;
@@ -502,21 +504,23 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
 
         @Override
         public DataBlock slide(int n) {
-            if (n > 0) {
-                if (end + n <= data.length + inc) {
+//            if (n > 0) {
+//                if (end + n <= data.length + inc) {
+//                    beg += n;
+//                    end += n;
+//                } else {
+//                    throw new java.lang.ArrayIndexOutOfBoundsException();
+//                }
+//            } else if (n < 0) {
+//                if (beg + n >= 0) {
+//                    beg += n;
+//                    end += n;
+//                } else {
+//                    throw new ArrayIndexOutOfBoundsException();
+//                }
+//            }
                     beg += n;
                     end += n;
-                } else {
-                    throw new java.lang.ArrayIndexOutOfBoundsException();
-                }
-            } else if (n < 0) {
-                if (beg + n >= 0) {
-                    beg += n;
-                    end += n;
-                } else {
-                    throw new ArrayIndexOutOfBoundsException();
-                }
-            }
             return this;
         }
 
@@ -533,12 +537,12 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
          */
         @Override
         public DataBlock bshrink() {
-            if (beg != end) {
+//            if (beg != end) {
                 beg += inc;
                 return this;
-            } else {
-                throw new ArrayIndexOutOfBoundsException();
-            }
+//            } else {
+//                throw new ArrayIndexOutOfBoundsException();
+//            }
         }
 
         /**
@@ -549,12 +553,12 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
          */
         @Override
         public DataBlock eshrink() {
-            if (beg != end) {
+//            if (beg != end) {
                 end -= inc;
                 return this;
-            } else {
-                throw new ArrayIndexOutOfBoundsException();
-            }
+//            } else {
+//                throw new ArrayIndexOutOfBoundsException();
+//            }
         }
 
         /**
@@ -569,13 +573,13 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
          */
         @Override
         public DataBlock shrink(int nbeg, int nend) {
-            if (nbeg + nend <= getLength()) {
+//            if (nbeg + nend <= getLength()) {
                 beg += inc * nbeg;
                 end -= inc * nend;
                 return this;
-            } else {
-                throw new ArrayIndexOutOfBoundsException();
-            }
+//            } else {
+//                throw new ArrayIndexOutOfBoundsException();
+//            }
         }
 
         /**
@@ -593,13 +597,13 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
             int xbeg = beg - nbeg * inc;
             int xend = end + nend * inc;
 
-            if (xbeg < 0 || xend > data.length) {
-                throw new UnsupportedOperationException();
-            } else {
+//            if (xbeg < 0 || xend > data.length) {
+//                throw new UnsupportedOperationException();
+//            } else {
                 beg = xbeg;
                 end = xend;
                 return this;
-            }
+//            }
         }
 
         @Override
@@ -634,18 +638,18 @@ public abstract class DataBlock implements IArrayOfDoubles, Iterable<DataBlock.C
 
         @Override
         public DataBlock bexpand() {
-            if (beg - inc < 0) {
-                throw new UnsupportedOperationException();
-            }
+//            if (beg - inc < 0) {
+//                throw new UnsupportedOperationException();
+//            }
             beg -= inc;
             return this;
         }
 
         @Override
         public DataBlock eexpand() {
-            if (end + inc > data.length) {
-                throw new UnsupportedOperationException();
-            }
+//            if (end + inc > data.length) {
+//                throw new UnsupportedOperationException();
+//            }
             end += inc;
             return this;
         }

@@ -96,7 +96,7 @@ public class SSSTSProcessor implements ISaProcessingFactory<SSSTSSpecification> 
         return SSSTSProcessingFactory.instance.getSpecificationDictionary(specClass);
     }
     @Override
-    public Map<String, Class> getOutputDictionary() {
-        return SSSTSProcessingFactory.instance.getOutputDictionary();
+    public Map<String, Class> getOutputDictionary(boolean compact) {
+        return SSSTSProcessingFactory.instance.getOutputDictionary(compact);
     }
 }
