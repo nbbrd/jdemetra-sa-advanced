@@ -7,7 +7,7 @@
         <netbeans.hint.jdkPlatform>JDK_1.8</netbeans.hint.jdkPlatform>
         <jdk.version>1.8</jdk.version>
         <brandingToken>nbbdemetra</brandingToken>
-        <netbeans.version>RELEASE802</netbeans.version>
+        <netbeans.version>RELEASE82</netbeans.version>
         <jdemetra.version>2.2.0-SNAPSHOT</jdemetra.version>
         <nbbdemetra.version>1.0.0-SNAPSHOT</nbbdemetra.version>
         <lombok.version>1.16.2</lombok.version>
