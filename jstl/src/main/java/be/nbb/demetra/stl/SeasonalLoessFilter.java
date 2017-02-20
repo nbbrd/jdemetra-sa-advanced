@@ -32,6 +32,11 @@ public class SeasonalLoessFilter {
         this.organizer = organizer;
     }
 
+    /**
+     * Defines the seasonal filter
+     * @param spec The specification of the filter
+     * @param period The period used by the filter
+     */
     public SeasonalLoessFilter(LoessSpecification spec, int period) {
         this.filter = new LoessFilter(spec);
         this.organizer = IPeriodicDataOrganizer.of(period);
