@@ -27,10 +27,25 @@ public class StlPlusSpecification {
         return t * t;
     };
     
+    /**
+     * Creates a default specification for a series that has a given periodicity
+     * @param period The periodicity of the series
+     * @param robust True for robust filtering, false otherwise.
+     * @return 
+     */
     public static StlPlusSpecification createDefault(int period, boolean robust){
         return createDefault(period, 7, robust);
     }
     
+    /**
+     * Given the length of the seasonal window, creates a default specification 
+     * for a series that has a given periodicity
+     * 
+     * @param period
+     * @param swindow
+     * @param robust
+     * @return 
+     */
     public static StlPlusSpecification createDefault(int period, int swindow, boolean robust){
         StlPlusSpecification spec=new StlPlusSpecification(robust);
         spec.tspec=LoessSpecification.defaultTrend(period, swindow);
@@ -38,6 +53,11 @@ public class StlPlusSpecification {
         return spec;
     }
 
+    /**
+     * Creates the skeleton for a stl specification (the different filters have to be
+     * specified
+     * @param robust 
+     */
     public StlPlusSpecification(boolean robust){
         if (robust){
             ni=1;

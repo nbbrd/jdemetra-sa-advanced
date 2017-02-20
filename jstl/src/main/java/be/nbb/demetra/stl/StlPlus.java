@@ -19,7 +19,6 @@ package be.nbb.demetra.stl;
 import ec.demetra.realfunctions.RealFunction;
 import ec.tstoolkit.data.IReadDataBlock;
 import java.util.Arrays;
-import java.util.function.IntToDoubleFunction;
 
 /**
  * Java implementation of the original FORTRAN routine

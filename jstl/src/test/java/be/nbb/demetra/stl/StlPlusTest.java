@@ -18,10 +18,8 @@ package be.nbb.demetra.stl;
 
 import data.Data;
 import ec.demetra.timeseries.simplets.TsData;
-import ec.tstoolkit.data.DataBlock;
 import java.util.Random;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Ignore;
 
 /**

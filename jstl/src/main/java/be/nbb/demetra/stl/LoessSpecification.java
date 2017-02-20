@@ -8,7 +8,10 @@ package be.nbb.demetra.stl;
 import ec.demetra.realfunctions.RealFunction;
 
 /**
- *
+ * Defines a Loess filter. The specification contains 
+ * - window: the length of the estimation window (should be odd)
+ * - degree: the degree of the interpolating polynomial (0 for constant, 1 for linear trend)
+ * - jump (optimization option): the number of jumps between two successive estimations
  * @author Jean Palate <jean.palate@nbb.be>
  */
 public class LoessSpecification {
@@ -23,6 +26,12 @@ public class LoessSpecification {
         return t * t * t;
     };
     
+    /**
+     * 
+     * @param period periodicity of the series
+     * @param swindow the length of the seasonal filter
+     * @return 
+     */
     public static LoessSpecification defaultTrend(int period, int swindow){
         int win=(int)Math.ceil((1.5 * period) / (1 - 1.5 / swindow));
         if (win%2 == 0)
@@ -30,13 +39,24 @@ public class LoessSpecification {
         return of(win);
     }
 
+    /**
+     * The window is the smallest odd integer greater than or equal to period
+     * @param period periodicity of the series
+     * @return 
+     */
     public static LoessSpecification defaultLowPass(int period){
-        int win=period+1;
+        int win=period;
         if (win%2 == 0)
             ++win;
         return of(win);
     }
 
+    /**
+     * By default, win is the smaller odd number greater or equal to swin,
+     * degree = 0 and jump is the first integer higher then .1*win
+     * @param swin The seasonal window. In normal use, should be odd and at least 7.
+     * @return 
+     */
     public static LoessSpecification defaultSeasonal(int swin){
         if (swin%2 == 0)
             ++swin;
