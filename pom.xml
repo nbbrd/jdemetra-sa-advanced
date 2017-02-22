@@ -54,6 +54,7 @@
         <module>jdemetra-modelling</module>
         <module>jd_highfreq</module>
         <module>jstl</module>
+        <module>jd_stl</module>
     </modules>
 
     <organization>

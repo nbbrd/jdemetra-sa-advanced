@@ -44,8 +44,7 @@ public class StlPlusSpecificationTest {
         m.column(1).copyFrom(stl.getTrend(), 0);
         m.column(2).copyFrom(stl.getSeason(0), 0);
         m.column(3).copyFrom(stl.getIrr(), 0);
-//        m.all().rows().forEach(r->assertEquals(r.get(0), r.extract(1, 3).sum(), 1e-9));
-        System.out.println(m);
+        //System.out.println(m);
     }
     
     @Test
@@ -62,7 +61,7 @@ public class StlPlusSpecificationTest {
         m.column(1).copyFrom(stl.getTrend(), 0);
         m.column(2).copyFrom(stl.getSeason(0), 0);
         m.column(3).copyFrom(stl.getIrr(), 0);
-        System.out.println(m);
+        //System.out.println(m);
     }
     
     @Test
@@ -85,7 +84,7 @@ public class StlPlusSpecificationTest {
         m.column(2).copyFrom(stl.getSeason(0), 0);
         m.column(3).copyFrom(stl.getIrr(), 0);
         System.out.println("specific processing");
-        System.out.println(m);
+        //System.out.println(m);
     }
 
 }
