@@ -53,7 +53,7 @@ public class SSSTSProcessor implements ISaProcessingFactory<SSSTSSpecification> 
 
     @Override
     public ISaSpecification createSpecification(SaItem doc, TsDomain frozenPeriod, EstimationPolicyType policy, boolean nospan) {
-        return doc.getActiveSpecification();
+        return doc.getEstimationSpecification();
     }
 
     @Override
