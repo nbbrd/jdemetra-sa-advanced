@@ -6,9 +6,7 @@
 package ec.demetra.maths.matrices;
 
 import ec.demetra.data.DataBlock;
-import ec.demetra.data.DataBlock.Cell;
 import ec.demetra.data.IArrayOfDoubles;
-import ec.demetra.realfunctions.RealFunction;
 import java.util.Iterator;
 
 /**

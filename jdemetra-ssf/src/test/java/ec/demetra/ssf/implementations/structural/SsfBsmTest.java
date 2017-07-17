@@ -16,6 +16,7 @@
  */
 package ec.demetra.ssf.implementations.structural;
 
+import data.Data;
 import data.Models;
 import ec.demetra.ssf.akf.AkfToolkit;
 import ec.demetra.ssf.akf.DiffuseLikelihood;
@@ -24,6 +25,7 @@ import ec.demetra.ssf.dk.DiffusePredictionErrorDecomposition;
 import ec.demetra.ssf.dk.DkLikelihood;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.univariate.PredictionErrorDecomposition;
+import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.eco.ILikelihood;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -35,13 +37,13 @@ import org.junit.Ignore;
  */
 public class SsfBsmTest {
 
-    static final int N = 100000;
+    static final int N = 50000;
 
     final SsfBsm bsm;
 
     public SsfBsmTest() {
         ModelSpecification mspec = new ModelSpecification();
-        mspec.setSeasonalModel(SeasonalModel.Dummy);
+        //mspec.setSeasonalModel(SeasonalModel.Dummy);
         BasicStructuralModel model = new BasicStructuralModel(mspec, 12);
         bsm = SsfBsm.create(model);
     }
@@ -64,33 +66,34 @@ public class SsfBsmTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void stressTestBsm() {
         testBsm();
+        SsfData data = new SsfData(Data.X);
         long t0 = System.currentTimeMillis();
         for (int i = 0; i < N; ++i) {
-            DkToolkit.likelihoodComputer().compute(bsm, Models.ssfX);
+            DkToolkit.likelihoodComputer().compute(bsm, data);
         }
         long t1 = System.currentTimeMillis();
         System.out.println("dk filter (sqr)");
         System.out.println(t1 - t0);
         t0 = System.currentTimeMillis();
         for (int i = 0; i < N; ++i) {
-            DkToolkit.likelihoodComputer(false, false).compute(bsm, Models.ssfX);
+            DkToolkit.likelihoodComputer(false, false).compute(bsm, data);
         }
         t1 = System.currentTimeMillis();
         System.out.println("dk filter");
         System.out.println(t1 - t0);
         t0 = System.currentTimeMillis();
         for (int i = 0; i < N; ++i) {
-            AkfToolkit.likelihoodComputer(true).compute(bsm, Models.ssfX);
+            AkfToolkit.likelihoodComputer(true).compute(bsm, data);
         }
         t1 = System.currentTimeMillis();
         System.out.println("akf filter");
         System.out.println(t1 - t0);
         t0 = System.currentTimeMillis();
         for (int i = 0; i < N; ++i) {
-            CkmsToolkit.likelihoodComputer().compute(bsm, Models.ssfX);
+            CkmsToolkit.likelihoodComputer().compute(bsm, data);
         }
         t1 = System.currentTimeMillis();
         System.out.println("ckms filter");

@@ -56,7 +56,7 @@ public class SsfBsm2Test {
     }
 
     @Test
-    @Ignore
+//    @Ignore
     public void stressTestBsm() {
         testBsm();
         long t0 = System.currentTimeMillis();
