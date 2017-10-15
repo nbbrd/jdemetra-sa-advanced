@@ -405,7 +405,7 @@
         </repository>
     </repositories>
 
-    <distributionManagement>
+    <!--distributionManagement>
         <repository>
             <id>joinup-releases</id>
             <url>https://joinup.ec.europa.eu/nexus/content/repositories/releases/</url>                    
@@ -414,5 +414,5 @@
             <id>joinup-snapshots</id>
             <url>https://joinup.ec.europa.eu/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
-    </distributionManagement>
+    </distributionManagement-->
 </project>
