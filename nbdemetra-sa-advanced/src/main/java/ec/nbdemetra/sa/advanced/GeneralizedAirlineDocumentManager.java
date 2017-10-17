@@ -17,6 +17,7 @@ import ec.tstoolkit.utilities.LinearId;
 import ec.nbdemetra.sa.advanced.descriptors.GeneralizedAirlineSpecUI;
 import ec.ui.view.tsprocessing.IProcDocumentView;
 import ec.nbdemetra.sa.advanced.ui.GeneralizedAirlineViewFactory;
+import ec.tss.sa.SaManager;
 import org.openide.util.lookup.ServiceProvider;
 
 @ServiceProvider(service = IWorkspaceItemManager.class,
@@ -24,6 +25,7 @@ position = 1820)
 public class GeneralizedAirlineDocumentManager extends AbstractWorkspaceTsItemManager<GeneralizedAirlineSpecification, GeneralizedAirlineDocument> {
 
     static {
+        SaManager.instance.add(new GeneralizedAirlineProcessor());
         DocumentUIServices.getDefault().register(GeneralizedAirlineDocument.class, new DocumentUIServices.AbstractUIFactory<GeneralizedAirlineSpecification, GeneralizedAirlineDocument>() {
 
             @Override
