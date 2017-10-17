@@ -95,6 +95,9 @@ public class MixedFrequenciesMonitor {
     }
 
     public boolean process(final TsData lseries, final TsData hseries, final MixedFrequenciesSpecification spec) {
+        if (lseries == null || hseries == null) {
+            return false;
+        }
         clear();
         TsFrequency lf = lseries.getFrequency(), hf = hseries.getFrequency();
         if (lf == hf) {
@@ -276,8 +279,23 @@ public class MixedFrequenciesMonitor {
         TsFrequency hf = hs_.getFrequency(), lf = ls_.getFrequency();
         c_ = hf.ratio(lf);
         TsDomain hdom = hs_.getDomain(), ldom = ls_.getDomain().changeFrequency(hf, true);
-        if (!hdom.intersection(ldom).isEmpty()) {
-            return false; // Domains are not disjoint
+        TsDomain cdom = hdom.intersection(ldom);
+        if (!cdom.isEmpty()) {// Domains are not disjoint.
+            if (ldom.equals(cdom)) {
+                return false; // nothing to do
+            }            // we use the common domain for the high-frequency series and we drop
+            // some unused data from the low-frequency series
+            int nbeg = cdom.getStart().minus(ldom.getStart());
+            int nend = ldom.getEnd().minus(cdom.getEnd());
+            if (nbeg > 0 && nend > 0) {
+                return false;
+            }
+            if (nbeg > 0) {
+                ls_ = ls_.drop(nbeg / c_, 0);
+            } else {
+                ls_ = ls_.drop(0, nend / c_);
+            }
+            ldom = ls_.getDomain().changeFrequency(hf, true);
         }
         hdomain_ = hdom.union(ldom).select(spec_.getBasic().getSpan());
         if (hdomain_.intersection(hdom).isEmpty() || hdomain_.intersection(ldom).isEmpty()) {

@@ -17,6 +17,7 @@
 package be.nbb.nbdemetra.mixedfreq;
 
 import be.nbb.demetra.mixedfreq.document.MixedFrequenciesArimaDocument;
+import be.nbb.nbdemetra.mixedfreq.ui.Ts2ProcessingViewer2;
 import ec.nbdemetra.ws.WorkspaceFactory;
 import ec.nbdemetra.ws.WorkspaceItem;
 import ec.nbdemetra.ws.ui.WorkspaceTopComponent;
@@ -53,7 +54,7 @@ public final class MixedFrequenciesArimaTopComponent extends WorkspaceTopCompone
     private static MixedFrequenciesArimaDocumentManager manager() {
         return WorkspaceFactory.getInstance().getManager(MixedFrequenciesArimaDocumentManager.class);
     }
-    protected Ts2ProcessingViewer panel;
+    protected Ts2ProcessingViewer2 panel;
 
     public MixedFrequenciesArimaTopComponent() {
         super(null);
@@ -69,7 +70,7 @@ public final class MixedFrequenciesArimaTopComponent extends WorkspaceTopCompone
         setName(getDocument().getDisplayName());
         setToolTipText(Bundle.CTL_MixedFrequenciesArimaTopComponent());
         initComponents();
-        panel = Ts2ProcessingViewer.create(this.getDocument().getElement(), "High-freq sSeries", "Low-freq series");
+        panel = Ts2ProcessingViewer2.create(this.getDocument().getElement(), "High-freq sSeries", "Low-freq series");
         add(panel);
     }
 

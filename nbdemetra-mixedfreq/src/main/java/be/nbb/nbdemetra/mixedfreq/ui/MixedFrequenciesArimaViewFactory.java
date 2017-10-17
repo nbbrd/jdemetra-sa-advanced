@@ -385,6 +385,9 @@ public class MixedFrequenciesArimaViewFactory extends ProcDocumentViewFactory<Mi
         @Override
         public EstimationUI.Information retrieve(MixedFrequenciesArimaDocument source) {
             MixedFrequenciesModelDecomposition decomp = source.getDecompositionPart();
+            if (decomp == null){
+                return new EstimationUI.Information(null, null, null, null);
+            }
             TsData s = decomp.getDecomposition().getSeries(type_, ComponentInformation.Value);
             if (s == null) {
                 return new EstimationUI.Information(null, null, null, null);
