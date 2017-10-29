@@ -55,7 +55,7 @@ public class SubMatrixTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testProduct() {
         int L = 50, M = 30, N = 100, K = 100000;
         double[] a = new double[L * M];

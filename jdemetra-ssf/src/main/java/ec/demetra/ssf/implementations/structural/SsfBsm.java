@@ -22,9 +22,6 @@ import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.demetra.ssf.ISsfDynamics;
 import ec.demetra.ssf.implementations.Measurement;
-import ec.demetra.ssf.implementations.structural.Component;
-import ec.demetra.ssf.implementations.structural.SeasonalComponent;
-import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
 import ec.demetra.ssf.univariate.Ssf;
 
@@ -399,8 +396,8 @@ public class SsfBsm extends Ssf {
             }
             if (seasVar >= 0) {
                 SubMatrix seas = tr.extract(i, i + freq - 1, i, i + freq - 1);
-                seas.row(freq - 2).set(-1);
-                seas.subDiagonal(1).set(1);
+                seas.row(0).set(-1);
+                seas.subDiagonal(-1).set(1);
             }
         }
 
@@ -514,7 +511,7 @@ public class SsfBsm extends Ssf {
             }
             if (seasVar >= 0) {
                 DataBlock ex = x.extract(i0, freq - 1, 1);
-                ex.bshift(DataBlock.ShiftOption.NegSum);
+                ex.fshift(DataBlock.ShiftOption.NegSum);
             }
         }
 
@@ -542,11 +539,11 @@ public class SsfBsm extends Ssf {
             }
             if (seasVar >= 0) {
                 int imax = i0 + freq - 2;
-                double xs = x.get(imax);
-                for (int i = imax; i > i0; --i) {
-                    x.set(i, x.get(i - 1) - xs);
+                double xs = x.get(i0);
+                for (int i = i0; i <imax; ++i) {
+                    x.set(i, x.get(i + 1) - xs);
                 }
-                x.set(i0, -xs);
+                x.set(imax, -xs);
             }
         }
 
