@@ -46,6 +46,13 @@ import org.openide.util.lookup.ServiceProvider;
 import be.nbb.demetra.sts.StsSpecification;
 import be.nbb.demetra.sts.document.HtmlBsm;
 import be.nbb.demetra.sts.document.StsDocument;
+import ec.tstoolkit.data.IDataBlock;
+import ec.tstoolkit.data.IReadDataBlock;
+import ec.tstoolkit.maths.realfunctions.IFunction;
+import ec.tstoolkit.maths.realfunctions.IFunctionDerivatives;
+import ec.tstoolkit.maths.realfunctions.IFunctionInstance;
+import ec.tstoolkit.maths.realfunctions.IParametersDomain;
+import ec.tstoolkit.maths.realfunctions.ParamValidation;
 
 /**
  *
@@ -53,8 +60,8 @@ import be.nbb.demetra.sts.document.StsDocument;
  */
 public class StructuralModelViewFactory extends SaDocumentViewFactory<StsSpecification, StsDocument> {
 
-    public static final String SELECTION = "Selection", 
-            STOCHASTIC = "Stochastic series", 
+    public static final String SELECTION = "Selection",
+            STOCHASTIC = "Stochastic series",
             COMPONENTS = "Components",
             STM = "Structural model components",
             MODELBASED = "Model-based tests",
@@ -66,7 +73,7 @@ public class StructuralModelViewFactory extends SaDocumentViewFactory<StsSpecifi
     public static final Id DECOMPOSITION_SUMMARY = new LinearId(DECOMPOSITION);
     public static final Id DECOMPOSITION_SERIES = new LinearId(DECOMPOSITION, STOCHASTIC);
     public static final Id DECOMPOSITION_CMPSERIES = new LinearId(DECOMPOSITION, COMPONENTS);
-   public static final Id DECOMPOSITION_STM = new LinearId(DECOMPOSITION, STM);
+    public static final Id DECOMPOSITION_STM = new LinearId(DECOMPOSITION, STM);
     public static final Id DECOMPOSITION_WK_COMPONENTS = new LinearId(DECOMPOSITION, WKANALYSIS, WK_COMPONENTS);
     public static final Id DECOMPOSITION_WK_FINALS = new LinearId(DECOMPOSITION, WKANALYSIS, WK_FINALS);
     public static final Id DECOMPOSITION_TESTS = new LinearId(DECOMPOSITION, MODELBASED);
@@ -178,7 +185,7 @@ public class StructuralModelViewFactory extends SaDocumentViewFactory<StsSpecifi
             setAsync(true);
         }
     }
-   //</editor-fold>
+    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="REGISTER STM">
     @Deprecated
@@ -353,13 +360,12 @@ public class StructuralModelViewFactory extends SaDocumentViewFactory<StsSpecifi
         }
     }
 
-
     @ServiceProvider(service = ProcDocumentItemFactory.class, position = 401020)
     public static class StsSeriesFactory extends ItemFactory<CompositeResults> {
 
         public StsSeriesFactory() {
-            super(DECOMPOSITION_STM, saExtractor(), new SaTableUI("level", "slope"
-                    , "cycle", "noise", "seasonal"));
+            super(DECOMPOSITION_STM, saExtractor(), new SaTableUI("level", "slope",
+                    "cycle", "noise", "seasonal"));
         }
     }
 
@@ -529,11 +535,105 @@ public class StructuralModelViewFactory extends SaDocumentViewFactory<StsSpecifi
             if (stm == null) {
                 return null;
             } else {
-                return null;
+                ProxyFunction proxy = new ProxyFunction(stm.likelihoodFunction());
+                return Functions.create(proxy, proxy.evaluate(stm.maxLikelihoodFunction().getParameters()));
+//                return null;
 //                return Functions.create(stm.likelihoodFunction(), stm.maxLikelihoodFunction());
             }
         }
     };
 
     //</editor-fold>
+}
+
+class ProxyFunctionInstance implements IFunctionInstance {
+
+    final ec.demetra.realfunctions.IFunctionPoint pt;
+
+    ProxyFunctionInstance(ec.demetra.realfunctions.IFunctionPoint pt) {
+        this.pt = pt;
+    }
+
+    @Override
+    public IReadDataBlock getParameters() {
+        return pt.getParameters();
+    }
+
+    @Override
+    public double getValue() {
+        return pt.getValue();
+    }
+
+}
+
+class ProxyFunction implements IFunction {
+
+    final ec.demetra.realfunctions.IFunction df;
+
+    ProxyFunction(ec.demetra.realfunctions.IFunction df) {
+        this.df = df;
+    }
+
+    @Override
+    public IFunctionInstance evaluate(IReadDataBlock parameters) {
+        return new ProxyFunctionInstance(df.evaluate(parameters));
+    }
+
+    @Override
+    public IFunctionDerivatives getDerivatives(IFunctionInstance point) {
+        // not used
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public IParametersDomain getDomain() {
+        // not used
+        return new ProxyDomain(df.getDomain());
+    }
+
+}
+
+class ProxyDomain implements IParametersDomain {
+
+    final ec.demetra.realfunctions.IParametersDomain domain;
+
+    ProxyDomain(ec.demetra.realfunctions.IParametersDomain domain) {
+        this.domain = domain;
+    }
+
+    @Override
+    public boolean checkBoundaries(IReadDataBlock inparams) {
+        return domain.checkBoundaries(inparams);
+    }
+
+    @Override
+    public double epsilon(IReadDataBlock inparams, int idx) {
+        return domain.epsilon(inparams, idx);
+    }
+
+    @Override
+    public int getDim() {
+        return domain.getDim();
+    }
+
+    @Override
+    public double lbound(int idx) {
+        return domain.lbound(idx);
+    }
+
+    @Override
+    public double ubound(int idx) {
+        return domain.ubound(idx);
+    }
+
+    @Override
+    public ParamValidation validate(IDataBlock ioparams) {
+        return ParamValidation.valueOf(domain.validate(ioparams).name());
+    }
+
+    @Override
+    public String getDescription(int idx) {
+        return domain.getDescription(idx);
+    }
+
 }

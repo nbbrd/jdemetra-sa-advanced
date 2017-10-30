@@ -24,7 +24,6 @@ import ec.demetra.ssf.dk.SsfFunction;
 import ec.demetra.ssf.dk.SsfFunctionInstance;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.SsfData;
-import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.timeseries.simplets.TsData;
 
 /**

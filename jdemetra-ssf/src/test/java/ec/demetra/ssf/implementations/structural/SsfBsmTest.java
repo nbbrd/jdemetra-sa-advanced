@@ -66,7 +66,7 @@ public class SsfBsmTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void stressTestBsm() {
         testBsm();
         SsfData data = new SsfData(Data.X);

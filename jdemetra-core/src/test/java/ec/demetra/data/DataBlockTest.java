@@ -19,7 +19,7 @@ public class DataBlockTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void stressTest() {
         ec.tstoolkit.data.DataBlock xx = new ec.tstoolkit.data.DataBlock(1000);
         DataBlock xxx = DataBlock.create(1000);
