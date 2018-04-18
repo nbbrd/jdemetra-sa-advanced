@@ -69,7 +69,7 @@ public class StsProcessingFactory extends GenericSaProcessingFactory implements 
     }
     
     protected static void addPreprocessingStep(IPreprocessor preprocessor, SequentialProcessing sproc) {
-        sproc.add(createPreprocessingStep(preprocessor, PREPROCESSING, PREPROCESSING));
+        sproc.add(createPreprocessingStep(preprocessor, -1, PREPROCESSING, PREPROCESSING));
     }
 
     public static final StsProcessingFactory instance = new StsProcessingFactory();

@@ -44,7 +44,7 @@ public class MixedAirlineProcessingFactory extends GenericSaProcessingFactory im
         SequentialProcessing processing = new SequentialProcessing();
         DefaultPreprocessingFilter filter = new DefaultPreprocessingFilter();
         if (xspec.getPreprocessingSpec().method != Method.None) {
-            addPreprocessingStep(xspec.buildPreprocessor(context), processing);
+            addPreprocessingStep(xspec.buildPreprocessor(context), -1, processing);
         }
         addDecompositionStep(new MixedAirlineDecomposer(xspec.getDecompositionSpec()), filter, processing);
         addFinalStep(filter, processing);
