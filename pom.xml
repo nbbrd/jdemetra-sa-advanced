@@ -392,27 +392,13 @@
     </build>
     
     <repositories>
-        <!-- Repository hosting NetBeans modules -->
         <repository>
-            <id>netbeans</id>
-            <name>NetBeans</name>
+            <id>netbeans-releases</id>
             <url>http://bits.netbeans.org/maven2/</url>
-        </repository>
+        </repository>        
         <repository>
-            <id>netbeans-snapshot</id>
-            <name>NetBeans Snapshots</name>
-            <url>http://bits.netbeans.org/netbeans/trunk/maven-snapshot/</url>
+            <id>oss-jfrog-artifactory-releases</id>
+            <url>https://oss.jfrog.org/artifactory/oss-release-local</url>
         </repository>
     </repositories>
-
-    <!--distributionManagement>
-        <repository>
-            <id>joinup-releases</id>
-            <url>https://joinup.ec.europa.eu/nexus/content/repositories/releases/</url>                    
-        </repository>
-        <snapshotRepository>
-            <id>joinup-snapshots</id>
-            <url>https://joinup.ec.europa.eu/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement-->
 </project>
