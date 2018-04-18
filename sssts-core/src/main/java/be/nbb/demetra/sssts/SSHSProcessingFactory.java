@@ -44,7 +44,7 @@ public class SSHSProcessingFactory extends GenericSaProcessingFactory implements
         SequentialProcessing processing = new SequentialProcessing();
         DefaultPreprocessingFilter filter = new DefaultPreprocessingFilter();
         if (xspec.getPreprocessingSpec().method != Method.None) {
-            addPreprocessingStep(xspec.buildPreprocessor(context), processing);
+            addPreprocessingStep(xspec.buildPreprocessor(context), -1, processing);
         }
         addDecompositionStep(new SSHSDecomposer(xspec.getModelSpecification(), xspec.getDecompositionSpec()), filter, processing);
         addFinalStep(filter, processing);
