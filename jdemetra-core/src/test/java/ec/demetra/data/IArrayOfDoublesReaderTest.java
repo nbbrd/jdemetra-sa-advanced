@@ -21,9 +21,9 @@ public class IArrayOfDoublesReaderTest {
     @Test
     public void testNorm() {
         ArrayOfDoublesReader reader=new ArrayOfDoublesReader(100, i->new Random(i).nextDouble());
-        System.out.println(reader.norm1());
-        System.out.println(reader.norm2());
-        System.out.println(reader.normInf());
+//        System.out.println(reader.norm1());
+//        System.out.println(reader.norm2());
+//        System.out.println(reader.normInf());
         assertTrue(reader.normInf()<=reader.norm2());
         assertTrue(reader.norm2()<=reader.norm1());
     }

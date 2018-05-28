@@ -33,7 +33,7 @@ import ec.tstoolkit.algorithm.ProcessingContext;
  *
  * @author Jean Palate
  */
-public class MixedFrequenciesArimaDocument  extends MultiTsDocument<MixedFrequenciesSpecification, CompositeResults> {
+public class MixedFrequenciesArimaDocument  extends MultiTsDocument2<MixedFrequenciesSpecification, CompositeResults> {
 
     public MixedFrequenciesArimaDocument() {
         super(MixedFrequenciesArimaProcessor.instance);

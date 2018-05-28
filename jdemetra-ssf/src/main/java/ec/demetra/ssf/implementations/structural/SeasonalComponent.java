@@ -341,7 +341,7 @@ public class SeasonalComponent {
             if (seasModel == SeasonalModel.Crude) {
                 s.set(std());
             } else if (seasModel == SeasonalModel.Dummy) {
-                s.set(freq - 1, 0, std());
+                s.set(0, 0, std());
             } else {
                 s.copy(lvar);
             }
@@ -352,7 +352,7 @@ public class SeasonalComponent {
             if (seasModel == SeasonalModel.Crude) {
                 x.add(std() * u.get(0));
             } else if (seasModel == SeasonalModel.Dummy) {
-                x.add(freq - 1, std() * u.get(0));
+                x.add(0, std() * u.get(0));
             } else {
                 x.addProduct(lvar.rows(), u);
             }
@@ -363,7 +363,7 @@ public class SeasonalComponent {
             if (seasModel == SeasonalModel.Crude) {
                 xs.set(0, std() * x.sum());
             } else if (seasModel == SeasonalModel.Dummy) {
-                xs.set(0, std() * x.get(freq - 1));
+                xs.set(0, std() * x.get(0));
             } else {
                 xs.product(x, lvar.columns());
             }
@@ -377,8 +377,8 @@ public class SeasonalComponent {
         @Override
         public void T(int pos, SubMatrix tr) {
             if (seasVar >= 0) {
-                tr.row(freq - 2).set(-1);
-                tr.subDiagonal(1).set(1);
+                tr.row(0).set(-1);
+                tr.subDiagonal(-1).set(1);
             }
         }
 
@@ -415,17 +415,17 @@ public class SeasonalComponent {
 
         @Override
         public void TX(int pos, DataBlock x) {
-            x.bshift(DataBlock.ShiftOption.NegSum);
+            x.fshift(DataBlock.ShiftOption.NegSum);
         }
 
         @Override
         public void XT(int pos, DataBlock x) {
             int imax = freq - 2;
-            double xs = x.get(imax);
-            for (int i = imax; i > 0; --i) {
-                x.set(i, x.get(i - 1) - xs);
+            double xs = x.get(0);
+            for (int i = 0; i < imax; ++i) {
+                x.set(i, x.get(i + 1) - xs);
             }
-            x.set(0, -xs);
+            x.set(imax, -xs);
 
         }
 

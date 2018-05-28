@@ -8,8 +8,8 @@
         <jdk.version>1.8</jdk.version>
         <brandingToken>nbbdemetra</brandingToken>
         <netbeans.version>RELEASE82</netbeans.version>
-        <jdemetra.version>2.2.0</jdemetra.version>
-        <nbbdemetra.version>1.0.0</nbbdemetra.version>
+        <jdemetra.version>2.2.1</jdemetra.version>
+        <nbbdemetra.version>2.2.2-SNAPSHOT</nbbdemetra.version>
         <lombok.version>1.16.12</lombok.version>
         <!-- plugins versions > -->
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
@@ -28,7 +28,7 @@
     
     <groupId>be.nbb.demetra</groupId>
     <artifactId>demetra-sa-advanced-aggregator</artifactId>
-    <version>1.0.0</version>
+    <version>2.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Demetra - Sa - Advanced</name>
@@ -392,27 +392,13 @@
     </build>
     
     <repositories>
-        <!-- Repository hosting NetBeans modules -->
         <repository>
-            <id>netbeans</id>
-            <name>NetBeans</name>
+            <id>netbeans-releases</id>
             <url>http://bits.netbeans.org/maven2/</url>
-        </repository>
+        </repository>        
         <repository>
-            <id>netbeans-snapshot</id>
-            <name>NetBeans Snapshots</name>
-            <url>http://bits.netbeans.org/netbeans/trunk/maven-snapshot/</url>
+            <id>oss-jfrog-artifactory-releases</id>
+            <url>https://oss.jfrog.org/artifactory/oss-release-local</url>
         </repository>
     </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>joinup-releases</id>
-            <url>https://joinup.ec.europa.eu/nexus/content/repositories/releases/</url>                    
-        </repository>
-        <snapshotRepository>
-            <id>joinup-snapshots</id>
-            <url>https://joinup.ec.europa.eu/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>

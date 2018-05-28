@@ -55,6 +55,9 @@ public class MixedFrequenciesArimaModelSummary extends AbstractHtmlElement {
 
     @Override
     public void write(HtmlStream stream) throws IOException {
+        if (results == null) {
+            return;
+        }
         writeHeader(stream);
         writeLikelihood(stream);
         stream.write(HtmlTag.LINEBREAK);
