@@ -10,7 +10,7 @@
         <netbeans.version>RELEASE82</netbeans.version>
         <jdemetra.version>2.2.2-SNAPSHOT</jdemetra.version>
         <nbbdemetra.version>2.2.2-SNAPSHOT</nbbdemetra.version>
-        <lombok.version>1.16.12</lombok.version>
+        <lombok.version>1.16.18</lombok.version>
         <!-- plugins versions > -->
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
@@ -55,6 +55,8 @@
         <module>jd_highfreq</module>
         <module>jstl</module>
         <module>jd_stl</module>
+        <module>mtd-core</module>
+        <module>jdr</module>
     </modules>
 
     <organization>
@@ -127,6 +129,11 @@
             <dependency>
                 <groupId>be.nbb.demetra</groupId>
                 <artifactId>sts-core</artifactId>
+                <version>${nbbdemetra.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>be.nbb.demetra</groupId>
+                <artifactId>mtd-core</artifactId>
                 <version>${nbbdemetra.version}</version>
             </dependency>
             <dependency>
