@@ -18,6 +18,7 @@ import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.sarima.estimation.GlsSarimaMonitor;
+import ec.tstoolkit.timeseries.regression.ILengthOfPeriodVariable;
 import ec.tstoolkit.timeseries.regression.ITradingDaysVariable;
 import ec.tstoolkit.timeseries.regression.TsVariableList;
 import ec.tstoolkit.timeseries.regression.TsVariableSelection;
@@ -30,76 +31,34 @@ import ec.tstoolkit.timeseries.simplets.TsDomain;
  */
 public class MovingTradingDaysEstimator {
 
-    public static class Builder implements IBuilder<MovingTradingDaysEstimator> {
-
-        private int windowLength = 11;
-        private SymmetricFilter sfilter = SeasonalFilterFactory.S3X3;
-        private AsymmetricEndPoints endPoints = SeasonalFilterFactory.endPoints(2);
-        private boolean reestimate = true;
-        
-        private Builder(){}
-
-        public Builder reEstimateModel(boolean reestimate) {
-            this.reestimate = reestimate;
-            return this;
-        }
-
-        public Builder windowLength(int len) {
-            if (len % 2 != 1) {
-                throw new IllegalArgumentException("Should be odd");
-            }
-            this.windowLength = len;
-            return this;
-        }
-
-        public Builder smoother(SymmetricFilter sfilter) {
-            this.sfilter = sfilter;
-            this.endPoints = null;
-            return this;
-        }
-
-        public Builder smoother(SymmetricFilter sfilter, AsymmetricEndPoints endPoints) {
-            if (endPoints.getEndPointsCount() != sfilter.getLength() / 2) {
-                throw new IllegalArgumentException();
-            }
-            this.sfilter = sfilter;
-            this.endPoints = endPoints;
-            return this;
-        }
-
-        @Override
-        public MovingTradingDaysEstimator build() {
-            return new MovingTradingDaysEstimator(this);
-        }
-    }
-    
-    public static Builder builder(){
-        return new Builder();
-    }
-
     private PreprocessingModel model;
-    private Matrix td, tdCoefficients, C;
+    private Matrix td, tdCoefficients, rawTdCoefficients;
     private double[] startTdCoefficients;
     private double[] startTdStde;
     private TsData partialLinearizedSeries, tdEffect;
     private int ny, cbeg, cend;
+    private TsVariableSelection variables;
 
     private final SymmetricFilter sfilter;
     private final AsymmetricEndPoints endPoints;
     private final int windowLength;
     private final boolean reestimate;
+    private final boolean useForecasts;
 
-    public MovingTradingDaysEstimator(Builder builder) {
-        this.windowLength = builder.windowLength;
-        this.reestimate = builder.reestimate;
-        this.sfilter = builder.sfilter;
-        this.endPoints = builder.endPoints;
+    public MovingTradingDaysEstimator(MovingTradingDaysSpecification spec) {
+        this.windowLength = spec.getWindowLength();
+        this.reestimate = spec.isReestimate();
+        this.sfilter = spec.getSmoother();
+        this.endPoints = spec.getEndPoints();
+        this.useForecasts = spec.isUseForecasts();
     }
 
     public boolean process(PreprocessingModel model) {
         this.model = model;
         try {
-            processFullModel();
+            if (!processFullModel()) {
+                return false;
+            }
             computeRawCoefficients();
             smoothCoefficients();
             computeTdEffects();
@@ -121,15 +80,15 @@ public class MovingTradingDaysEstimator {
         return regarima;
     }
 
-    private void processFullModel() {
+    private boolean processFullModel() {
         // search for TD variables
-        TsVariableSelection sel = model.description.buildRegressionVariables(var -> var.isCompatible(ITradingDaysVariable.class));
-        if (sel.isEmpty()) {
-            return;
+        variables = model.description.buildRegressionVariables(var -> var.getVariable() instanceof ITradingDaysVariable);
+        if (variables.isEmpty()) {
+            return false;
         }
 
         ConcentratedLikelihood ll = model.estimation.getLikelihood();
-        int ntd = sel.getVariablesCount();
+        int ntd = variables.getVariablesCount();
         startTdCoefficients = new double[ntd];
         startTdStde = new double[ntd];
         int n0 = model.description.getRegressionVariablesStartingPosition();
@@ -139,9 +98,10 @@ public class MovingTradingDaysEstimator {
             startTdStde[j] = ll.getBSer(n0 + j, false, 0);
         }
         TsDomain domain = model.description.getSeriesDomain();
-        TsData tdeffect = model.deterministicEffect(domain, v -> TsVariableList.getRoot(v) instanceof ITradingDaysVariable);
+        TsData tdeffect = model.deterministicEffect(domain, v -> v instanceof ITradingDaysVariable);
         partialLinearizedSeries = TsData.add(model.linearizedSeries(true), tdeffect);
-        td = sel.matrix(domain);
+        td = variables.matrix(domain);
+        return true;
     }
 
     private void computeRawCoefficients() {
@@ -159,7 +119,7 @@ public class MovingTradingDaysEstimator {
 
         ny = (domain.getLength() - cbeg - cend) / freq;
         int ne = ny - windowLength + 1;
-        C = new Matrix(ne, ntd);
+        rawTdCoefficients = new Matrix(ne, ntd);
         for (int i = 0, i0 = 0, i1 = cbeg + wlen; i < ne;) {
             RegArimaModel<SarimaModel> reg = regarima(getPartialLinearizedSeries().internalStorage(), getTd(), mean, model.estimation.getArima(), i0, i1);
             if (reestimate) {
@@ -176,7 +136,6 @@ public class MovingTradingDaysEstimator {
             if (++i == ne - 1) {
                 i1 += cend;
             }
-
         }
     }
 
@@ -257,7 +216,7 @@ public class MovingTradingDaysEstimator {
      * @return the tdCoefficients
      */
     public Matrix getRawCoefficients() {
-        return getC();
+        return rawTdCoefficients;
     }
 
     /**
@@ -285,7 +244,7 @@ public class MovingTradingDaysEstimator {
      * @return the C
      */
     public Matrix getC() {
-        return C;
+        return rawTdCoefficients;
     }
 
     /**
@@ -302,4 +261,32 @@ public class MovingTradingDaysEstimator {
         return tdEffect;
     }
 
+    public TsData tdEffect(TsDomain domain) {
+        TsData all = tdEffect.fittoDomain(domain);
+        int nbeg = tdEffect.getStart().minus(domain.getStart());
+        if (nbeg > 0) {
+            TsDomain bdomain = new TsDomain(domain.getStart(), nbeg);
+            Matrix m = variables.matrix(bdomain);
+            DataBlock c = rawTdCoefficients.row(0);
+            for (int i = 0; i < nbeg; ++i) {
+                all.set(i, c.dot(m.row(i)));
+            }
+        }
+        int nend = domain.getEnd().minus(tdEffect.getEnd());
+        if (nend > 0) {
+            TsDomain edomain = new TsDomain(tdEffect.getEnd(), nend);
+            Matrix m = variables.matrix(edomain);
+            DataBlock c = rawTdCoefficients.row(rawTdCoefficients.getRowsCount() - 1);
+            for (int i = 0, j = edomain.getStart().minus(domain.getStart()); i < nend; ++i, ++j) {
+                all.set(j, c.dot(m.row(i)));
+            }
+        }
+        return all;
+    }
+
+    public TsData fullTdEffect(TsDomain domain) {
+        TsData lp = model.deterministicEffect(domain, v->v instanceof ILengthOfPeriodVariable);
+        TsData all=TsData.add(lp, tdEffect(domain));
+        return all;
+    }
 }
