@@ -91,7 +91,7 @@ public class MovingTradingDaysEstimator {
         int ntd = variables.getVariablesCount();
         startTdCoefficients = new double[ntd];
         startTdStde = new double[ntd];
-        int n0 = model.description.getRegressionVariablesStartingPosition();
+        int n0 = model.description.getRegressionVariablesStartingPosition()+variables.get(0).position;
         double[] b = ll.getB();
         for (int j = 0; j < ntd; ++j) {
             startTdCoefficients[j] = b[n0 + j];
@@ -121,15 +121,15 @@ public class MovingTradingDaysEstimator {
         int ne = ny - windowLength + 1;
         rawTdCoefficients = new Matrix(ne, ntd);
         for (int i = 0, i0 = 0, i1 = cbeg + wlen; i < ne;) {
-            RegArimaModel<SarimaModel> reg = regarima(getPartialLinearizedSeries().internalStorage(), getTd(), mean, model.estimation.getArima(), i0, i1);
+            RegArimaModel<SarimaModel> reg = regarima(partialLinearizedSeries.internalStorage(), getTd(), mean, model.estimation.getArima(), i0, i1);
             if (reestimate) {
                 GlsSarimaMonitor monitor = new GlsSarimaMonitor();
                 RegArimaEstimation<SarimaModel> estimation = monitor.optimize(reg);
                 double[] pb = estimation.likelihood.getB();
-                getC().row(i).copyFrom(pb, mean ? 1 : 0);
+                rawTdCoefficients.row(i).copyFrom(pb, mean ? 1 : 0);
             } else {
                 double[] pb = reg.computeLikelihood().getB();
-                getC().row(i).copyFrom(pb, mean ? 1 : 0);
+                rawTdCoefficients.row(i).copyFrom(pb, mean ? 1 : 0);
             }
             i0 += freq;
             i1 += freq;
@@ -148,9 +148,9 @@ public class MovingTradingDaysEstimator {
         if (cend > 0) {
             ++r1;
         }
-        int lr = r0 + getC().getRowsCount();
-        Matrix x = new Matrix(lr + r1, getC().getColumnsCount());
-        x.subMatrix(r0, r0 + getC().getRowsCount(), 0, getC().getColumnsCount()).copy(getC().all());
+        int lr = r0 + rawTdCoefficients.getRowsCount();
+        Matrix x = new Matrix(lr + r1, rawTdCoefficients.getColumnsCount());
+        x.subMatrix(r0, r0 + rawTdCoefficients.getRowsCount(), 0, rawTdCoefficients.getColumnsCount()).copy(rawTdCoefficients.all());
         DataBlock row0 = x.row(r0), row1 = x.row(lr - 1);
         for (int i = 0; i < r0; ++i) {
             x.row(i).copy(row0);
@@ -238,13 +238,6 @@ public class MovingTradingDaysEstimator {
      */
     public Matrix getTd() {
         return td;
-    }
-
-    /**
-     * @return the C
-     */
-    public Matrix getC() {
-        return rawTdCoefficients;
     }
 
     /**

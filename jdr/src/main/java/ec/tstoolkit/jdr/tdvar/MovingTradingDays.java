@@ -36,7 +36,7 @@ public class MovingTradingDays {
     @lombok.Value
     public static class Results implements IProcResults {
 
-        private static final String REGARIMA = "regarima", TD = "mtd.tdenolp", TDE = "mtd.tde", LIN = "partiallienarizedseries",
+        private static final String REGARIMA = "regarima", TD = "mtd.tdenolp", TDE = "mtd.tde", LIN = "mtd.partiallinearizedseries",
                 RAWCOEF = "mtd.rawcoefficients", SMOOTHCOEF = "mtd.smoothedcoefficients";
 
         private MovingTradingDaysSaResults core;
@@ -57,6 +57,7 @@ public class MovingTradingDays {
                 r.core.getPreprocessing().backTransform(s, false, false);
                 return s;
             });
+            MAPPING.set(LIN, TsData.class, r->r.core.getMovingTradingDaysCorrection().getPartialLinearizedSeries());
             MAPPING.set(RAWCOEF, Matrix.class, r -> r.core.getMovingTradingDaysCorrection().getRawCoefficients());
             MAPPING.set(SMOOTHCOEF, Matrix.class, r -> r.core.getMovingTradingDaysCorrection().getSmoothedCoefficients());
             MAPPING.delegate("decomposition", X11DecompositionInfo.getMapping(), r -> r.core.getDecomposition());

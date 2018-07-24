@@ -16,6 +16,6 @@ import ec.tstoolkit.timeseries.simplets.TsData;
 public class MovingTradingDaysCorrection {
 
     private Matrix rawCoefficients, smoothedCoefficients;
-    private TsData tdEffect, FullTdEffect;
+    private TsData tdEffect, FullTdEffect, partialLinearizedSeries;
 
 }

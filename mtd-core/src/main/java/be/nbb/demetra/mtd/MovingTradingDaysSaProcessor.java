@@ -50,7 +50,7 @@ public class MovingTradingDaysSaProcessor {
         if (filter.process(model)) {
             TsDomain domain=model.description.getSeriesDomain();
             MovingTradingDaysCorrection mtdc = new MovingTradingDaysCorrection(
-                    mtde.getRawCoefficients(), mtde.getTdCoefficients(), mtde.getTdEffect(), mtde.fullTdEffect(domain));
+                    mtde.getRawCoefficients(), mtde.getTdCoefficients(), mtde.getTdEffect(), mtde.fullTdEffect(domain), mtde.getPartialLinearizedSeries());
             MovingTradingDaysPreprocessor mtdpp = new MovingTradingDaysPreprocessor(filter);
 
             X11Specification spec = prepareSpec(xspec, model);
