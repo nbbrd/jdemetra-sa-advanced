@@ -29,7 +29,7 @@ public class MovingTradingDaysSaProcessorTest {
     public MovingTradingDaysSaProcessorTest() {
     }
 
-//    @Test
+    @Test
     public void testABS_Tramo() {
 
         TramoSpecification pspec = TramoSpecification.TR5.clone();
@@ -46,14 +46,14 @@ public class MovingTradingDaysSaProcessorTest {
         all.add(rslt.getFinalDecomposition().getSeries(ComponentType.Trend, ComponentInformation.Value));
         all.add(rslt.getFinalDecomposition().getSeries(ComponentType.Seasonal, ComponentInformation.Value));
         all.add(rslt.getFinalDecomposition().getSeries(ComponentType.Irregular, ComponentInformation.Value));
-        System.out.println(all);
+//        System.out.println(all);
         TsDataTable fall = new TsDataTable();
         fall.add(rslt.getFinalDecomposition().getSeries(ComponentType.Series, ComponentInformation.Forecast));
         fall.add(rslt.getFinalDecomposition().getSeries(ComponentType.SeasonallyAdjusted, ComponentInformation.Forecast));
         fall.add(rslt.getFinalDecomposition().getSeries(ComponentType.Trend, ComponentInformation.Forecast));
         fall.add(rslt.getFinalDecomposition().getSeries(ComponentType.Seasonal, ComponentInformation.Forecast));
         fall.add(rslt.getFinalDecomposition().getSeries(ComponentType.Irregular, ComponentInformation.Forecast));
-        System.out.println(fall);
+//        System.out.println(fall);
     }
 
     @Test
@@ -72,14 +72,14 @@ public class MovingTradingDaysSaProcessorTest {
         all.add(rslt.getFinalDecomposition().getSeries(ComponentType.Trend, ComponentInformation.Value));
         all.add(rslt.getFinalDecomposition().getSeries(ComponentType.Seasonal, ComponentInformation.Value));
         all.add(rslt.getFinalDecomposition().getSeries(ComponentType.Irregular, ComponentInformation.Value));
-        System.out.println(all);
+//        System.out.println(all);
         TsDataTable fall = new TsDataTable();
         fall.add(rslt.getFinalDecomposition().getSeries(ComponentType.Series, ComponentInformation.Forecast));
         fall.add(rslt.getFinalDecomposition().getSeries(ComponentType.SeasonallyAdjusted, ComponentInformation.Forecast));
         fall.add(rslt.getFinalDecomposition().getSeries(ComponentType.Trend, ComponentInformation.Forecast));
         fall.add(rslt.getFinalDecomposition().getSeries(ComponentType.Seasonal, ComponentInformation.Forecast));
         fall.add(rslt.getFinalDecomposition().getSeries(ComponentType.Irregular, ComponentInformation.Forecast));
-        System.out.println(fall);
+//        System.out.println(fall);
     }
 
     @Test
@@ -97,13 +97,13 @@ public class MovingTradingDaysSaProcessorTest {
         all.add(rslt.getData("t", TsData.class));
         all.add(rslt.getData("s", TsData.class));
         all.add(rslt.getData("i", TsData.class));
-        System.out.println(all);
+//        System.out.println(all);
         TsDataTable fall = new TsDataTable();
         fall.add(rslt.getData("y_f", TsData.class));
         fall.add(rslt.getData("sa_f", TsData.class));
         fall.add(rslt.getData("t_f", TsData.class));
         fall.add(rslt.getData("s_f", TsData.class));
         fall.add(rslt.getData("i_f", TsData.class));
-        System.out.println(fall);
+//        System.out.println(fall);
     }
 }
