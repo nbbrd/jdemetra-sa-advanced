@@ -20,7 +20,6 @@ import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.sarima.estimation.GlsSarimaMonitor;
 import ec.tstoolkit.timeseries.regression.ILengthOfPeriodVariable;
 import ec.tstoolkit.timeseries.regression.ITradingDaysVariable;
-import ec.tstoolkit.timeseries.regression.TsVariableList;
 import ec.tstoolkit.timeseries.regression.TsVariableSelection;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
@@ -43,14 +42,12 @@ public class MovingTradingDaysEstimator {
     private final AsymmetricEndPoints endPoints;
     private final int windowLength;
     private final boolean reestimate;
-    private final boolean useForecasts;
 
     public MovingTradingDaysEstimator(MovingTradingDaysSpecification spec) {
         this.windowLength = spec.getWindowLength();
         this.reestimate = spec.isReestimate();
         this.sfilter = spec.getSmoother();
         this.endPoints = spec.getEndPoints();
-        this.useForecasts = spec.isUseForecasts();
     }
 
     public boolean process(PreprocessingModel model) {

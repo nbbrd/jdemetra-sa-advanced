@@ -9,10 +9,14 @@ import be.nbb.demetra.mtd.MovingTradingDaysEstimator;
 import be.nbb.demetra.mtd.MovingTradingDaysSaProcessor;
 import be.nbb.demetra.mtd.MovingTradingDaysSaResults;
 import be.nbb.demetra.mtd.MovingTradingDaysSpecification;
+import be.nbb.demetra.tvtd.TimeVaryingTradingDaysSaProcessor;
+import be.nbb.demetra.tvtd.TimeVaryingTradingDaysSaResults;
+import be.nbb.demetra.tvtd.TimeVaryingTradingDaysSpecification;
 import demetra.algorithm.IProcResults;
 import demetra.information.InformationMapping;
 import ec.satoolkit.x11.SeasonalFilterFactory;
 import ec.satoolkit.x11.X11Specification;
+import ec.tstoolkit.jdr.mapping.SarimaInfo;
 import ec.tstoolkit.jdr.regarima.RegArimaInfo;
 import ec.tstoolkit.jdr.sa.SaDecompositionInfo;
 import ec.tstoolkit.jdr.x11.MstatisticsInfo;
@@ -87,7 +91,65 @@ public class MovingTradingDays {
         }
     }
 
-    public Results process(TsData s, int windowLength, int smoothingLength, String preprocessing, String option, boolean reestimate) {
+    @lombok.Value
+    public static class Results2 implements IProcResults {
+
+        private static final String REGARIMA = "regarima", TD = "tvtd.tdenolp", TDE = "tvtd.tde", LIN = "tvtd.partiallinearizedseries",
+                COEF = "tvtd.coefficients", ECOEF = "tvtd.stdecoefficients";
+
+        private TimeVaryingTradingDaysSaResults core;
+
+        private static final InformationMapping<Results2> MAPPING = new InformationMapping<>(Results2.class);
+
+        static {
+            MAPPING.delegate(REGARIMA, RegArimaInfo.getMapping(), r -> r.core.getPreprocessing());
+            MAPPING.set(TD, TsData.class, r
+                    -> {
+                TsData s = r.core.getTimeVaryingTradingDaysCorrection().getTdEffect().clone();
+                r.core.getPreprocessing().backTransform(s, false, false);
+                return s;
+            });
+            MAPPING.set(TDE, TsData.class, r
+                    -> {
+                TsData s = r.core.getTimeVaryingTradingDaysCorrection().getFullTdEffect().clone();
+                r.core.getPreprocessing().backTransform(s, false, false);
+                return s;
+            });
+            MAPPING.set(LIN, TsData.class, r->r.core.getTimeVaryingTradingDaysCorrection().getPartialLinearizedSeries());
+            MAPPING.set(COEF, Matrix.class, r -> r.core.getTimeVaryingTradingDaysCorrection().getTdCoefficients());
+            MAPPING.set(ECOEF, Matrix.class, r -> r.core.getTimeVaryingTradingDaysCorrection().getStdeTdCoefficients());
+            MAPPING.set("tvtd.aic", Double.class, r->r.core.getTimeVaryingTradingDaysCorrection().getAic());
+            MAPPING.set("tvtd.aic0", Double.class, r->r.core.getTimeVaryingTradingDaysCorrection().getAic0());
+            MAPPING.delegate("tvtd.arima", SarimaInfo.getMapping(), r->r.core.getTimeVaryingTradingDaysCorrection().getArima());
+            MAPPING.delegate("tvtd.arima0", SarimaInfo.getMapping(), r->r.core.getTimeVaryingTradingDaysCorrection().getArima0());
+            MAPPING.delegate("decomposition", X11DecompositionInfo.getMapping(), r -> r.core.getDecomposition());
+            MAPPING.delegate("mstatistics", MstatisticsInfo.getMapping(), r -> r.core.getMstatistics());
+            MAPPING.delegate(null, SaDecompositionInfo.getMapping(), r -> r.core.getFinalDecomposition());
+        }
+
+        @Override
+        public boolean contains(String id) {
+            return MAPPING.contains(id);
+        }
+
+        @Override
+        public Map<String, Class> getDictionary() {
+            Map<String, Class> dic = new LinkedHashMap<>();
+            MAPPING.fillDictionary(null, dic, true);
+            return dic;
+        }
+
+        @Override
+        public <T> T getData(String id, Class<T> tclass) {
+            return MAPPING.getData(this, id, tclass);
+        }
+
+        public static final InformationMapping<Results2> getMapping() {
+            return MAPPING;
+        }
+    }
+
+    public Results movingWindow(TsData s, int windowLength, int smoothingLength, String preprocessing, String option, boolean reestimate) {
         MovingTradingDaysSpecification mtdSpec = mtdSpec(windowLength, smoothingLength, reestimate);
         X11Specification xspec = new X11Specification();
         boolean air = option.endsWith("a");
@@ -115,6 +177,40 @@ public class MovingTradingDays {
                 spec.getArima().airline();
             }
             return new Results(MovingTradingDaysSaProcessor.process(s, spec, mtdSpec, xspec, null));
+        } else {
+            return null;
+        }
+    }
+
+    public Results2 timeVarying(TsData s, boolean contrasts, String preprocessing, String option) {
+        TimeVaryingTradingDaysSpecification mtdSpec = new TimeVaryingTradingDaysSpecification();
+        mtdSpec.setOnContrast(contrasts);
+        X11Specification xspec = new X11Specification();
+        boolean air = option.endsWith("a");
+        if (air) {
+            option = option.substring(0, option.length() - 1);
+        }
+
+        if (preprocessing.equalsIgnoreCase("TRAMO")) {
+            TramoSpecification spec = TramoSpecification.fromString(option).clone();
+            if (spec == null) {
+                return null;
+            }
+            if (air) {
+                spec.setUsingAutoModel(false);
+                spec.getArima().airline();
+            }
+            return new Results2(TimeVaryingTradingDaysSaProcessor.process(s, spec, mtdSpec, xspec, null));
+        } else if (preprocessing.equalsIgnoreCase("REGARIMA")) {
+            RegArimaSpecification spec = RegArimaSpecification.fromString(option);
+            if (spec == null) {
+                return null;
+            }
+            if (air) {
+                spec.setUsingAutoModel(false);
+                spec.getArima().airline();
+            }
+            return new Results2(TimeVaryingTradingDaysSaProcessor.process(s, spec, mtdSpec, xspec, null));
         } else {
             return null;
         }

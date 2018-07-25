@@ -7,7 +7,6 @@ package be.nbb.demetra.mtd;
 
 import ec.satoolkit.x11.AsymmetricEndPoints;
 import ec.satoolkit.x11.SeasonalFilterFactory;
-import ec.tstoolkit.design.IBuilder;
 import ec.tstoolkit.maths.linearfilters.SymmetricFilter;
 
 /**
@@ -21,7 +20,7 @@ public class MovingTradingDaysSpecification  {
     private SymmetricFilter smoother = SeasonalFilterFactory.S3X3;
     @lombok.Setter(lombok.AccessLevel.NONE)
     private AsymmetricEndPoints endPoints = SeasonalFilterFactory.endPoints(2);
-    private boolean reestimate = false, useForecasts = false;
+    private boolean reestimate = false;
 
     public void setWindowLength(int len) {
         if (len % 2 != 1) {
