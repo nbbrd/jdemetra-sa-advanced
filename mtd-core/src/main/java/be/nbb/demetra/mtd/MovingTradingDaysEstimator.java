@@ -20,7 +20,6 @@ import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.sarima.estimation.GlsSarimaMonitor;
 import ec.tstoolkit.timeseries.regression.ILengthOfPeriodVariable;
 import ec.tstoolkit.timeseries.regression.ITradingDaysVariable;
-import ec.tstoolkit.timeseries.regression.TsVariableList;
 import ec.tstoolkit.timeseries.regression.TsVariableSelection;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
@@ -43,24 +42,25 @@ public class MovingTradingDaysEstimator {
     private final AsymmetricEndPoints endPoints;
     private final int windowLength;
     private final boolean reestimate;
-    private final boolean useForecasts;
 
     public MovingTradingDaysEstimator(MovingTradingDaysSpecification spec) {
         this.windowLength = spec.getWindowLength();
         this.reestimate = spec.isReestimate();
         this.sfilter = spec.getSmoother();
         this.endPoints = spec.getEndPoints();
-        this.useForecasts = spec.isUseForecasts();
     }
 
     public boolean process(PreprocessingModel model) {
         this.model = model;
         try {
+            // initial 
             if (!processFullModel()) {
                 return false;
             }
-            computeRawCoefficients();
-            smoothCoefficients();
+            if (!computeRawCoefficients())
+                return false;
+            if (!smoothCoefficients())
+                return false;
             computeTdEffects();
             return true;
         } catch (Exception err) {
@@ -104,7 +104,7 @@ public class MovingTradingDaysEstimator {
         return true;
     }
 
-    private void computeRawCoefficients() {
+    private boolean computeRawCoefficients() {
         TsDomain domain = model.description.getSeriesDomain();
         int ntd = getTd().getColumnsCount();
         // moving window
@@ -119,6 +119,8 @@ public class MovingTradingDaysEstimator {
 
         ny = (domain.getLength() - cbeg - cend) / freq;
         int ne = ny - windowLength + 1;
+        if (ne <= 1)
+            return false;
         rawTdCoefficients = new Matrix(ne, ntd);
         for (int i = 0, i0 = 0, i1 = cbeg + wlen; i < ne;) {
             RegArimaModel<SarimaModel> reg = regarima(partialLinearizedSeries.internalStorage(), getTd(), mean, model.estimation.getArima(), i0, i1);
@@ -137,9 +139,10 @@ public class MovingTradingDaysEstimator {
                 i1 += cend;
             }
         }
+        return true;
     }
 
-    private void smoothCoefficients() {
+    private boolean smoothCoefficients() {
         // extends the matrix of coefficients
         int r0 = windowLength / 2, r1 = r0;
         if (cbeg > 0) {
@@ -163,6 +166,8 @@ public class MovingTradingDaysEstimator {
         // apply the smoother on each columns
 
         int n = sfilter.getLength() / 2;
+        if (tdCoefficients.getRowsCount()<= sfilter.getLength())
+            return false;
         for (int i = 0; i < x.getColumnsCount(); ++i) {
             DataBlock icol = x.column(i), ocol = tdCoefficients.column(i);
             sfilter.filter(icol, ocol.drop(n, n));
@@ -174,6 +179,7 @@ public class MovingTradingDaysEstimator {
                 ocol.range(m - n, m).set(ocol.get(l));
             }
         }
+        return true;
 
     }
 

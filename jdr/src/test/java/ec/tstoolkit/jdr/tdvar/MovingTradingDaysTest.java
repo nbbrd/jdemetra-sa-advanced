@@ -5,6 +5,8 @@
  */
 package ec.tstoolkit.jdr.tdvar;
 
+import ec.tstoolkit.timeseries.simplets.TsData;
+import ec.tstoolkit.timeseries.simplets.TsDataTable;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -13,14 +15,19 @@ import static org.junit.Assert.*;
  * @author Jean Palate <jean.palate@nbb.be>
  */
 public class MovingTradingDaysTest {
-    
+
     public MovingTradingDaysTest() {
     }
 
     @Test
-    public void testSomeMethod() {
-        MovingTradingDays.Results rslt = MovingTradingDays.process(data.Data.P, 11, 5, "tramo", "TR5a", true);
+    public void testMovingMethod() {
+        MovingTradingDays.Results rslt = MovingTradingDays.movingWindow(data.Data.P, 11, 5, "tramo", "TR5a", true);
         assertTrue(rslt != null);
+        MovingTradingDays.Results2 rslt2 = MovingTradingDays.timeVarying(data.Data.P, false, "tramo", "TR5a");
+        assertTrue(rslt2 != null);
+        TsDataTable table = new TsDataTable();
+        table.add(rslt.getData("mtd.tde", TsData.class));
+        table.add(rslt2.getData("tvtd.tde", TsData.class));
+//        System.out.println(table);
     }
-    
 }
