@@ -8,6 +8,7 @@ package ec.tstoolkit.jdr.ws;
 import data.Data;
 import ec.satoolkit.tramoseats.TramoSeatsSpecification;
 import ec.satoolkit.x13.X13Specification;
+import java.io.IOException;
 import jdr.spec.ts.Utility.Dictionary;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -21,9 +22,12 @@ public class WorkspaceTest {
     public WorkspaceTest() {
     }
 
-    //@Test
-    public void testOpen() {
-        Workspace ws = Workspace.open("c:\\sarepository\\mytest.xml");
+    @Test
+    public void testOpen() throws IOException {
+        Workspace ws = Workspace.open("c:\\localdata\\sarepository\\test.xml");
+        Dictionary dictionary = ws.dictionary();
+        for (String s:dictionary.names())
+            System.out.println(s);
         long t0=System.currentTimeMillis();
         ws.computeAll();
         long t1=System.currentTimeMillis();
@@ -33,7 +37,7 @@ public class WorkspaceTest {
     }
     
     //@Test
-    public void testNew() {
+    public void testNew() throws IOException {
         Workspace ws = Workspace.create(new Dictionary());
         MultiProcessing mp = ws.newMultiProcessing("test");
         mp.add("a", Data.P, TramoSeatsSpecification.RSAfull);

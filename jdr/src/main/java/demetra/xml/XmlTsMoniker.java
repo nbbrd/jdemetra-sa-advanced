@@ -13,16 +13,16 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the Licence for the specific language governing permissions and 
 * limitations under the Licence.
-*/
-
+ */
 package demetra.xml;
 
 import demetra.datatypes.TsMoniker;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * 
+ *
  * @author Jean Palate
  */
 @XmlType(name = XmlTsMoniker.NAME)
@@ -39,24 +39,40 @@ public class XmlTsMoniker implements IXmlConverter<TsMoniker> {
      */
     @XmlElement
     public String id;
+
     /**
-     * 
+     *
      * @param t
      */
     @Override
-    public void copy(TsMoniker t)
-    {
-	source = t.getSource();
-	id = t.getId();
+    public void copy(TsMoniker t) {
+        source = t.getSource();
+        id = t.getId();
     }
 
     /**
-     * 
+     *
      * @return
      */
     @Override
-    public TsMoniker create()
-    {
-	return TsMoniker.create(source, id);
+    public TsMoniker create() {
+        return TsMoniker.create(source, id);
     }
+
+    public static class Adapter extends XmlAdapter<XmlTsMoniker, TsMoniker> {
+
+        @Override
+        public TsMoniker unmarshal(XmlTsMoniker v) {
+            return TsMoniker.create(v.source, v.id);
+        }
+
+        @Override
+        public XmlTsMoniker marshal(TsMoniker v) {
+            XmlTsMoniker x = new XmlTsMoniker();
+            x.source = v.getSource();
+            x.id = v.getId();
+            return x;
+        }
+    }
+
 }
