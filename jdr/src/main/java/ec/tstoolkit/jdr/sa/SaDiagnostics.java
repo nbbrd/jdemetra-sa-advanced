@@ -25,11 +25,11 @@ public class SaDiagnostics implements IProcResults {
     
     static final InformationMapping<SaDiagnostics> MAPPING = new InformationMapping<>(SaDiagnostics.class);
 
-    private StatisticalTest qs;
-    private StatisticalTest ftest;
+    private StatisticalTest qs, qsOnIrr;
+    private StatisticalTest ftest, ftestOnIrr;
     private CombinedSeasonalityTest combinedSeasonality, combinedSeasonalityOnEnd;
     private SeasonalityTest residualSeasonality, residualSeasonalityOnEnd;
-    private StatisticalTest residualTradingDays;
+    private StatisticalTest residualTradingDays, residualTradingDaysIrr;
     private StationaryVarianceDecomposition varDecomposition;
     
     double[] allVariances(){
@@ -46,11 +46,14 @@ public class SaDiagnostics implements IProcResults {
     static {
         MAPPING.set("qs", StatisticalTest.class, source->source.qs);
         MAPPING.set("ftest", StatisticalTest.class, source->source.ftest);
+        MAPPING.set("qs.on.i", StatisticalTest.class, source->source.qsOnIrr);
+        MAPPING.set("ftest.on.i", StatisticalTest.class, source->source.ftestOnIrr);
         MAPPING.delegate("combined.all", CombinedSeasonalityTestInfo.getMapping(), source->source.combinedSeasonality);
         MAPPING.delegate("combined.end", CombinedSeasonalityTestInfo.getMapping(), source->source.combinedSeasonalityOnEnd);
         MAPPING.set("residual.all", StatisticalTest.class, source->StatisticalTest.create(source.residualSeasonality));
         MAPPING.set("residual.end", StatisticalTest.class, source->StatisticalTest.create(source.residualSeasonalityOnEnd));
         MAPPING.set("residualtd", StatisticalTest.class, source->source.residualTradingDays);
+        MAPPING.set("residualtd.on.i", StatisticalTest.class, source->source.residualTradingDaysIrr);
         MAPPING.set("variancedecomposition", double[].class, source->source.allVariances());
     }
 

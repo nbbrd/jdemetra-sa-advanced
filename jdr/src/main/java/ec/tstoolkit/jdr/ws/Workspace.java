@@ -90,6 +90,10 @@ public class Workspace {
     private Workspace(final ProcessingContext context) {
         this.context = context;
     }
+    
+    public ProcessingContext getContext() {
+    	return(this.context);
+    }
 
     public void computeAll() {
         multiProcessing.parallelStream().forEach(p -> p.compute(context));
