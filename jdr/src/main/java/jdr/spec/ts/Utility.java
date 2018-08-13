@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -112,10 +113,18 @@ public class Utility {
 
     public static class Dictionary {
 
-        private final Map<String, TsData> dictionary = new HashMap<>();
+        private final Map<String, TsData> dictionary = new LinkedHashMap<>();
 
         public void add(String name, TsData s) {
             dictionary.put(name, s);
+        }
+        
+        public String[] names(){
+            return dictionary.keySet().toArray(new String[dictionary.size()]);
+        }
+        
+        public TsData get(String name){
+            return dictionary.get(name);
         }
 
         public ProcessingContext toContext() {
@@ -126,6 +135,32 @@ public class Utility {
                 context.getTsVariableManagers().set(R, vars);
             }
             return context;
+        }
+
+        public static Dictionary fromContext(ProcessingContext context) {
+            Dictionary dic = new Dictionary();
+            if (context == null) {
+                return dic;
+            }
+            String[] vars = context.getTsVariableManagers().getNames();
+            for (int i = 0; i < vars.length; ++i) {
+                TsVariables cur = context.getTsVariables(vars[i]);
+                String[] names = cur.getNames();
+                for (String name : names) {
+                    TsVariable v = (TsVariable) cur.get(name);
+                    TsData d = v.getTsData();
+                    if (d != null) {
+                        if (vars[i].equals(R)) {
+                            dic.add(name, d);
+                        } else {
+                            StringBuilder lname = new StringBuilder();
+                            lname.append(vars[i]).append('@').append(name);
+                            dic.add(lname.toString(), d);
+                        }
+                    }
+                }
+            }
+            return dic;
         }
     }
 }

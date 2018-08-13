@@ -47,8 +47,8 @@ import jdr.spec.ts.Utility;
  */
 public class Workspace {
 
-    public static Workspace open(String fileName) {
-        try {
+    public static Workspace open(String fileName) throws IOException {
+//        try {
             File file = new File(fileName);
             FileWorkspace fws = FileWorkspace.open(file.toPath());
             Collection<WorkspaceItem> items = fws.getItems();
@@ -61,9 +61,9 @@ public class Workspace {
                 ws.multiProcessing.add(MultiProcessing.of(entry.getKey().getLabel(), entry.getValue()));
             }
             return ws;
-        } catch (IOException ex) {
-            return null;
-        }
+//        } catch (IOException ex) {
+//            return null;
+//        }
     }
 
     public static Workspace create(Utility.Dictionary dic) {
@@ -89,6 +89,10 @@ public class Workspace {
 
     private Workspace(final ProcessingContext context) {
         this.context = context;
+    }
+    
+    public Utility.Dictionary dictionary(){
+        return Utility.Dictionary.fromContext(context);
     }
 
     public void computeAll() {
