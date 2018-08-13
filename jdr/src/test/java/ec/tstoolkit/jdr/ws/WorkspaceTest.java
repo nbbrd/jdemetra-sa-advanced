@@ -22,7 +22,7 @@ public class WorkspaceTest {
     public WorkspaceTest() {
     }
 
-    @Test
+    //@Test
     public void testOpen() throws IOException {
         Workspace ws = Workspace.open("c:\\localdata\\sarepository\\test.xml");
         Dictionary dictionary = ws.dictionary();
