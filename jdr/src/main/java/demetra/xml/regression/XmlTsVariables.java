@@ -16,6 +16,7 @@
  */
 package demetra.xml.regression;
 
+import demetra.datatypes.DynamicTsVariable;
 import demetra.xml.IXmlConverter;
 import demetra.xml.XmlConverterAdapter;
 import demetra.xml.XmlNamedObject;
@@ -52,11 +53,11 @@ public class XmlTsVariables implements IXmlConverter<TsVariables> {
 
     static {
         register(TsVariable.class, XmlTsVariable.class);
-//        register(DynamicTsVariable.class, XmlDynamicTsVariable.class);
+        register(DynamicTsVariable.class, XmlDynamicTsVariable.class);
     }
     @XmlElements({
         @XmlElement(name = "tsVariable", type = XmlTsVariable.class),
- //       @XmlElement(name = "dynamicTsVariable", type = XmlDynamicTsVariable.class)
+       @XmlElement(name = "dynamicTsVariable", type = XmlDynamicTsVariable.class)
     })
     public XmlNamedObject[] vars;
 
