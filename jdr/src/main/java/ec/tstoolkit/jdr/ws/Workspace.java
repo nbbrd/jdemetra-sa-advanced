@@ -91,6 +91,10 @@ public class Workspace {
         this.context = context;
     }
     
+    public ProcessingContext getContext() {
+    	return(this.context);
+      }
+
     public Utility.Dictionary dictionary(){
         return Utility.Dictionary.fromContext(context);
     }
