@@ -50,8 +50,8 @@ public class SaDiagnostics implements IProcResults {
         MAPPING.set("ftest.on.i", StatisticalTest.class, source->source.ftestOnIrr);
         MAPPING.delegate("combined.all", CombinedSeasonalityTestInfo.getMapping(), source->source.combinedSeasonality);
         MAPPING.delegate("combined.end", CombinedSeasonalityTestInfo.getMapping(), source->source.combinedSeasonalityOnEnd);
-        MAPPING.set("residual.all", StatisticalTest.class, source->StatisticalTest.create(source.residualSeasonality));
-        MAPPING.set("residual.end", StatisticalTest.class, source->StatisticalTest.create(source.residualSeasonalityOnEnd));
+        MAPPING.set("residual.all", StatisticalTest.class, source->StatisticalTest.of(source.residualSeasonality));
+        MAPPING.set("residual.end", StatisticalTest.class, source->StatisticalTest.of(source.residualSeasonalityOnEnd));
         MAPPING.set("residualtd", StatisticalTest.class, source->source.residualTradingDays);
         MAPPING.set("residualtd.on.i", StatisticalTest.class, source->source.residualTradingDaysIrr);
         MAPPING.set("variancedecomposition", double[].class, source->source.allVariances());
