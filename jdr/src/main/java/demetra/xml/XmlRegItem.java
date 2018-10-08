@@ -38,13 +38,16 @@ public class XmlRegItem implements IXmlConverter<RegressionItem> {
     @XmlElement
     public double pvalue;
 
+    @Override
     public RegressionItem create() {
         return new RegressionItem(description, coefficient, stderror, pvalue);
     }
 
+    @Override
     public void copy(RegressionItem t) {
         description = t.description;
         coefficient = t.coefficient;
         stderror = t.stdError;
+        pvalue = t.pValue;
     }
 }
