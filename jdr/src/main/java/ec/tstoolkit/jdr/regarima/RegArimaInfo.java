@@ -220,7 +220,7 @@ public class RegArimaInfo {
             double[] ef;
             if (source.isMultiplicative()) {
                 LogForecasts lf = new LogForecasts(fcasts);
-                ef = lf.getForecatStdevs();
+                ef = lf.getForecastStdevs();
             } else {
                 ef = fcasts.getForecastStdevs();
             }
@@ -352,7 +352,7 @@ public class RegArimaInfo {
         double[] ef;
         if (model.isMultiplicative()) {
             LogForecasts lf = new LogForecasts(fcasts);
-            ef = lf.getForecatStdevs();
+            ef = lf.getForecastStdevs();
         } else {
             ef = fcasts.getForecastStdevs();
         }

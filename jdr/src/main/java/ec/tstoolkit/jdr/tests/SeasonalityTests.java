@@ -47,13 +47,13 @@ public class SeasonalityTests {
             if (ny != 0) {
                 s = s.drop(Math.max(0, s.getLength() - ifreq * ny - 1), 0);
             }
-            return ec.tstoolkit.information.StatisticalTest.create(processAr(s));
+            return ec.tstoolkit.information.StatisticalTest.of(processAr(s));
         } else {
             s = s.delta(1);
             if (ny != 0) {
                 s = s.drop(Math.max(0, s.getLength() - ifreq * ny), 0);
             }
-            return ec.tstoolkit.information.StatisticalTest.create(process(s));
+            return ec.tstoolkit.information.StatisticalTest.of(process(s));
         }
     }
 
@@ -63,17 +63,17 @@ public class SeasonalityTests {
             s = s.drop(Math.max(0, s.getLength() - freq * ny), 0);
         }
         DifferencingResults di = DifferencingResults.create(s, diff, mean);
-        return ec.tstoolkit.information.StatisticalTest.create(QSTest.compute(di.getDifferenced().internalStorage(), freq, 2));
+        return ec.tstoolkit.information.StatisticalTest.of(QSTest.compute(di.getDifferenced().internalStorage(), freq, 2));
     }
 
     public ec.tstoolkit.information.StatisticalTest kruskalWallisTest(TsData s) {
         KruskalWallisTest test=new KruskalWallisTest(s);
-        return ec.tstoolkit.information.StatisticalTest.create(test);
+        return ec.tstoolkit.information.StatisticalTest.of(test);
     }
 
     public ec.tstoolkit.information.StatisticalTest friedmanTest(TsData s) {
         FriedmanTest test=new FriedmanTest(s);
-        return ec.tstoolkit.information.StatisticalTest.create(test);
+        return ec.tstoolkit.information.StatisticalTest.of(test);
     }
 
     private static ec.tstoolkit.stats.StatisticalTest processAr(TsData s) {

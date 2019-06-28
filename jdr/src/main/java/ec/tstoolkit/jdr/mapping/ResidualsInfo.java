@@ -56,25 +56,25 @@ public class ResidualsInfo {
 
         MAPPING.set(RES_DATA, double[].class, source -> source.getStatistics().observations());
         MAPPING.set(RES_MEAN, StatisticalTest.class,
-                source -> StatisticalTest.create(source.getMeanTest()));
+                source -> StatisticalTest.of(source.getMeanTest()));
         MAPPING.set(RES_SKEWNESS, StatisticalTest.class,
-                source -> StatisticalTest.create(source.getSkewness()));
+                source -> StatisticalTest.of(source.getSkewness()));
         MAPPING.set(RES_KURTOSIS, StatisticalTest.class,
-                source -> StatisticalTest.create(source.getKurtosis()));
+                source -> StatisticalTest.of(source.getKurtosis()));
         MAPPING.set(RES_DH, StatisticalTest.class,
-                source -> StatisticalTest.create(source.getNormalityTest()));
+                source -> StatisticalTest.of(source.getNormalityTest()));
         MAPPING.set(RES_LB, StatisticalTest.class,
-                source -> StatisticalTest.create(source.getLjungBox()));
+                source -> StatisticalTest.of(source.getLjungBox()));
         MAPPING.set(RES_LB2, StatisticalTest.class,
-                source -> StatisticalTest.create(source.getLjungBoxOnSquare()));
+                source -> StatisticalTest.of(source.getLjungBoxOnSquare()));
         MAPPING.set(RES_SEASLB, StatisticalTest.class,
-                source -> StatisticalTest.create(source.getSeasonalLjungBox()));
+                source -> StatisticalTest.of(source.getSeasonalLjungBox()));
         MAPPING.set(RES_BP, StatisticalTest.class,
-                source -> StatisticalTest.create(source.getBoxPierce()));
+                source -> StatisticalTest.of(source.getBoxPierce()));
         MAPPING.set(RES_BP2, StatisticalTest.class,
-                source -> StatisticalTest.create(source.getBoxPierceOnSquare()));
+                source -> StatisticalTest.of(source.getBoxPierceOnSquare()));
         MAPPING.set(RES_SEASBP, StatisticalTest.class,
-                source -> StatisticalTest.create(source.getSeasonalBoxPierce()));
+                source -> StatisticalTest.of(source.getSeasonalBoxPierce()));
         MAPPING.set(RES_UD_NUMBER, StatisticalTest.class,
                 source -> {
                     TestofUpDownRuns ud = source.getUpAndDownRuns();
@@ -82,7 +82,7 @@ public class ResidualsInfo {
                         return null;
                     }
                     ud.setKind(RunsTestKind.Number);
-                    return StatisticalTest.create(ud);
+                    return StatisticalTest.of(ud);
                 });
         MAPPING.set(RES_UD_LENGTH, StatisticalTest.class,
                 source -> {
@@ -91,7 +91,7 @@ public class ResidualsInfo {
                         return null;
                     }
                     ud.setKind(RunsTestKind.Length);
-                    return StatisticalTest.create(ud);
+                    return StatisticalTest.of(ud);
                 });
     }
 }

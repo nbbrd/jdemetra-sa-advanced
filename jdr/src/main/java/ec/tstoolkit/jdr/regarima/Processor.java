@@ -73,6 +73,7 @@ public class Processor {
     }
     
     public static Results tramo(TsData s, TramoSpecification spec, Dictionary dic)  {
+        s=s.cleanExtremities();
         ProcessingContext context=null;
         if (dic != null)
             context=dic.toContext();
@@ -81,6 +82,7 @@ public class Processor {
     }
 
     public static Results x12(TsData s, RegArimaSpecification spec, Dictionary dic) {
+        s=s.cleanExtremities();
         ProcessingContext context=null;
         if (dic != null)
             context=dic.toContext();

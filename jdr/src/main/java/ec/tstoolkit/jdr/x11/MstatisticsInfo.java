@@ -18,7 +18,7 @@ public class MstatisticsInfo {
     static final InformationMapping<Mstatistics> MAPPING = new InformationMapping<>(Mstatistics.class);
 
     static {
-        MAPPING.setArray("M", 1, 11, Double.class, (source, i)->source.getM(i));
+        MAPPING.setArray("M", 1, 12, Double.class, (source, i)->source.getM(i));
         MAPPING.set("Q", Double.class, source->source.getQ());
         MAPPING.set("Q-M2", Double.class, source->source.getQm2());
     }
