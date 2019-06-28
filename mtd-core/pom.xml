@@ -4,7 +4,7 @@
     <parent>
         <groupId>be.nbb.demetra</groupId>
         <artifactId>demetra-sa-advanced-aggregator</artifactId>
-        <version>2.2.2-RC1</version>
+        <version>2.2.2</version>
     </parent>
     <artifactId>mtd-core</artifactId>
     <packaging>jar</packaging>

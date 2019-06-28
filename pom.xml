@@ -21,14 +21,14 @@
         <assertj.version>3.11.1</assertj.version>
         <netbeans.version>RELEASE82</netbeans.version>
         <lombok.version>1.18.4</lombok.version>
-        <jdemetra.version>2.2.2-RC1</jdemetra.version>
-        <nbdemetra.version>2.2.2-RC1</nbdemetra.version>
-        <nbbdemetra.version>2.2.2-RC1</nbbdemetra.version>
+        <jdemetra.version>2.2.2</jdemetra.version>
+        <nbdemetra.version>2.2.2</nbdemetra.version>
+        <nbbdemetra.version>2.2.2</nbbdemetra.version>
      </properties>
     
     <groupId>be.nbb.demetra</groupId>
     <artifactId>demetra-sa-advanced-aggregator</artifactId>
-    <version>2.2.2-RC1</version>
+    <version>2.2.2</version>
     <packaging>pom</packaging>
 
     <name>Demetra - Sa - Advanced</name>

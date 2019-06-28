@@ -6,12 +6,13 @@
 package ec.tstoolkit.jdr.sa;
 
 import ec.satoolkit.DecompositionMode;
+import static ec.satoolkit.GenericSaProcessingFactory.DECOMPOSITION;
+import static ec.satoolkit.GenericSaProcessingFactory.FINAL;
+import static ec.satoolkit.GenericSaProcessingFactory.PREPROCESSING;
+import ec.satoolkit.ISeriesDecomposition;
 import ec.satoolkit.algorithm.implementation.TramoSeatsProcessingFactory;
 import ec.satoolkit.algorithm.implementation.X13ProcessingFactory;
-import ec.satoolkit.diagnostics.CombinedSeasonalityTest;
 import ec.satoolkit.diagnostics.QSTest;
-import ec.satoolkit.diagnostics.SeasonalityTest;
-import ec.satoolkit.diagnostics.StationaryVarianceDecomposition;
 import ec.satoolkit.seats.SeatsResults;
 import ec.satoolkit.tramoseats.TramoSeatsSpecification;
 import ec.satoolkit.x11.X11Results;
@@ -23,13 +24,10 @@ import ec.tstoolkit.data.DescriptiveStatistics;
 import ec.tstoolkit.eco.Ols;
 import ec.tstoolkit.eco.RegModel;
 import ec.tstoolkit.information.StatisticalTest;
-import ec.tstoolkit.jdr.tests.TradingDaysTests;
-import ec.tstoolkit.modelling.ComponentInformation;
-import ec.tstoolkit.modelling.ComponentType;
 import ec.tstoolkit.modelling.DifferencingResults;
 import ec.tstoolkit.modelling.ModellingDictionary;
 import ec.tstoolkit.modelling.arima.JointRegressionTest;
-import ec.tstoolkit.timeseries.TsPeriodSelector;
+import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.timeseries.regression.RegressionUtilities;
 import ec.tstoolkit.timeseries.regression.SeasonalDummies;
 import ec.tstoolkit.timeseries.simplets.TsData;
@@ -44,7 +42,7 @@ import jdr.spec.ts.Utility;
 @lombok.experimental.UtilityClass
 public class Processor {
 
-    private static final double E_LIMIT1 = .01, E_LIMIT2=0.005;
+    private static final double E_LIMIT1 = .01, E_LIMIT2 = 0.005;
 
     public static TramoSeatsResults tramoseats(TsData s, TramoSeatsSpecification spec, Utility.Dictionary dic) {
         ProcessingContext context = null;
@@ -55,62 +53,15 @@ public class Processor {
     }
 
     public static TramoSeatsResults tramoseatsWithContext(TsData s, TramoSeatsSpecification spec, ProcessingContext context) {
+        s=s.cleanExtremities();
         CompositeResults rslts = TramoSeatsProcessingFactory.process(s, spec, context);
-        SeatsResults seats = rslts.get(TramoSeatsProcessingFactory.DECOMPOSITION, SeatsResults.class);
+        PreprocessingModel regarima = (PreprocessingModel) rslts.get(PREPROCESSING);
+        SeatsResults seats = rslts.get(DECOMPOSITION, SeatsResults.class);
+        ISeriesDecomposition finals = (ISeriesDecomposition) rslts.get(FINAL);
 
-        TsData sa = seats.getSeriesDecomposition().getSeries(ComponentType.SeasonallyAdjusted, ComponentInformation.Value);
-        TsData seas = seats.getSeriesDecomposition().getSeries(ComponentType.Seasonal, ComponentInformation.Value);
-        TsData irr = seats.getSeriesDecomposition().getSeries(ComponentType.Irregular, ComponentInformation.Value);
-        boolean mul = isMultiplicative(rslts);
-        boolean isignif = mul ? isSignificant(irr) : (sa != null && irr != null) ? isSignificant(irr, sa, E_LIMIT1) : true;
+        SaDiagnostics diags = SaDiagnostics.of(regarima, seats, finals);
+        return new TramoSeatsResults(rslts, diags);
 
-        TsData si = mul ? TsData.multiply(seas, irr) : TsData.add(seas, irr);
-        TsPeriodSelector sel = new TsPeriodSelector();
-        sel.last(si.getFrequency().intValue() * 3);
-        TsData sic = si.select(sel);
-        int lag = s.getFrequency().intValue() / 4;
-        if (lag == 0) {
-            lag = 1;
-        }
-        if (mul) {
-            sa = sa.log();
-        }
-        TsData dsa = sa.delta(lag);
-        TsData dsac = dsa.select(sel);
-        StationaryVarianceDecomposition var = new StationaryVarianceDecomposition();
-        var.process(rslts);
-        
-        if (irr != null  && isignif) {
-        	SaDiagnostics diags = SaDiagnostics.builder()
-                    .qs(qs(sa, mul))
-                    .ftest(f(sa, mul))
-                    .qsOnIrr(null)
-                    .ftestOnIrr(null)
-                    .combinedSeasonality(new CombinedSeasonalityTest(si, mul))
-                    .combinedSeasonalityOnEnd(new CombinedSeasonalityTest(sic, mul))
-                    .residualSeasonality(SeasonalityTest.stableSeasonality(dsa))
-                    .residualSeasonalityOnEnd(SeasonalityTest.stableSeasonality(dsac))
-                    .residualTradingDays(TradingDaysTests.ftest(sa, true, NY))
-                    .residualTradingDaysIrr(null)
-                    .varDecomposition(var)
-                    .build();
-        	return new TramoSeatsResults(rslts, diags);
-        }
-        SaDiagnostics diags = SaDiagnostics.builder()
-                .qs(qs(sa, mul))
-                .ftest(f(sa, mul))
-                .qsOnIrr(qs(irr, mul))
-                .ftestOnIrr(f(irr, mul))
-                .combinedSeasonality(new CombinedSeasonalityTest(si, mul))
-                .combinedSeasonalityOnEnd(new CombinedSeasonalityTest(sic, mul))
-                .residualSeasonality(SeasonalityTest.stableSeasonality(dsa))
-                .residualSeasonalityOnEnd(SeasonalityTest.stableSeasonality(dsac))
-                .residualTradingDays(TradingDaysTests.ftest(sa, true, NY))
-                .residualTradingDaysIrr(TradingDaysTests.ftest(irr, true, NY))
-                .varDecomposition(var)
-                .build();
-        return new TramoSeatsResults(rslts, diags);       
-        
     }
 
     static final int NY = 8;
@@ -124,73 +75,29 @@ public class Processor {
     }
 
     public static X13Results x13WithContext(TsData s, X13Specification spec, ProcessingContext context) {
+        s=s.cleanExtremities();
         CompositeResults rslts = X13ProcessingFactory.process(s, spec, context);
+        PreprocessingModel regarima = (PreprocessingModel) rslts.get(PREPROCESSING);
         X11Results x11 = rslts.get(X13ProcessingFactory.DECOMPOSITION, X11Results.class);
-        TsData d8 = x11.getData("d-tables.d8", TsData.class);
-        TsData sa = x11.getData("d-tables.d11", TsData.class);
-        TsData irr = x11.getData("d-tables.d13", TsData.class);
-        boolean mul = isMultiplicative(rslts);
-        boolean isignif = mul ? isSignificant(irr) : (sa != null && irr != null) ? isSignificant(irr, sa, E_LIMIT1) : true;
+        ISeriesDecomposition finals = (ISeriesDecomposition) rslts.get(FINAL);
 
-        TsPeriodSelector sel = new TsPeriodSelector();
-        sel.last(d8.getFrequency().intValue() * 3);
-        TsData d8c = d8.select(sel);
-        int lag = s.getFrequency().intValue() / 4;
-        if (lag == 0) {
-            lag = 1;
-        }
-        if (mul) {
-            sa = sa.log();
-        }
-        TsData dsa = sa.delta(lag);
-        TsData dsac = dsa.select(sel);
-        StationaryVarianceDecomposition var = new StationaryVarianceDecomposition();
-        var.process(rslts);
-        if (irr != null  && isignif) {
-        	SaDiagnostics diags = SaDiagnostics.builder()
-                    .qs(qs(sa, mul))
-                    .ftest(f(sa, mul))
-                    .qsOnIrr(null)
-                    .ftestOnIrr(null)
-                    .combinedSeasonality(new CombinedSeasonalityTest(d8, mul))
-                    .combinedSeasonalityOnEnd(new CombinedSeasonalityTest(d8c, mul))
-                    .residualSeasonality(SeasonalityTest.stableSeasonality(dsa))
-                    .residualSeasonalityOnEnd(SeasonalityTest.stableSeasonality(dsac))
-                    .residualTradingDays(TradingDaysTests.ftest(sa, true, NY))
-                    .residualTradingDaysIrr(null)
-                    .varDecomposition(var)
-                    .build();
-            return new X13Results(rslts, diags);
-        }
-        SaDiagnostics diags = SaDiagnostics.builder()
-                .qs(qs(sa, mul))
-                .ftest(f(sa, mul))
-                .qsOnIrr(qs(irr, mul))
-                .ftestOnIrr(f(irr, mul))
-                .combinedSeasonality(new CombinedSeasonalityTest(d8, mul))
-                .combinedSeasonalityOnEnd(new CombinedSeasonalityTest(d8c, mul))
-                .residualSeasonality(SeasonalityTest.stableSeasonality(dsa))
-                .residualSeasonalityOnEnd(SeasonalityTest.stableSeasonality(dsac))
-                .residualTradingDays(TradingDaysTests.ftest(sa, true, NY))
-                .residualTradingDaysIrr(TradingDaysTests.ftest(irr, true, NY))
-                .varDecomposition(var)
-                .build();
+        SaDiagnostics diags = SaDiagnostics.of(regarima, x11, finals);
         return new X13Results(rslts, diags);
 
     }
 
     private static StatisticalTest qs(TsData s, boolean mul) {
-    	if (s == null) {
+        if (s == null) {
             return null;
         }
-    	TsData sac = s;
+        TsData sac = s;
         if (mul) {
             sac = sac.log();
         }
         int ifreq = sac.getFrequency().intValue();
         DifferencingResults dsa = DifferencingResults.create(sac, -1, true);
         return StatisticalTest.create(QSTest.compute(dsa.getDifferenced().internalStorage(), ifreq, 2));
-   
+
     }
 
     private static StatisticalTest f(TsData s, boolean mul) {
@@ -211,6 +118,7 @@ public class Processor {
         DecompositionMode mul = rslts.getData(ModellingDictionary.MODE, DecompositionMode.class);
         return mul != null && mul.isMultiplicative();
     }
+
     private static boolean isSignificant(TsData i) {
         if (i == null) {
             return false;
@@ -219,6 +127,7 @@ public class Processor {
         double se = idesc.getStdev();
         return se > E_LIMIT1;
     }
+
     private static boolean isSignificant(TsData s, TsData ref, double limit) {
         DescriptiveStatistics sdesc = new DescriptiveStatistics(s);
         DescriptiveStatistics refdesc = new DescriptiveStatistics(ref);
@@ -226,6 +135,7 @@ public class Processor {
         double refe = refdesc.getRmse();
         return refe == 0 || se / refe > limit;
     }
+
     private static ec.tstoolkit.stats.StatisticalTest processAr(TsData s) {
         try {
             RegModel reg = new RegModel();
