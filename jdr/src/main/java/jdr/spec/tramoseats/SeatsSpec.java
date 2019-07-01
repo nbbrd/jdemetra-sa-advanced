@@ -12,11 +12,11 @@ import ec.satoolkit.seats.SeatsSpecification.EstimationMethod;
  * @author Kristof Bayens
  */
 public class SeatsSpec {
-    
+
     private final SeatsSpecification core;
 
     public SeatsSpec(SeatsSpecification spec) {
-      core = spec;
+        core = spec;
     }
 
     public double getRMod() {
@@ -34,7 +34,7 @@ public class SeatsSpec {
     public void setSMod(double value) {
         core.setSeasBoundary(value);
     }
-    
+
     public double getSMod1() {
         return core.getSeasBoundary1();
     }
@@ -42,7 +42,7 @@ public class SeatsSpec {
     public void setSMod1(double value) {
         core.setSeasBoundary1(value);
     }
-    
+
     public double getEpsPhi() {
         return core.getSeasTolerance();
     }
@@ -73,5 +73,13 @@ public class SeatsSpec {
 
     public void setMethod(String value) {
         core.setMethod(EstimationMethod.valueOf(value));
+    }
+
+    public int getPredictionLength() {
+        return core.getPredictionLength();
+    }
+
+    public void setPredictionLength(int npred) {
+        core.setPredictionLength(npred);
     }
 }
