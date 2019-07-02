@@ -10,7 +10,6 @@ import ec.satoolkit.x11.SeasonalFilterOption;
 import ec.satoolkit.x11.SigmavecOption;
 import ec.satoolkit.x11.X11Exception;
 import ec.satoolkit.x11.X11Specification;
-
 /**
  *
  * @author Kristof Bayens
@@ -40,8 +39,6 @@ public class X11Spec {
         this.freq = freq;
         this.preprocessing = preprocessing;
     }
-    
-    
 
     public String getMode() {
         return core.getMode().name();
@@ -139,10 +136,10 @@ public class X11Spec {
     }
 
     public void setFullSeasonalMA(String[] value) {
-            SeasonalFilterOption[] filters = new SeasonalFilterOption[value.length];
-            for (int i = 0; i < filters.length; ++i) {
-                filters[i] = SeasonalFilterOption.valueOf(value[i]);
-            }
+        SeasonalFilterOption[] filters = new SeasonalFilterOption[value.length];
+        for (int i = 0; i < filters.length; ++i) {
+            filters[i] = SeasonalFilterOption.valueOf(value[i]);
+        }
         core.setSeasonalFilters(filters);
     }
 
@@ -174,32 +171,33 @@ public class X11Spec {
         return core.getCalendarSigma();
     }
 
-//    public void setCalendarSigma(CalendarSigma calendarsigma) {
-//        core.setCalendarSigma(calendarsigma);
-//        if (calendarsigma.Select == CalendarSigma.Select && core.getSigmavec() == null) {
-//            this.setSigmavec(this.getSigmavec());
-//        };
-//    }
-//
-//    public SigmavecOption[] getSigmavec() {
-//        SigmavecOption[] groups = core.getSigmavec();
-//        int len = freq_.intValue();
-//        if (groups != null && groups.length == len) {
-//            return groups;
-//        }
-//        //Sigmavec option = groups == null ? Sigmavec.group1 : groups[0];
-//        //   Sigmavec option = Sigmavec.group1;
-//        groups = new SigmavecOption[len];
-//        for (int i = 0; i < len; ++i) {
-//            groups[i] = SigmavecOption.Group1;
-//        }
-//        return groups;
-//
-//    }
-//
-//    public void setSigmavec(SigmavecOption[] sigmavec) {
-//        core.setSigmavec(sigmavec);
-//    }
+    public void setCalendarSigma(String value) {
+        core.setCalendarSigma(CalendarSigma.valueOf(value));
+    }
+
+    public String[] getSigmavec() {
+        SigmavecOption[] groups = core.getSigmavec();
+        String[] nGroups = new String[freq];
+        if (groups != null && groups.length == freq) {
+            for (int i = 0; i < freq; ++i) {
+                nGroups[i] = groups[i].name();
+            }
+        } else {
+            for (int i = 0; i < freq; ++i) {
+                nGroups[i] = SigmavecOption.Group1.name();
+            }
+        }
+        return nGroups;
+    }
+
+    public void setSigmavec(String[] value) {
+
+        SigmavecOption[] groups = new SigmavecOption[value.length];
+        for (int i = 0; i < value.length; ++i) {
+            groups[i] = SigmavecOption.valueOf(value[i]);
+        }
+        core.setSigmavec(groups);
+    }
 
     public void setExcludefcst(boolean value) {
         core.setExcludefcst(value);
