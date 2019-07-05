@@ -4,7 +4,7 @@
     <parent>
         <groupId>be.nbb.demetra</groupId>
         <artifactId>demetra-sa-advanced-aggregator</artifactId>
-        <version>2.2.1</version>
+        <version>2.2.2</version>
     </parent>
 
     <artifactId>nbdemetra-ncore</artifactId>
@@ -12,33 +12,6 @@
 
     <name>NbDemetra - New Core</name>
     <description>Wrapper module for new Demetra core libraries.</description>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>eu.europa.ec.joinup.sat</groupId>
-                <artifactId>nbdemetra-core</artifactId>
-                <version>${jdemetra.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>be.nbb.demetra</groupId>
-                <artifactId>jdemetra-ssf</artifactId>
-                <version>${nbbdemetra.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>be.nbb.demetra</groupId>
-                <artifactId>jdemetra-core</artifactId>
-                <version>${nbbdemetra.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>be.nbb.demetra</groupId>
-                <artifactId>sts-core</artifactId>
-                <version>${nbbdemetra.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <!-- NetBeans -->
@@ -54,7 +27,6 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
         </dependency>
-        
         <!-- NbDemetra -->
         <dependency>
             <groupId>eu.europa.ec.joinup.sat</groupId>
@@ -62,21 +34,36 @@
         </dependency>
         <!-- NbbDemetra -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>be.nbb.demetra</groupId>
             <artifactId>jdemetra-ssf</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>be.nbb.demetra</groupId>
             <artifactId>jdemetra-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>be.nbb.demetra</groupId>
             <artifactId>sts-core</artifactId>
         </dependency>
         
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven-jar-plugin.version}</version>
+                    <configuration>
+                        <!-- to have the jar plugin pickup the nbm generated manifest -->
+                        <archive>
+                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        </archive>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

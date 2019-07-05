@@ -27,5 +27,9 @@
 /jstl/nbproject/
 /sssts-core/nbproject/
 /jd_stl/target/
+/jdr/target/
+
+/mtd-core/target
 nbactions.xml
 /jd_stl/nbactions.xml
+/mtd-core/nbproject/

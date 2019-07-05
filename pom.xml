@@ -4,31 +4,31 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.hint.jdkPlatform>JDK_1.8</netbeans.hint.jdkPlatform>
-        <jdk.version>1.8</jdk.version>
-        <brandingToken>nbbdemetra</brandingToken>
-        <netbeans.version>RELEASE82</netbeans.version>
-        <jdemetra.version>2.2.1</jdemetra.version>
-        <nbbdemetra.version>2.2.1</nbbdemetra.version>
-        <lombok.version>1.16.12</lombok.version>
-        <!-- plugins versions > -->
-        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
-        <maven-source-plugin.version>2.4</maven-source-plugin.version>
-        <maven-enforcer-plugin.version>1.4</maven-enforcer-plugin.version>
-        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+        <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
+        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+        <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
+        <animal-sniffer-maven-plugin.version>1.16</animal-sniffer-maven-plugin.version>
         <findbugs-maven-plugin.version>3.0.0</findbugs-maven-plugin.version>
-        <animal-sniffer-maven-plugin.version>1.14</animal-sniffer-maven-plugin.version>
         <nbm-maven-plugin.version>3.14</nbm-maven-plugin.version>
+        <brandingToken>nbbdemetra</brandingToken>
         <!-- < plugins versions -->
         <junit.version>4.12</junit.version>
-        <jsr305.version>3.0.1</jsr305.version>
-        <assertj.version>3.4.0</assertj.version>
-    </properties>
+        <jsr305.version>3.0.2</jsr305.version>
+        <assertj.version>3.11.1</assertj.version>
+        <netbeans.version>RELEASE82</netbeans.version>
+        <lombok.version>1.18.4</lombok.version>
+        <jdemetra.version>2.2.2</jdemetra.version>
+        <nbdemetra.version>2.2.2</nbdemetra.version>
+        <nbbdemetra.version>2.2.2</nbbdemetra.version>
+     </properties>
     
     <groupId>be.nbb.demetra</groupId>
     <artifactId>demetra-sa-advanced-aggregator</artifactId>
-    <version>2.2.1</version>
+    <version>2.2.2</version>
     <packaging>pom</packaging>
 
     <name>Demetra - Sa - Advanced</name>
@@ -55,6 +55,8 @@
         <module>jd_highfreq</module>
         <module>jstl</module>
         <module>jd_stl</module>
+        <module>mtd-core</module>
+        <module>jdr</module>
     </modules>
 
     <organization>
@@ -127,6 +129,11 @@
             <dependency>
                 <groupId>be.nbb.demetra</groupId>
                 <artifactId>sts-core</artifactId>
+                <version>${nbbdemetra.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>be.nbb.demetra</groupId>
+                <artifactId>mtd-core</artifactId>
                 <version>${nbbdemetra.version}</version>
             </dependency>
             <dependency>
@@ -259,10 +266,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${maven-jar-plugin.version}</version>
-                    <configuration>
-                        <!-- to have the jar plugin pickup the nbm generated manifest -->
-                        <useDefaultManifestFile>true</useDefaultManifestFile>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -273,11 +276,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
-                    <configuration>
-                        <!--<showDeprecation>true</showDeprecation>-->
-                        <source>${jdk.version}</source>
-                        <target>${jdk.version}</target>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -291,7 +289,7 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>            
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
@@ -324,16 +322,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>nbm-maven-plugin</artifactId>
-                    <version>${nbm-maven-plugin.version}</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <brandingToken>${brandingToken}</brandingToken>
-                        <cluster>${brandingToken}</cluster>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
                     <artifactId>animal-sniffer-maven-plugin</artifactId>
                     <version>${animal-sniffer-maven-plugin.version}</version>
                     <configuration>
@@ -353,6 +341,16 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>nbm-maven-plugin</artifactId>
+                    <version>${nbm-maven-plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <brandingToken>${brandingToken}</brandingToken>
+                        <cluster>${brandingToken}</cluster>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -362,16 +360,8 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -390,29 +380,102 @@
             </plugin>
         </plugins>
     </build>
-    
+
+    <profiles>
+        <!-- Add missing Java EE Modules on JDK11 -->
+        <profile>
+            <activation>
+                <jdk>11</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>javax.activation-api</artifactId>
+                    <version>1.2.0</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                    <version>2.4.0-b180830.0359</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                    <version>2.4.0-b180830.0438</version>
+                    <scope>provided</scope>
+                </dependency>                
+            </dependencies>
+        </profile>
+
+        <!-- Deploy SNAPSHOTS to jfrog with sources -->
+        <profile>
+            <id>deploy-snapshots</id>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>oss-jfrog-artifactory</id>
+                    <url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+                </snapshotRepository>
+            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Deploy RELEASES to jfrog with sources -->
+        <profile>
+            <id>deploy-releases</id>
+            <distributionManagement>
+                <repository>
+                    <id>oss-jfrog-artifactory</id>
+                    <url>https://oss.jfrog.org/artifactory/oss-release-local</url>
+                </repository>
+            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <repositories>
-        <!-- Repository hosting NetBeans modules -->
         <repository>
-            <id>netbeans</id>
-            <name>NetBeans</name>
-            <url>http://bits.netbeans.org/maven2/</url>
+            <id>netbeans-releases</id>
+            <url>http://bits.netbeans.org/nexus/content/groups/netbeans/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
-            <id>netbeans-snapshot</id>
-            <name>NetBeans Snapshots</name>
-            <url>http://bits.netbeans.org/netbeans/trunk/maven-snapshot/</url>
+            <id>oss-jfrog-artifactory-releases</id>
+            <url>https://oss.jfrog.org/artifactory/oss-release-local</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>oss-jfrog-artifactory-snapshots</id>
+            <url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>projectlombok.org</id>
+            <url>https://projectlombok.org/edge-releases</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
-
-    <!--distributionManagement>
-        <repository>
-            <id>joinup-releases</id>
-            <url>https://joinup.ec.europa.eu/nexus/content/repositories/releases/</url>                    
-        </repository>
-        <snapshotRepository>
-            <id>joinup-snapshots</id>
-            <url>https://joinup.ec.europa.eu/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement-->
 </project>
