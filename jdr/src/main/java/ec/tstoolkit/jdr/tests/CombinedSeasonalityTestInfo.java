@@ -35,11 +35,11 @@ public class CombinedSeasonalityTestInfo {
     }
     static {
             MAPPING.set("kruskalwallis", ec.tstoolkit.information.StatisticalTest.class, 
-                    source->ec.tstoolkit.information.StatisticalTest.create(source.getNonParametricTestForStableSeasonality()));
+                    source->ec.tstoolkit.information.StatisticalTest.of(source.getNonParametricTestForStableSeasonality()));
             MAPPING.set("stable", ec.tstoolkit.information.StatisticalTest.class, 
-                    source->ec.tstoolkit.information.StatisticalTest.create(source.getStableSeasonality()));
+                    source->ec.tstoolkit.information.StatisticalTest.of(source.getStableSeasonality()));
             MAPPING.set("evolutive", ec.tstoolkit.information.StatisticalTest.class,
-                    source->ec.tstoolkit.information.StatisticalTest.create(source.getEvolutiveSeasonality()));
+                    source->ec.tstoolkit.information.StatisticalTest.of(source.getEvolutiveSeasonality()));
             MAPPING.set("summary", String.class, 
                     source->source.getSummary().name());
             MAPPING.set("stable.ssm", Double.class, 

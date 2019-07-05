@@ -46,13 +46,13 @@ public class TradingDaysTests {
             if (ny != 0) {
                 s = s.drop(Math.max(0, s.getLength() - ifreq * ny - 1), 0);
             }
-            return ec.tstoolkit.information.StatisticalTest.create(processAr(s));
+            return ec.tstoolkit.information.StatisticalTest.of(processAr(s));
         } else {
             s = s.delta(1);
             if (ny != 0) {
                 s = s.drop(Math.max(0, s.getLength() - ifreq * ny), 0);
             }
-            return ec.tstoolkit.information.StatisticalTest.create(process(s));
+            return ec.tstoolkit.information.StatisticalTest.of(process(s));
         }
     }
 
