@@ -142,11 +142,15 @@ public class SaItemType {
         }
         InformationSet md = info.getSubSet(METADATA);
         if (md != null) {
-            List<Information<String>> sel = info.deepSelect(String.class);
+            List<Information<String>> sel = md.deepSelect(String.class);
             for (Information<String> sinfo : sel) {
                 builder.meta(sinfo.name, sinfo.value);
             }
-            builder.name(info.get(NAME, String.class));
+        }
+        
+        String name = info.get(NAME, String.class);
+        if(name != null){
+            builder.name(name);
         }
         return builder.build();
     }
@@ -182,7 +186,7 @@ public class SaItemType {
             InformationSet minfo = info.subSet(METADATA);
             for (Map.Entry<String, String> entry : metaData.entrySet()) {
                 if (!entry.getValue().isEmpty()) {
-                    info.set(entry.getKey(), entry.getValue());
+                    minfo.set(entry.getKey(), entry.getValue());
                 }
             }
         }
