@@ -18,7 +18,6 @@ package ec.tstoolkit.jdr.tests;
 
 import demetra.information.InformationMapping;
 import ec.satoolkit.diagnostics.CombinedSeasonalityTest;
-import ec.tstoolkit.modelling.arima.PreprocessingModel;
 
 /**
  *
