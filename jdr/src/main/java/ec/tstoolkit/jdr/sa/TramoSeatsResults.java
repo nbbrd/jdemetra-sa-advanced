@@ -7,9 +7,12 @@ package ec.tstoolkit.jdr.sa;
 
 import demetra.algorithm.IProcResults;
 import demetra.information.InformationMapping;
+import ec.satoolkit.GenericSaProcessingFactory;
 import ec.satoolkit.ISeriesDecomposition;
 import ec.satoolkit.algorithm.implementation.TramoSeatsProcessingFactory;
+import ec.satoolkit.algorithm.implementation.X13ProcessingFactory;
 import ec.satoolkit.seats.SeatsResults;
+import ec.satoolkit.x11.X11Results;
 import ec.tstoolkit.algorithm.CompositeResults;
 import ec.tstoolkit.jdr.mapping.PreprocessingInfo;
 import ec.tstoolkit.jdr.seats.SeatsInfo;
@@ -21,13 +24,45 @@ import java.util.Map;
  *
  * @author Jean Palate <jean.palate@nbb.be>
  */
-@lombok.Value
+@lombok.Data
 public class TramoSeatsResults implements IProcResults {
-    
-    CompositeResults results;
+
+    final CompositeResults results;
     SaDiagnostics diagnostics;
-    
-    public ec.tstoolkit.jdr.regarima.Processor.Results regarima(){
+    CoherenceDiagnostics coherence;
+    ResidualsDiagnostics residuals;
+
+    SaDiagnostics diagnostics() {
+        synchronized (results) {
+            if (diagnostics == null && results != null) {
+                PreprocessingModel regarima = (PreprocessingModel) results.get(GenericSaProcessingFactory.PREPROCESSING);
+                SeatsResults seats = results.get(GenericSaProcessingFactory.DECOMPOSITION, SeatsResults.class);
+                ISeriesDecomposition finals = (ISeriesDecomposition) results.get(GenericSaProcessingFactory.FINAL);
+                diagnostics = SaDiagnostics.of(regarima, seats, finals);
+            }
+            return diagnostics;
+        }
+    }
+
+    CoherenceDiagnostics coherence(){
+        synchronized (results) {
+            if (coherence == null && results != null){
+                coherence=CoherenceDiagnostics.of(results);
+            }
+            return coherence;
+        }
+    }
+
+    ResidualsDiagnostics residuals() {
+        synchronized (results) {
+            if (residuals == null && results != null) {
+                residuals = ResidualsDiagnostics.of(results);
+            }
+            return residuals;
+        }
+    }
+
+    public ec.tstoolkit.jdr.regarima.Processor.Results regarima() {
         return new ec.tstoolkit.jdr.regarima.Processor.Results(model());
     }
 
@@ -49,7 +84,9 @@ public class TramoSeatsResults implements IProcResults {
         MAPPING.delegate(null, SaDecompositionInfo.getMapping(), source -> source.finals());
         MAPPING.delegate("preprocessing", PreprocessingInfo.getMapping(), source -> source.model());
         MAPPING.delegate("decomposition", SeatsInfo.getMapping(), source -> source.seats());
-        MAPPING.delegate("diagnostics", SaDiagnostics.getMapping(), source -> source.diagnostics);
+        MAPPING.delegate("diagnostics", SaDiagnostics.getMapping(), source -> source.diagnostics());
+        MAPPING.delegate("coherence", CoherenceDiagnostics.getMapping(), source -> source.coherence());
+        MAPPING.delegate("residuals", ResidualsDiagnostics.getMapping(), source -> source.residuals());
     }
 
     public InformationMapping<TramoSeatsResults> getMapping() {

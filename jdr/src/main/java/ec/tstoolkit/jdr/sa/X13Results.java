@@ -23,11 +23,41 @@ import java.util.Map;
  *
  * @author Jean Palate <jean.palate@nbb.be>
  */
-@lombok.Value
+@lombok.Data
 public class X13Results implements IProcResults {
 
-    CompositeResults results;
+    final CompositeResults results;
     SaDiagnostics diagnostics;
+    CoherenceDiagnostics coherence;
+    ResidualsDiagnostics residuals;
+
+    SaDiagnostics diagnostics() {
+        if (diagnostics == null && results != null) {
+            PreprocessingModel regarima = (PreprocessingModel) results.get(X13ProcessingFactory.PREPROCESSING);
+            X11Results x11 = results.get(X13ProcessingFactory.DECOMPOSITION, X11Results.class);
+            ISeriesDecomposition finals = (ISeriesDecomposition) results.get(X13ProcessingFactory.FINAL);
+            diagnostics = SaDiagnostics.of(regarima, x11, finals);
+        }
+        return diagnostics;
+    }
+
+    CoherenceDiagnostics coherence() {
+        synchronized (results) {
+            if (coherence == null && results != null) {
+                coherence = CoherenceDiagnostics.of(results);
+            }
+            return coherence;
+        }
+    }
+
+    ResidualsDiagnostics residuals() {
+        synchronized (results) {
+            if (residuals == null && results != null) {
+                residuals = ResidualsDiagnostics.of(results);
+            }
+            return residuals;
+        }
+    }
 
     public ec.tstoolkit.jdr.regarima.Processor.Results regarima() {
         return new ec.tstoolkit.jdr.regarima.Processor.Results(model());
@@ -55,7 +85,9 @@ public class X13Results implements IProcResults {
         MAPPING.delegate("preprocessing", PreprocessingInfo.getMapping(), source -> source.model());
         MAPPING.delegate("mstats", MstatisticsInfo.getMapping(), source -> source.mstats());
         MAPPING.delegate("decomposition", X11DecompositionInfo.getMapping(), source -> source.x11());
-        MAPPING.delegate("diagnostics", SaDiagnostics.getMapping(), source -> source.diagnostics);
+        MAPPING.delegate("diagnostics", SaDiagnostics.getMapping(), source -> source.diagnostics());
+        MAPPING.delegate("coherence", CoherenceDiagnostics.getMapping(), source -> source.coherence());
+        MAPPING.delegate("residuals", ResidualsDiagnostics.getMapping(), source -> source.residuals());
     }
 
     public InformationMapping<X13Results> getMapping() {
