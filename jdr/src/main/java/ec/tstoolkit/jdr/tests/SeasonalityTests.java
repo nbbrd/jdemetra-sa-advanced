@@ -16,13 +16,15 @@
  */
 package ec.tstoolkit.jdr.tests;
 
+import demetra.algorithm.IProcResults;
+import demetra.information.InformationMapping;
+import ec.satoolkit.diagnostics.CombinedSeasonalityTest;
 import ec.satoolkit.diagnostics.FriedmanTest;
 import ec.satoolkit.diagnostics.KruskalWallisTest;
 import ec.satoolkit.diagnostics.QSTest;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.eco.Ols;
 import ec.tstoolkit.eco.RegModel;
-import ec.tstoolkit.modelling.DifferencingResults;
 import ec.tstoolkit.modelling.arima.JointRegressionTest;
 import ec.tstoolkit.stats.StatisticalTest;
 import ec.tstoolkit.timeseries.regression.RegressionUtilities;
@@ -67,13 +69,50 @@ public class SeasonalityTests {
     }
 
     public ec.tstoolkit.information.StatisticalTest kruskalWallisTest(TsData s) {
-        KruskalWallisTest test=new KruskalWallisTest(s);
+        KruskalWallisTest test = new KruskalWallisTest(s);
         return ec.tstoolkit.information.StatisticalTest.of(test);
     }
 
     public ec.tstoolkit.information.StatisticalTest friedmanTest(TsData s) {
-        FriedmanTest test=new FriedmanTest(s);
+        FriedmanTest test = new FriedmanTest(s);
         return ec.tstoolkit.information.StatisticalTest.of(test);
+    }
+    
+    public CombinedTest combinedTest(TsData si, boolean mul){
+        return new CombinedTest(new CombinedSeasonalityTest(si, mul));
+    }
+
+    @lombok.Value
+    public static class CombinedTest implements IProcResults {
+
+        private final CombinedSeasonalityTest test;
+
+        static final InformationMapping<CombinedTest> MAPPING = new InformationMapping<>(CombinedTest.class);
+
+        static {
+            MAPPING.delegate(null, CombinedSeasonalityTestInfo.getMapping(), source -> source.test);
+        }
+
+        public InformationMapping<CombinedTest> getMapping() {
+            return MAPPING;
+        }
+
+        @Override
+        public boolean contains(String id) {
+            return MAPPING.contains(id);
+        }
+
+        @Override
+        public Map<String, Class> getDictionary() {
+            Map<String, Class> dic = new LinkedHashMap<>();
+            MAPPING.fillDictionary(null, dic, true);
+            return dic;
+        }
+
+        @Override
+        public <T> T getData(String id, Class<T> tclass) {
+            return MAPPING.getData(this, id, tclass);
+        }
     }
 
     private static ec.tstoolkit.stats.StatisticalTest processAr(TsData s) {

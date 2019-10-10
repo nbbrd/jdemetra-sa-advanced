@@ -13,7 +13,6 @@ import ec.satoolkit.ISeriesDecomposition;
 import ec.satoolkit.diagnostics.CombinedSeasonalityTest;
 import ec.satoolkit.diagnostics.FTest;
 import ec.satoolkit.diagnostics.KruskalWallisTest;
-import ec.satoolkit.diagnostics.SeasonalityTest;
 import ec.satoolkit.diagnostics.StationaryVarianceDecomposition;
 import ec.satoolkit.x11.DefaultSeasonalFilteringStrategy;
 import ec.satoolkit.x11.DefaultTrendFilteringStrategy;
@@ -51,7 +50,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  *
@@ -61,27 +59,6 @@ public class SaDiagnostics implements IProcResults {
 
     static final InformationMapping<SaDiagnostics> MAPPING = new InformationMapping<>(SaDiagnostics.class);
 
-//    private StatisticalTest qs, qsOnIrr;
-//    private StatisticalTest ftest, ftestOnIrr;
-//    private CombinedSeasonalityTest combinedSeasonality, combinedSeasonalityOnEnd;
-//    private SeasonalityTest residualSeasonality, residualSeasonalityOnEnd;
-//    private StatisticalTest residualTradingDays, residualTradingDaysIrr;
-//    
-//    
-//    static {
-//        MAPPING.set("qs", StatisticalTest.class, source->source.qs);
-//        MAPPING.set("ftest", StatisticalTest.class, source->source.ftest);
-//        MAPPING.set("qs.on.i", StatisticalTest.class, source->source.qsOnIrr);
-//        MAPPING.set("ftest.on.i", StatisticalTest.class, source->source.ftestOnIrr);
-//        MAPPING.delegate("combined.all", CombinedSeasonalityTestInfo.getMapping(), source->source.combinedSeasonality);
-//        MAPPING.delegate("combined.end", CombinedSeasonalityTestInfo.getMapping(), source->source.combinedSeasonalityOnEnd);
-//        MAPPING.set("residual.all", StatisticalTest.class, source->StatisticalTest.of(source.residualSeasonality));
-//        MAPPING.set("residual.end", StatisticalTest.class, source->StatisticalTest.of(source.residualSeasonalityOnEnd));
-//        MAPPING.set("residualtd", StatisticalTest.class, source->source.residualTradingDays);
-//        MAPPING.set("residualtd.on.i", StatisticalTest.class, source->source.residualTradingDaysIrr);
-//        MAPPING.set("variancedecomposition", double[].class, source->source.allVariances());
-//    }
-//
     public static InformationMapping<SaDiagnostics> getMapping() {
         return MAPPING;
     }
@@ -223,17 +200,17 @@ public class SaDiagnostics implements IProcResults {
         if (last) {
             if (seasSa3 == null) {
                 int freq = sa.getFrequency().intValue();
-                TsData s = sa.delta(Math.max(1, freq / 4));
+                TsData ts = sa.delta(Math.max(1, freq / 4));
                 TsPeriodSelector sel = new TsPeriodSelector();
                 sel.last(freq * 3);
-                seasSa3 = new CombinedSeasonalityTest(s.select(sel), mul);
+                seasSa3 = new CombinedSeasonalityTest(ts.select(sel), mul);
             }
             return seasSa3;
         } else {
             if (seasSa == null) {
                 int freq = sa.getFrequency().intValue();
-                TsData s = sa.delta(Math.max(1, freq / 4));
-                seasSa = new CombinedSeasonalityTest(s, mul);
+                TsData ts = sa.delta(Math.max(1, freq / 4));
+                seasSa = new CombinedSeasonalityTest(ts, mul);
             }
             return seasSa;
         }
