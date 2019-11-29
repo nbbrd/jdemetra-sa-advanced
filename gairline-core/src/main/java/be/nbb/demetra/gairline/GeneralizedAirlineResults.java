@@ -218,7 +218,7 @@ public class GeneralizedAirlineResults implements ISaResults {
 
     @Override
     public List<ProcessingInformation> getProcessingInformation() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     public UcarimaModel getUcarimaModel() {

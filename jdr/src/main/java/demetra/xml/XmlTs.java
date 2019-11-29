@@ -121,7 +121,7 @@ public class XmlTs implements IXmlConverter<Ts> {
 	return Ts.builder()
                 .moniker(moniker)
                 .name(name)
-                .metaData(metaData == null ? Collections.EMPTY_MAP : metaData.create())
+                .metaData(metaData == null ? Collections.emptyMap() : metaData.create())
                 .type(data != null ? TsInformationType.UserDefined : TsInformationType.None)
                 .data(data != null ? new TsData(TsFrequency.valueOf(freq), firstYear,
 		    firstPeriod - 1, data, false) : null)

@@ -74,7 +74,7 @@ public class XmlMetaData implements IXmlConverter<Map<String, String>> {
     public Map<String, String> create()
     {
         if (properties == null || properties.length == 0)
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
 	Map<String, String> rslt = new HashMap<>();
 	initialize(rslt);
 	return rslt;

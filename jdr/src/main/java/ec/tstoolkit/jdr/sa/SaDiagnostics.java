@@ -415,7 +415,7 @@ public class SaDiagnostics implements IProcResults {
     }
 
     public List<ProcessingInformation> getProcessingInformation() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     double[] allVariances() {

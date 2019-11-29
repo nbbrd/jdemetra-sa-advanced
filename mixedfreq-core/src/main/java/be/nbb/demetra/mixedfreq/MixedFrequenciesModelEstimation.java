@@ -363,7 +363,7 @@ public class MixedFrequenciesModelEstimation implements IProcResults {
 
     @Override
     public List<ProcessingInformation> getProcessingInformation() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     public static final String LIKELIHOOD = "likelihood",
