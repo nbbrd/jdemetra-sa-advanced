@@ -561,7 +561,7 @@ public class IO {
 
         @Nonnull
         public <T extends Closeable, R> java.util.stream.Stream<R> open(@Nonnull Supplier<T> source, @Nonnull Function<? super T, java.util.stream.Stream<R>> streamer) throws IOException {
-            return asParser(streamer).applyWithIO(source);
+            return Stream.<T, R>asParser(streamer).applyWithIO(source);
         }
 
         @Nonnull
