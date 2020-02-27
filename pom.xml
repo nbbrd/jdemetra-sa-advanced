@@ -8,7 +8,6 @@
         <!-- < plugins versions -->
         <junit.version>4.13</junit.version>
         <assertj.version>3.14.0</assertj.version>
-        <netbeans.version>RELEASE82</netbeans.version>
         <lombok.version>1.18.12</lombok.version>
         <jdemetra.version>2.2.2</jdemetra.version>
         <nbdemetra.version>2.2.2</nbdemetra.version>
@@ -124,21 +123,6 @@
                 <artifactId>nbdemetra-ncore</artifactId>
                 <version>${nbbdemetra.version}</version>
             </dependency>
-           
-            <!-- NetBeans deps > -->
-            <dependency>
-                <groupId>org.netbeans.cluster</groupId>
-                <artifactId>platform</artifactId>
-                <version>${netbeans.version}</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.netbeans.api</groupId>
-                <artifactId>org-netbeans-modules-nbjunit</artifactId>
-                <version>${netbeans.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <!-- < NetBeans deps -->
         </dependencies>
     </dependencyManagement>
 
