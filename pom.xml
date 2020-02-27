@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <nbm-maven-plugin.version>3.14</nbm-maven-plugin.version>
+        <nbm-maven-plugin.version>4.1</nbm-maven-plugin.version>
         <brandingToken>nbbdemetra</brandingToken>
         <!-- < plugins versions -->
         <junit.version>4.13</junit.version>
