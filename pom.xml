@@ -7,7 +7,6 @@
         <brandingToken>nbbdemetra</brandingToken>
         <!-- < plugins versions -->
         <junit.version>4.12</junit.version>
-        <jsr305.version>3.0.2</jsr305.version>
         <assertj.version>3.14.0</assertj.version>
         <netbeans.version>RELEASE82</netbeans.version>
         <lombok.version>1.18.10</lombok.version>
@@ -72,11 +71,6 @@
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>${jsr305.version}</version>
-            </dependency>   
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
