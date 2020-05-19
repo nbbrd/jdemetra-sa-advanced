@@ -17,8 +17,8 @@
 package demetra.datatypes;
 
 import ec.tstoolkit.design.Immutable;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 @Immutable
 public final class TsMoniker implements Comparable<TsMoniker> {
@@ -28,7 +28,7 @@ public final class TsMoniker implements Comparable<TsMoniker> {
     private final String m_source;
     private final String m_id;
 
-    @Nonnull
+    @NonNull
     public static TsMoniker create(@Nullable String source, @Nullable String id) throws IllegalArgumentException {
         if (source == null && id == null) {
             return new TsMoniker();
@@ -58,7 +58,7 @@ public final class TsMoniker implements Comparable<TsMoniker> {
      * @param source
      * @param id
      */
-    public TsMoniker(@Nonnull String source, @Nonnull String id) throws IllegalArgumentException {
+    public TsMoniker(@NonNull String source, @NonNull String id) throws IllegalArgumentException {
         if (source == null || id == null) {
             throw new IllegalArgumentException("source and id cannot be null");
         }

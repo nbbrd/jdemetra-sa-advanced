@@ -35,8 +35,8 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Set of utilities related to IO.
@@ -60,12 +60,11 @@ public class IO {
         @JdkWithIO
         void runWithIO() throws IOException;
 
-        @Nonnull
+        @NonNull
         default Closeable asCloseable() {
             return this::runWithIO;
         }
 
-        @Nonnull
         default java.lang.Runnable asUnchecked() {
             return () -> {
                 try {
@@ -76,13 +75,11 @@ public class IO {
             };
         }
 
-        @Nonnull
-        static java.lang.Runnable unchecked(@Nonnull Runnable o) {
+        static java.lang.Runnable unchecked(@NonNull Runnable o) {
             return o.asUnchecked();
         }
 
-        @Nonnull
-        static Runnable checked(@Nonnull java.lang.Runnable o) {
+        static Runnable checked(java.lang.Runnable o) {
             return () -> {
                 try {
                     o.run();
@@ -92,15 +89,14 @@ public class IO {
             };
         }
 
-        @Nonnull
-        static Runnable throwing(@Nonnull java.util.function.Supplier<? extends IOException> ex) {
+        static Runnable throwing(java.util.function.Supplier<? extends IOException> ex) {
             Objects.requireNonNull(ex);
             return () -> {
                 throw ex.get();
             };
         }
 
-        @Nonnull
+        @NonNull
         static Runnable noOp() {
             return () -> {
             };
@@ -124,7 +120,6 @@ public class IO {
         @JdkWithIO
         T getWithIO() throws IOException;
 
-        @Nonnull
         default java.util.function.Supplier<T> asUnchecked() {
             return () -> {
                 try {
@@ -135,13 +130,12 @@ public class IO {
             };
         }
 
-        @Nonnull
-        static <T> java.util.function.Supplier<T> unchecked(@Nonnull Supplier<T> o) {
+        static <T> java.util.function.Supplier<T> unchecked(@NonNull Supplier<T> o) {
             return o.asUnchecked();
         }
 
-        @Nonnull
-        static <T> Supplier<T> checked(@Nonnull java.util.function.Supplier<T> o) {
+        @NonNull
+        static <T> Supplier<T> checked(java.util.function.Supplier<T> o) {
             Objects.requireNonNull(o);
             return () -> {
                 try {
@@ -152,15 +146,15 @@ public class IO {
             };
         }
 
-        @Nonnull
-        static <T> Supplier<T> throwing(@Nonnull java.util.function.Supplier<? extends IOException> ex) {
+        @NonNull
+        static <T> Supplier<T> throwing(java.util.function.Supplier<? extends IOException> ex) {
             Objects.requireNonNull(ex);
             return () -> {
                 throw ex.get();
             };
         }
 
-        @Nonnull
+        @NonNull
         @SuppressWarnings("null")
         static <T> Supplier<T> of(@Nullable T t) {
             return () -> t;
@@ -202,8 +196,8 @@ public class IO {
          * @see #andThen(FunctionWithIO)
          */
         @JdkWithIO
-        @Nonnull
-        default <V> Function<V, R> compose(@Nonnull Function<? super V, ? extends T> before) {
+        @NonNull
+        default <V> Function<V, R> compose(@NonNull Function<? super V, ? extends T> before) {
             Objects.requireNonNull(before);
             return (V v) -> applyWithIO(before.applyWithIO(v));
         }
@@ -224,13 +218,12 @@ public class IO {
          * @see #compose(FunctionWithIO)
          */
         @JdkWithIO
-        @Nonnull
-        default <V> Function<T, V> andThen(@Nonnull Function<? super R, ? extends V> after) {
+        @NonNull
+        default <V> Function<T, V> andThen(@NonNull Function<? super R, ? extends V> after) {
             Objects.requireNonNull(after);
             return (T t) -> after.applyWithIO(applyWithIO(t));
         }
 
-        @Nonnull
         default java.util.function.Function<T, R> asUnchecked() {
             return (T t) -> {
                 try {
@@ -241,13 +234,11 @@ public class IO {
             };
         }
 
-        @Nonnull
-        static <T, R> java.util.function.Function<T, R> unchecked(@Nonnull Function<T, R> o) {
+        static <T, R> java.util.function.Function<T, R> unchecked(@NonNull Function<T, R> o) {
             return o.asUnchecked();
         }
 
-        @Nonnull
-        static <T, R> Function<T, R> checked(@Nonnull java.util.function.Function<T, R> func) {
+        static <T, R> Function<T, R> checked(java.util.function.Function<T, R> func) {
             Objects.requireNonNull(func);
             return o -> {
                 try {
@@ -258,8 +249,8 @@ public class IO {
             };
         }
 
-        @Nonnull
-        static <T, R> Function<T, R> throwing(@Nonnull java.util.function.Supplier<? extends IOException> ex) {
+        @NonNull
+        static <T, R> Function<T, R> throwing(java.util.function.Supplier<? extends IOException> ex) {
             Objects.requireNonNull(ex);
             return o -> {
                 throw ex.get();
@@ -273,12 +264,12 @@ public class IO {
          * @return a function that always returns its input argument
          */
         @JdkWithIO
-        @Nonnull
+        @NonNull
         static <T> Function<T, T> identity() {
             return t -> t;
         }
 
-        @Nonnull
+        @NonNull
         @SuppressWarnings("null")
         static <T, R> Function<T, R> of(@Nullable R r) {
             return o -> r;
@@ -322,8 +313,8 @@ public class IO {
          * @throws NullPointerException if other is null
          */
         @JdkWithIO
-        @Nonnull
-        default Predicate<T> and(@Nonnull Predicate<? super T> other) {
+        @NonNull
+        default Predicate<T> and(@NonNull Predicate<? super T> other) {
             Objects.requireNonNull(other);
             return (t) -> testWithIO(t) && other.testWithIO(t);
         }
@@ -336,7 +327,7 @@ public class IO {
          * predicate
          */
         @JdkWithIO
-        @Nonnull
+        @NonNull
         default Predicate<T> negate() {
             return (t) -> !testWithIO(t);
         }
@@ -359,13 +350,12 @@ public class IO {
          * @throws NullPointerException if other is null
          */
         @JdkWithIO
-        @Nonnull
-        default Predicate<T> or(@Nonnull Predicate<? super T> other) {
+        @NonNull
+        default Predicate<T> or(@NonNull Predicate<? super T> other) {
             Objects.requireNonNull(other);
             return (t) -> testWithIO(t) || other.testWithIO(t);
         }
 
-        @Nonnull
         default java.util.function.Predicate<T> asUnchecked() {
             return (T t) -> {
                 try {
@@ -376,13 +366,12 @@ public class IO {
             };
         }
 
-        @Nonnull
-        static <T> java.util.function.Predicate<T> unchecked(@Nonnull Predicate<T> o) {
+        static <T> java.util.function.Predicate<T> unchecked(@NonNull Predicate<T> o) {
             return o.asUnchecked();
         }
 
-        @Nonnull
-        static <T> Predicate<T> checked(@Nonnull java.util.function.Predicate<T> predicate) {
+        @NonNull
+        static <T> Predicate<T> checked(java.util.function.Predicate<T> predicate) {
             Objects.requireNonNull(predicate);
             return o -> {
                 try {
@@ -393,8 +382,8 @@ public class IO {
             };
         }
 
-        @Nonnull
-        static <T> Predicate<T> throwing(@Nonnull java.util.function.Supplier<? extends IOException> ex) {
+        @NonNull
+        static <T> Predicate<T> throwing(java.util.function.Supplier<? extends IOException> ex) {
             Objects.requireNonNull(ex);
             return o -> {
                 throw ex.get();
@@ -412,14 +401,14 @@ public class IO {
          * to {@link Objects#equals(Object, Object)}
          */
         @JdkWithIO
-        @Nonnull
+        @NonNull
         static <T> Predicate<T> isEqual(Object targetRef) {
             return (null == targetRef)
                     ? Objects::isNull
                     : object -> targetRef.equals(object);
         }
 
-        @Nonnull
+        @NonNull
         static <T> Predicate<T> of(boolean r) {
             return o -> r;
         }
@@ -457,8 +446,8 @@ public class IO {
          * @throws NullPointerException if {@code after} is null
          */
         @JdkWithIO
-        @Nonnull
-        default Consumer<T> andThen(@Nonnull Consumer<? super T> after) {
+        @NonNull
+        default Consumer<T> andThen(@NonNull Consumer<? super T> after) {
             Objects.requireNonNull(after);
             return (T t) -> {
                 acceptWithIO(t);
@@ -466,7 +455,6 @@ public class IO {
             };
         }
 
-        @Nonnull
         default java.util.function.Consumer<T> asUnchecked() {
             return (T t) -> {
                 try {
@@ -477,13 +465,12 @@ public class IO {
             };
         }
 
-        @Nonnull
-        static <T> java.util.function.Consumer<T> unchecked(@Nonnull Consumer<T> o) {
+        static <T> java.util.function.Consumer<T> unchecked(@NonNull Consumer<T> o) {
             return o.asUnchecked();
         }
 
-        @Nonnull
-        static <T> Consumer<T> checked(@Nonnull java.util.function.Consumer<T> consumer) {
+        @NonNull
+        static <T> Consumer<T> checked(java.util.function.Consumer<T> consumer) {
             return o -> {
                 try {
                     consumer.accept(o);
@@ -493,15 +480,15 @@ public class IO {
             };
         }
 
-        @Nonnull
-        static <T> Consumer<T> throwing(@Nonnull java.util.function.Supplier<? extends IOException> ex) {
+        @NonNull
+        static <T> Consumer<T> throwing(java.util.function.Supplier<? extends IOException> ex) {
             Objects.requireNonNull(ex);
             return o -> {
                 throw ex.get();
             };
         }
 
-        @Nonnull
+        @NonNull
         static <T> Consumer<T> noOp() {
             return o -> {
             };
@@ -510,16 +497,16 @@ public class IO {
 
     public interface ResourceLoader<K> extends Closeable {
 
-        @Nonnull
-        InputStream load(@Nonnull K key) throws IOException, IllegalStateException;
+        @NonNull
+        InputStream load(@NonNull K key) throws IOException, IllegalStateException;
 
-        @Nonnull
-        static <K> ResourceLoader<K> of(@Nonnull Function<? super K, ? extends InputStream> loader) {
+        @NonNull
+        static <K> ResourceLoader<K> of(@NonNull Function<? super K, ? extends InputStream> loader) {
             return of(loader, Runnable.noOp().asCloseable());
         }
 
-        @Nonnull
-        static <K> ResourceLoader<K> of(@Nonnull Function<? super K, ? extends InputStream> loader, @Nonnull Closeable closer) {
+        @NonNull
+        static <K> ResourceLoader<K> of(@NonNull Function<? super K, ? extends InputStream> loader, @NonNull Closeable closer) {
             Objects.requireNonNull(loader);
             Objects.requireNonNull(closer);
             return new ResourceLoader<K>() {
@@ -549,7 +536,7 @@ public class IO {
 
     public interface ResourceStorer<K> extends Closeable {
 
-        void store(@Nonnull K key, @Nonnull OutputStream output) throws IOException, IllegalStateException;
+        void store(@NonNull K key, @NonNull OutputStream output) throws IOException, IllegalStateException;
     }
 
     public interface Resource<K> extends ResourceLoader<K>, ResourceStorer<K> {
@@ -559,13 +546,11 @@ public class IO {
     @lombok.experimental.UtilityClass
     public static final class Stream {
 
-        @Nonnull
-        public <T extends Closeable, R> java.util.stream.Stream<R> open(@Nonnull Supplier<T> source, @Nonnull Function<? super T, java.util.stream.Stream<R>> streamer) throws IOException {
+        public <T extends Closeable, R> java.util.stream.Stream<R> open(Supplier<T> source, Function<? super T, java.util.stream.Stream<R>> streamer) throws IOException {
             return Stream.<T, R>asParser(streamer).applyWithIO(source);
         }
 
-        @Nonnull
-        public <T> java.util.stream.Stream<T> generateUntilNull(@Nonnull Supplier<T> generator) {
+        public <T> java.util.stream.Stream<T> generateUntilNull(@NonNull Supplier<T> generator) {
             return StreamSupport.stream(Spliterators.spliteratorUnknownSize(asIterator(generator), Spliterator.ORDERED | Spliterator.NONNULL), false);
         }
 
@@ -577,8 +562,8 @@ public class IO {
             );
         }
 
-        @Nonnull
-        private <T> Iterator<T> asIterator(@Nonnull Supplier<T> nextSupplier) {
+        @NonNull
+        private <T> Iterator<T> asIterator(@NonNull Supplier<T> nextSupplier) {
             Objects.requireNonNull(nextSupplier);
             return new Iterator<T>() {
                 T nextElement = null;
@@ -627,8 +612,8 @@ public class IO {
      * @return an optional {@code File} object representing this path if
      * associated with the default provider
      */
-    @Nonnull
-    public Optional<File> getFile(@Nonnull Path path) {
+    @NonNull
+    public Optional<File> getFile(@NonNull Path path) {
         try {
             return Optional.of(path.toFile());
         } catch (UnsupportedOperationException ex) {
@@ -636,14 +621,13 @@ public class IO {
         }
     }
 
-    @Nonnull
-    public Optional<InputStream> getResourceAsStream(@Nonnull Class<?> type, @Nonnull String name) {
+    @NonNull
+    public Optional<InputStream> getResourceAsStream(@NonNull Class<?> type, @NonNull String name) {
         return Optional.ofNullable(type.getResourceAsStream(name));
     }
 
-    @Nonnull
     @SuppressWarnings("ThrowableResultIgnored")
-    public <X extends Throwable> void ensureClosed(@Nonnull X exception, @Nonnull Closeable closeable) {
+    public <X extends Throwable> void ensureClosed(@NonNull X exception, @NonNull Closeable closeable) {
         Objects.requireNonNull(exception);
         try {
             closeable.close();
@@ -655,11 +639,11 @@ public class IO {
         }
     }
 
-    @Nonnull
+    @NonNull
     static <S, R, VALUE> Function<S, VALUE> valueOf(
-            @Nonnull Function<? super S, ? extends R> opener,
-            @Nonnull Function<? super R, ? extends VALUE> reader,
-            @Nonnull Consumer<? super R> closer) {
+            @NonNull Function<? super S, ? extends R> opener,
+            @NonNull Function<? super R, ? extends VALUE> reader,
+            @NonNull Consumer<? super R> closer) {
         Objects.requireNonNull(opener);
         Objects.requireNonNull(reader);
         Objects.requireNonNull(closer);
@@ -671,11 +655,11 @@ public class IO {
         };
     }
 
-    @Nonnull
+    @NonNull
     static <S, R, FLOW extends AutoCloseable> Function<S, FLOW> flowOf(
-            @Nonnull Function<? super S, ? extends R> opener,
-            @Nonnull Function<? super R, ? extends FLOW> reader,
-            @Nonnull Consumer<? super R> closer) {
+            @NonNull Function<? super S, ? extends R> opener,
+            @NonNull Function<? super R, ? extends FLOW> reader,
+            @NonNull Consumer<? super R> closer) {
         Objects.requireNonNull(opener);
         Objects.requireNonNull(reader);
         Objects.requireNonNull(closer);

@@ -18,12 +18,9 @@ package demetra.datatypes.sa;
 
 import demetra.datatypes.Ts;
 import ec.satoolkit.ISaSpecification;
-import ec.tstoolkit.MetaData;
 import ec.tstoolkit.algorithm.ProcQuality;
 import ec.tstoolkit.information.Information;
 import ec.tstoolkit.information.InformationSet;
-import ec.tstoolkit.information.InformationSetHelper;
-import ec.tstoolkit.information.InformationSetSerializable;
 import ec.tstoolkit.utilities.NameManager;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +33,16 @@ import java.util.Map;
 @lombok.Value
 @lombok.Builder(builderClassName = "Builder", toBuilder = true)
 public class SaItemType {
+    
+    public static Builder builder(){
+        return new Builder()
+                .estimationPolicy(EstimationPolicyType.None)
+                .status(Status.Unprocessed)
+                .quality(ProcQuality.Undefined)
+                .warnings(EMPTY)
+                .name(NONAME)
+                ;
+    }
 
     public static final String DOMAIN_SPEC = "domainspec", ESTIMATION_SPEC = "estimationspec", POINT_SPEC = "pointspec",
             TS = "ts", QUALITY = "quality", PRIORITY = "priority", POLICY = "policy", METADATA = "metadata", NAME = "name", COMMENT = "comment";
@@ -72,27 +79,32 @@ public class SaItemType {
     private ISaSpecification domainSpec;
 
     @lombok.NonNull
-    @lombok.Builder.Default
-    private EstimationPolicyType estimationPolicy = EstimationPolicyType.None;
+//    @lombok.Builder.Default
+//    private EstimationPolicyType estimationPolicy = EstimationPolicyType.None;
+    private EstimationPolicyType estimationPolicy;
 
     @lombok.NonNull
-    @lombok.Builder.Default
-    private Status status = Status.Unprocessed;
+//    @lombok.Builder.Default
+//    private Status status = Status.Unprocessed;
+    private Status status;
 
     @lombok.Builder.Default
     private int priority = -1;
 
     @lombok.NonNull
-    @lombok.Builder.Default
-    private ProcQuality quality = ProcQuality.Undefined;
+//    @lombok.Builder.Default
+//    private ProcQuality quality = ProcQuality.Undefined;
+    private ProcQuality quality;
 
     @lombok.NonNull
-    @lombok.Builder.Default
-    private String[] warnings = EMPTY;
+//    @lombok.Builder.Default
+//    private String[] warnings = EMPTY;
+    private String[] warnings;
 
     @lombok.NonNull
-    @lombok.Builder.Default
-    private String name = NONAME;
+//    @lombok.Builder.Default
+//    private String name = NONAME;
+    private String name;
 
     @lombok.Singular("meta")
     private Map<String, String> metaData;
@@ -144,7 +156,7 @@ public class SaItemType {
         if (md != null) {
             List<Information<String>> sel = md.deepSelect(String.class);
             for (Information<String> sinfo : sel) {
-                builder.meta(sinfo.name, sinfo.value);
+                builder.meta(sinfo.name, (String) sinfo.value);
             }
         }
         

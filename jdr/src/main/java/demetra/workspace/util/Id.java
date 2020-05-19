@@ -16,7 +16,8 @@
  */
 package demetra.workspace.util;
 
-import javax.annotation.Nonnull;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 
 /**
  *
@@ -85,7 +86,7 @@ public interface Id extends Comparable<Id> {
         return 0;
     }
 
-    @Nonnull
+    @NonNull
     default String[] toArray() {
         String[] result = new String[getCount()];
         for (int i = 0; i < result.length; i++) {

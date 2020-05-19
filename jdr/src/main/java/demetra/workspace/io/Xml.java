@@ -25,7 +25,7 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * Set of utilities related to XML.
@@ -37,43 +37,43 @@ public class Xml {
 
     public interface Parser<T> {
 
-        @Nonnull
-        default T parseChars(@Nonnull CharSequence source) throws IOException {
+        @NonNull
+        default T parseChars(@NonNull CharSequence source) throws IOException {
             return parseReader(() -> new StringReader(source.toString()));
         }
 
-        @Nonnull
-        default T parseFile(@Nonnull File source) throws IOException {
+        @NonNull
+        default T parseFile(@NonNull File source) throws IOException {
             return parseStream(() -> new FileInputStream(source));
         }
 
-        @Nonnull
-        default T parsePath(@Nonnull Path source) throws IOException {
+        @NonNull
+        default T parsePath(@NonNull Path source) throws IOException {
             Optional<File> file = IO.getFile(source);
             return file.isPresent()
                     ? parseFile(file.get())
                     : parseReader(() -> Files.newBufferedReader(source));
         }
 
-        @Nonnull
-        default T parseReader(@Nonnull IO.Supplier<? extends Reader> source) throws IOException {
+        @NonNull
+        default T parseReader(IO.Supplier<? extends Reader> source) throws IOException {
             try (Reader resource = source.getWithIO()) {
                 return parseReader(resource);
             }
         }
 
-        @Nonnull
-        default T parseStream(@Nonnull IO.Supplier<? extends InputStream> source) throws IOException {
+        @NonNull
+        default T parseStream(IO.Supplier<? extends InputStream> source) throws IOException {
             try (InputStream resource = source.getWithIO()) {
                 return parseStream(resource);
             }
         }
 
-        @Nonnull
-        T parseReader(@Nonnull Reader resource) throws IOException;
+        @NonNull
+        T parseReader(@NonNull Reader resource) throws IOException;
 
-        @Nonnull
-        T parseStream(@Nonnull InputStream resource) throws IOException;
+        @NonNull
+        T parseStream(@NonNull InputStream resource) throws IOException;
     }
 
     public static final class WrappedException extends IOException {
