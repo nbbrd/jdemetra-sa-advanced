@@ -24,9 +24,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  *
@@ -35,8 +35,8 @@ import javax.xml.bind.JAXBException;
  */
 public final class XmlConverterSupport implements FileSupport {
 
-    @Nonnull
-    public static FileSupport of(@Nonnull Supplier<? extends IXmlConverter> factory, @Nonnull String repository) {
+    @NonNull
+    public static FileSupport of(@NonNull Supplier<? extends IXmlConverter> factory, @NonNull String repository) {
         return new XmlConverterSupport(factory, repository);
     }
 

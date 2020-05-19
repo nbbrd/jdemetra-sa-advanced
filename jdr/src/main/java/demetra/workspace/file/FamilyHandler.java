@@ -20,7 +20,7 @@ import demetra.workspace.WorkspaceFamily;
 import ec.tstoolkit.design.ServiceDefinition;
 import java.io.IOException;
 import java.nio.file.Path;
-import javax.annotation.Nonnull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * Defines an extension point for FileWorkspace that allows it to deal with new
@@ -32,17 +32,17 @@ import javax.annotation.Nonnull;
 @ServiceDefinition
 public interface FamilyHandler {
 
-    @Nonnull
+    @NonNull
     WorkspaceFamily getFamily();
 
-    @Nonnull
+    @NonNull
     FileFormat getFormat();
 
-    @Nonnull
-    Path resolveFile(@Nonnull Path root, @Nonnull String fileName);
+    @NonNull
+    Path resolveFile(@NonNull Path root, @NonNull String fileName);
 
-    @Nonnull
-    Object read(@Nonnull Path root, @Nonnull String fileName) throws IOException;
+    @NonNull
+    Object read(@NonNull Path root, @NonNull String fileName) throws IOException;
 
-    void write(@Nonnull Path root, @Nonnull String fileName, @Nonnull Object value) throws IOException;
+    void write(@NonNull Path root, @NonNull String fileName, @NonNull Object value) throws IOException;
 }

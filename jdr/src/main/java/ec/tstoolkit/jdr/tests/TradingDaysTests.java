@@ -26,10 +26,7 @@ import ec.tstoolkit.timeseries.regression.GregorianCalendarVariables;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
