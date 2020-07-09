@@ -9,7 +9,7 @@
         <junit.version>4.13</junit.version>
         <assertj.version>3.16.1</assertj.version>
         <lombok.version>1.18.12</lombok.version>
-        <jdemetra.version>2.2.3-RC2</jdemetra.version>
+        <jdemetra.version>2.2.3</jdemetra.version>
         <nbdemetra.version>2.2.3-RC1</nbdemetra.version>
         <nbbdemetra.version>2.2.3-RC1</nbbdemetra.version>
     </properties>
