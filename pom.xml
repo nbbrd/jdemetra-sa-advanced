@@ -8,7 +8,7 @@
         <!-- < plugins versions -->
         <junit.version>4.13.1</junit.version>
         <assertj.version>3.17.2</assertj.version>
-        <lombok.version>1.18.14</lombok.version>
+        <lombok.version>1.18.16</lombok.version>
         <jdemetra.version>2.2.3</jdemetra.version>
         <nbdemetra.version>2.2.3-RC1</nbdemetra.version>
         <nbbdemetra.version>2.2.3-RC1</nbbdemetra.version>
