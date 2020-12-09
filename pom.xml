@@ -55,7 +55,7 @@
             <url>https://joinup.ec.europa.eu/software/page/eupl/licence-eupl</url>
         </license>
     </licenses>
-    
+
     <dependencyManagement>
         <dependencies>
             <!-- dev tools > -->
@@ -141,6 +141,19 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- Clean binaries directory -->
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>binaries</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>

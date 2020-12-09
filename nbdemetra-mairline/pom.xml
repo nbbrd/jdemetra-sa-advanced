@@ -13,6 +13,10 @@
     <description>Airline + Seasonal noise models (called mixed airline)
     </description>
 
+    <properties>
+        <project.x.binaries>${project.basedir}/../binaries</project.x.binaries>
+    </properties>
+
     <dependencies>
         <!-- NetBeans -->
         <dependency>
@@ -113,5 +117,26 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/${project.build.finalName}.nbm"
+                                      tofile="${project.x.binaries}/${project.build.finalName}.nbm"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>
