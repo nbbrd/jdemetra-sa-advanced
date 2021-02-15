@@ -6,7 +6,7 @@
         <nbm-maven-plugin.version>4.1</nbm-maven-plugin.version>
         <brandingToken>nbbdemetra</brandingToken>
         <!-- < plugins versions -->
-        <junit.version>4.13.1</junit.version>
+        <junit.version>4.13.2</junit.version>
         <assertj.version>3.19.0</assertj.version>
         <lombok.version>1.18.18</lombok.version>
         <jdemetra.version>2.2.3</jdemetra.version>
