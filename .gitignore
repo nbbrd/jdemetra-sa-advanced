@@ -1,11 +1,5 @@
-target
-/sts-core/nbproject/private/
-/sts-core/nbproject/
-/jdemetra-ssf/nbproject/
-/jdemetra-core/nbproject/
-/jstl/nbproject/
-/sssts-core/nbproject/
+target/
+nbproject/
 nbactions.xml
-/jd_stl/nbactions.xml
-/mtd-core/nbproject/
+nb-configuration.xml
 /binaries/
