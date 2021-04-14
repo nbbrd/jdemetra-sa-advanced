@@ -31,7 +31,7 @@ import java.util.Map;
  * @author Jean Palate
  */
 @lombok.Value
-@lombok.Builder(builderClassName = "Builder", toBuilder = true)
+@lombok.Builder(toBuilder = true)
 public class SaItemType {
     
     public static Builder builder(){

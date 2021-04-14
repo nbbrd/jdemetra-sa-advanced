@@ -74,7 +74,7 @@ public class Stax {
         }
     }
 
-    @lombok.Builder(builderClassName = "Builder", toBuilder = true)
+    @lombok.Builder(toBuilder = true)
     public static final class StreamParser<T> implements Xml.Parser<T> {
 
         @NonNull
@@ -169,7 +169,7 @@ public class Stax {
         }
     }
 
-    @lombok.Builder(builderClassName = "Builder", toBuilder = true)
+    @lombok.Builder(toBuilder = true)
     public static final class EventParser<T> implements Xml.Parser<T> {
 
         @NonNull

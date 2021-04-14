@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @lombok.Value
-@lombok.Builder(builderClassName = "Builder")
+@lombok.Builder
 public class TsCollection {
 
     @lombok.NonNull
