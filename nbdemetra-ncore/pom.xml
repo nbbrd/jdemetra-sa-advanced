@@ -13,10 +13,6 @@
     <name>NbDemetra - New Core</name>
     <description>Wrapper module for new Demetra core libraries.</description>
 
-    <properties>
-        <project.x.binaries>${project.basedir}/../binaries</project.x.binaries>
-    </properties>
-
     <dependencies>
         <!-- NetBeans -->
         <dependency>
@@ -78,63 +74,6 @@
                         <publicPackage>ec.demetra.*</publicPackage>
                         <publicPackage>be.nbb.demetra.*</publicPackage>
                     </publicPackages>
-                </configuration>
-            </plugin>
-
-            <!-- Copies files to binaries -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.x.binaries}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${project.build.directory}</directory>
-                                    <includes>
-                                        <include>*.nbm</include>
-                                        <include>*.nbm.asc</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Generates SHA256 on binaries -->
-            <plugin>
-                <groupId>net.nicoulaj.maven.plugins</groupId>
-                <artifactId>checksum-maven-plugin</artifactId>
-                <version>1.11</version>
-                <executions>
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>files</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <algorithms>
-                        <algorithm>SHA-256</algorithm>
-                    </algorithms>
-                    <fileSets>
-                        <fileSet>
-                            <directory>${project.x.binaries}</directory>
-                            <excludes>
-                                <exclude>*.sha256</exclude>
-                                <exclude>*.asc</exclude>
-                            </excludes>
-                        </fileSet>
-                    </fileSets>
-                    <csvSummary>false</csvSummary>
                 </configuration>
             </plugin>
         </plugins>

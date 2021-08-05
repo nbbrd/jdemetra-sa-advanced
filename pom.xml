@@ -11,6 +11,7 @@
     <name>Demetra - Sa - Advanced</name>
     <description>Experimental SA methods extension for JDemetra+</description>
     <url>https://github.com/nbbrd/jdemetra-sa-advanced</url>
+    <inceptionYear>2015</inceptionYear>
 
     <organization>
         <name>National Bank of Belgium</name>
@@ -72,6 +73,7 @@
         <module>jd_stl</module>
         <module>mtd-core</module>
         <module>jdr</module>
+        <module>demetra-sa-advanced-binaries</module>
     </modules>
 
     <dependencyManagement>
@@ -388,40 +390,6 @@
                                 <versionTagPrefix>v</versionTagPrefix>
                             </gitFlowConfig>
                         </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Base deploy -->
-        <profile>
-            <id>base-deploy</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.2.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.simplify4u.plugins</groupId>
-                        <artifactId>sign-maven-plugin</artifactId>
-                        <version>0.3.1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
