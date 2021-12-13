@@ -16,8 +16,8 @@
  */
 package ec.tstoolkit.jdr.ws;
 
-import demetra.algorithm.IProcResults;
-import demetra.datatypes.sa.SaItemType;
+import jd2.algorithm.IProcResults;
+import jd2.datatypes.sa.SaItemType;
 import ec.satoolkit.ISaSpecification;
 import ec.satoolkit.tramoseats.TramoSeatsSpecification;
 import ec.satoolkit.x13.X13Specification;

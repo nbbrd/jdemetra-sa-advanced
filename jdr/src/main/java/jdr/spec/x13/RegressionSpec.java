@@ -16,7 +16,7 @@
  */
 package jdr.spec.x13;
 
-import demetra.information.InformationExtractor;
+import jd2.information.InformationExtractor;
 import ec.tstoolkit.modelling.TsVariableDescriptor;
 import ec.tstoolkit.modelling.arima.x13.RegArimaSpecification;
 import ec.tstoolkit.timeseries.Day;

@@ -16,8 +16,8 @@
  */
 package ec.tstoolkit.jdr.regarima;
 
-import demetra.information.InformationExtractor;
-import demetra.information.InformationMapping;
+import jd2.information.InformationExtractor;
+import jd2.information.InformationMapping;
 import ec.tstoolkit.Parameter;
 import ec.tstoolkit.ParameterType;
 import ec.tstoolkit.arima.estimation.Forecasts;

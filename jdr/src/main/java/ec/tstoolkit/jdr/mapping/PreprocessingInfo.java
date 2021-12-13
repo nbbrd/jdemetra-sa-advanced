@@ -5,8 +5,8 @@
  */
 package ec.tstoolkit.jdr.mapping;
 
-import demetra.algorithm.IProcResults;
-import demetra.information.InformationMapping;
+import jd2.algorithm.IProcResults;
+import jd2.information.InformationMapping;
 import ec.tstoolkit.jdr.regarima.RegArimaInfo;
 import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import java.util.LinkedHashMap;

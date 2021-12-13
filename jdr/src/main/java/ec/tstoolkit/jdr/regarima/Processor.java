@@ -16,8 +16,8 @@
  */
 package ec.tstoolkit.jdr.regarima;
 
-import demetra.algorithm.IProcResults;
-import demetra.information.InformationMapping;
+import jd2.algorithm.IProcResults;
+import jd2.information.InformationMapping;
 import ec.tstoolkit.algorithm.ProcessingContext;
 import ec.tstoolkit.jdr.mapping.LikelihoodStatisticsInfo;
 import ec.tstoolkit.jdr.mapping.ResidualsInfo;

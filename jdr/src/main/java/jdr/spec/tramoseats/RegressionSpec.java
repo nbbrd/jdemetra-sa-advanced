@@ -4,7 +4,7 @@
  */
 package jdr.spec.tramoseats;
 
-import demetra.information.InformationExtractor;
+import jd2.information.InformationExtractor;
 import ec.tstoolkit.modelling.TsVariableDescriptor;
 import ec.tstoolkit.modelling.arima.tramo.TramoSpecification;
 import ec.tstoolkit.timeseries.Day;

@@ -4,11 +4,12 @@
     <parent>
         <groupId>be.nbb.demetra</groupId>
         <artifactId>demetra-sa-advanced-aggregator</artifactId>
-        <version>2.2.3-SNAPSHOT</version>
+        <version>2.2.3</version>
     </parent>
     
     <artifactId>jdr</artifactId>
     <name>JD for R</name>
+    <version>2.2.4</version>
 
     <dependencies>
         <!-- compile only -->
@@ -23,9 +24,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <scope>provided</scope>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
         </dependency>
         <!-- compile and runtime -->
         <dependency>
@@ -54,16 +54,8 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>dependency</classpathPrefix>
-                            <mainClass>ec.jbench.App</mainClass>
                         </manifest>
                     </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

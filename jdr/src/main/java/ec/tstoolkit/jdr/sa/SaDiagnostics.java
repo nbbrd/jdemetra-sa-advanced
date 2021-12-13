@@ -5,8 +5,8 @@
  */
 package ec.tstoolkit.jdr.sa;
 
-import demetra.algorithm.IProcResults;
-import demetra.information.InformationMapping;
+import jd2.algorithm.IProcResults;
+import jd2.information.InformationMapping;
 import ec.satoolkit.DecompositionMode;
 import ec.satoolkit.ISaResults;
 import ec.satoolkit.ISeriesDecomposition;
