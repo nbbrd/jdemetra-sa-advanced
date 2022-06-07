@@ -38,9 +38,9 @@ import ec.tstoolkit.timeseries.regression.GregorianCalendarVariables;
 import ec.tstoolkit.timeseries.regression.RegressionUtilities;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
 import ec.tstoolkit.timeseries.simplets.TsFrequency;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -130,7 +130,7 @@ public class RegSsfTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestReg() {
         long t0 = System.currentTimeMillis();
         for (int k = 0; k < M; ++k) {

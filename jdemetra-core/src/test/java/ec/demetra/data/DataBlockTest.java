@@ -5,9 +5,9 @@
  */
 package ec.demetra.data;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -19,7 +19,7 @@ public class DataBlockTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTest() {
         ec.tstoolkit.data.DataBlock xx = new ec.tstoolkit.data.DataBlock(1000);
         DataBlock xxx = DataBlock.create(1000);

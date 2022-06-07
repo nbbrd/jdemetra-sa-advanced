@@ -22,8 +22,8 @@ import ec.tstoolkit.data.DataBlockStorage;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.tstoolkit.data.DescriptiveStatistics;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -48,7 +48,7 @@ public class DiffuseSimulationSmootherTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestUcarima() {
         int CMP = 0;
         long t0 = System.currentTimeMillis();
@@ -85,7 +85,7 @@ public class DiffuseSimulationSmootherTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestBsm() {
         int CMP = 1;
         long t0 = System.currentTimeMillis();

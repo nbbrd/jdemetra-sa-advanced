@@ -19,9 +19,9 @@ package be.nbb.demetra.stl;
 import data.Data;
 import ec.demetra.timeseries.simplets.TsData;
 import ec.tstoolkit.data.DataBlock;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Disabled;
 
 /**
  *
@@ -33,7 +33,7 @@ public class LoessFilterTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testNormal() {
         TsData s=Data.X;
         double[] d = s.data();

@@ -23,9 +23,9 @@ import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.tstoolkit.data.DescriptiveStatistics;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.List;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -37,7 +37,7 @@ public class SSHSMonitorTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void test1() {
         SSHSMonitor monitor = new SSHSMonitor();
         ModelSpecification mspec = new ModelSpecification();
@@ -57,7 +57,7 @@ public class SSHSMonitorTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testSimulation() {
         ModelSpecification mspec = new ModelSpecification();
         SeasonalSpecification sspec = new SeasonalSpecification();

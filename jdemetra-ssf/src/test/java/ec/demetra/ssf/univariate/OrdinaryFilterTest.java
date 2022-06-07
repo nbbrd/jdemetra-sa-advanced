@@ -33,10 +33,8 @@ import ec.demetra.ssf.multivariate.PredictionErrorsDecomposition;
 import ec.demetra.ssf.multivariate.MultivariateSsf;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.Periodogram;
-import ec.tstoolkit.data.ReadDataBlock;
-import static org.junit.Assert.assertTrue;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -114,7 +112,7 @@ public class OrdinaryFilterTest {
         ILikelihood ll = pe.likelihood();
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void stressTest1() {
         for (int q = 0; q < 2; ++q) {

@@ -22,8 +22,8 @@ import ec.tstoolkit.sarima.SarimaSpecification;
 import ec.demetra.ssf.dk.sqrt.DiffuseSquareRootInitializer;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.implementations.arima.SsfArima;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

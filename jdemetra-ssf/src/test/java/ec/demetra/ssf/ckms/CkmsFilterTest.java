@@ -22,8 +22,8 @@ import ec.demetra.ssf.dk.DiffusePredictionErrorDecomposition;
 import ec.demetra.ssf.dk.sqrt.DiffuseSquareRootInitializer;
 import ec.demetra.ssf.implementations.arima.SsfUcarima;
 import ec.demetra.ssf.univariate.SsfData;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -50,7 +50,7 @@ public class CkmsFilterTest {
 
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTest() {
         SsfUcarima ssf = SsfUcarima.create(Models.ucmAirline(-.6, -.4));
         SsfData y = new SsfData(Data.P);

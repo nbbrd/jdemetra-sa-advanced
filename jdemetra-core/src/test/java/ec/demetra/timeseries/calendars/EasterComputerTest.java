@@ -22,10 +22,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import static java.time.temporal.ChronoUnit.DAYS;
-import org.junit.Assert;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -37,7 +37,7 @@ public class EasterComputerTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void demoEaster() {
         int[] count = new int[35];
         for (int i = 0; i < 5700000; ++i) {
@@ -59,20 +59,20 @@ public class EasterComputerTest {
 //            System.out.print(easter);
 //            System.out.print("  ");
 //            System.out.println(easter2);
-            Assert.assertEquals(easter, easter2);
+            Assertions.assertEquals(easter, easter2);
         }
     }
 
     @Test
     public void testJulianEaster() {
-        Assert.assertEquals(EasterComputer.julianEaster(2008, true), LocalDate.of(2008, Month.APRIL, 27));
-        Assert.assertEquals(EasterComputer.julianEaster(2009, true), LocalDate.of(2009, Month.APRIL, 19));
-        Assert.assertEquals(EasterComputer.julianEaster(2010, true), LocalDate.of(2010, Month.APRIL, 4));
-        Assert.assertEquals(EasterComputer.julianEaster(2011, true), LocalDate.of(2011, Month.APRIL, 24));
-        Assert.assertEquals(EasterComputer.julianEaster2(2008, true), LocalDate.of(2008, Month.APRIL, 27));
-        Assert.assertEquals(EasterComputer.julianEaster2(2009, true), LocalDate.of(2009, Month.APRIL, 19));
-        Assert.assertEquals(EasterComputer.julianEaster2(2010, true), LocalDate.of(2010, Month.APRIL, 4));
-        Assert.assertEquals(EasterComputer.julianEaster2(2011, true), LocalDate.of(2011, Month.APRIL, 24));
+        Assertions.assertEquals(EasterComputer.julianEaster(2008, true), LocalDate.of(2008, Month.APRIL, 27));
+        Assertions.assertEquals(EasterComputer.julianEaster(2009, true), LocalDate.of(2009, Month.APRIL, 19));
+        Assertions.assertEquals(EasterComputer.julianEaster(2010, true), LocalDate.of(2010, Month.APRIL, 4));
+        Assertions.assertEquals(EasterComputer.julianEaster(2011, true), LocalDate.of(2011, Month.APRIL, 24));
+        Assertions.assertEquals(EasterComputer.julianEaster2(2008, true), LocalDate.of(2008, Month.APRIL, 27));
+        Assertions.assertEquals(EasterComputer.julianEaster2(2009, true), LocalDate.of(2009, Month.APRIL, 19));
+        Assertions.assertEquals(EasterComputer.julianEaster2(2010, true), LocalDate.of(2010, Month.APRIL, 4));
+        Assertions.assertEquals(EasterComputer.julianEaster2(2011, true), LocalDate.of(2011, Month.APRIL, 24));
     }
 
     @Test

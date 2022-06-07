@@ -27,9 +27,10 @@ import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.univariate.PredictionErrorDecomposition;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.eco.ILikelihood;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
@@ -66,7 +67,7 @@ public class SsfBsmTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestBsm() {
         testBsm();
         SsfData data = new SsfData(Data.X);

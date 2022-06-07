@@ -11,8 +11,8 @@ import ec.satoolkit.x13.X13Specification;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.jdr.mapping.SarimaInfo;
 import ec.tstoolkit.timeseries.simplets.TsData;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

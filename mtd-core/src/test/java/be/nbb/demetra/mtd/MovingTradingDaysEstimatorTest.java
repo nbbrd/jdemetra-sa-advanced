@@ -8,8 +8,8 @@ package be.nbb.demetra.mtd;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.modelling.arima.tramo.TramoSpecification;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

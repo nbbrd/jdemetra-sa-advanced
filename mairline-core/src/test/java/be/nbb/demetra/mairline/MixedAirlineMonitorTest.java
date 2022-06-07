@@ -10,9 +10,9 @@ import data.Data;
 import ec.tstoolkit.data.DescriptiveStatistics;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.List;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -24,7 +24,7 @@ public class MixedAirlineMonitorTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testSimulation() {
         MaSpecification mspec=new MaSpecification();
         //mspec.method= EstimationMethod.Iterative;

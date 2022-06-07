@@ -22,8 +22,8 @@ import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.demetra.eco.ILikelihood;
-import org.junit.Test;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -59,7 +59,7 @@ public class MixedAirlineSsfTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testEstimate() {
         long t0 = System.currentTimeMillis();
         MixedAirlineModel rslt = null;
@@ -81,7 +81,7 @@ public class MixedAirlineSsfTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testEstimate2() {
         long t0 = System.currentTimeMillis();
         MixedAirlineModel rslt = null;
@@ -103,7 +103,7 @@ public class MixedAirlineSsfTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTest() {
         MixedAirlineModel model = new MixedAirlineModel();
         model.setFrequency(12);

@@ -25,9 +25,9 @@ import ec.demetra.ssf.implementations.Measurement;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
 import ec.demetra.ssf.univariate.Ssf;
 import ec.demetra.ssf.univariate.SsfData;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -67,7 +67,7 @@ public class SeasonalComponentTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testStressLL() {
         ModelSpecification spec = new ModelSpecification();
         spec.useLevel(ComponentUse.Free);

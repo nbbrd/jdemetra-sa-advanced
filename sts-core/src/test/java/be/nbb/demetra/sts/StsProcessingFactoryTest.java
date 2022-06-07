@@ -23,8 +23,8 @@ import ec.demetra.ssf.implementations.structural.ComponentUse;
 import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.tstoolkit.algorithm.CompositeResults;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

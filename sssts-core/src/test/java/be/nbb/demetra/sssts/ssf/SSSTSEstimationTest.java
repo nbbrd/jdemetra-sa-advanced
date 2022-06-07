@@ -26,8 +26,8 @@ import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.timeseries.simplets.TsData;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -65,7 +65,7 @@ public class SSSTSEstimationTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testCompute2() {
         model.setNoisyComponent(Component.Slope);
         SSSTSEstimation estimation = new SSSTSEstimation();
@@ -82,7 +82,7 @@ public class SSSTSEstimationTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testCompute2bis() {
         model.setNoisyComponent(Component.Slope);
         model.setNoisyPeriods(null);

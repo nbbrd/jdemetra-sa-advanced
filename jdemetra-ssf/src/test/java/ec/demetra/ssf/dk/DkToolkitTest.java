@@ -27,9 +27,11 @@ import ec.demetra.ssf.implementations.arima.SsfArima;
 import ec.demetra.ssf.univariate.ISsf;
 import ec.demetra.ssf.univariate.SsfData;
 import java.util.Arrays;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
-import org.junit.Ignore;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -75,7 +77,7 @@ public class DkToolkitTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testEstimation() {
 //        long t0 = System.currentTimeMillis();
 //        for (int i = 0; i < 1000; ++i) {
@@ -102,7 +104,7 @@ public class DkToolkitTest {
         DkLikelihood ll =  DkToolkit.likelihoodComputer(true, true).compute(ssf, ssfData);
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testStressLikelihood() {
         long t0 = System.currentTimeMillis();

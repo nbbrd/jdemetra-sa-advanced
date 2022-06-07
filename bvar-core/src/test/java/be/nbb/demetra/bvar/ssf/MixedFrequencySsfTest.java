@@ -40,9 +40,9 @@ import ec.demetra.ssf.univariate.PartialSmoothingResults;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Disabled;
 
 /**
  *
@@ -132,7 +132,7 @@ public class MixedFrequencySsfTest {
 //    }
 //    
     @Test
-    @Ignore
+    @Disabled
     public void stressTestLLC() {
         int Q = 10;
         System.out.println("With diffuse intercept");
@@ -231,7 +231,7 @@ public class MixedFrequencySsfTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testSimulation() {
         long t0 = System.currentTimeMillis();
         int K = 6, L = 6, N = 100000;

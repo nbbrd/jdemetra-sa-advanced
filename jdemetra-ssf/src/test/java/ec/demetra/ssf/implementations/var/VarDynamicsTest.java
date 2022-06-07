@@ -25,9 +25,9 @@ import ec.demetra.ssf.univariate.ISsf;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.maths.matrices.SymmetricMatrix;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -143,7 +143,7 @@ public class VarDynamicsTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestTX() {
         int K = 10, L = 20;
         VarDescriptor desc = new VarDescriptor(K, L);

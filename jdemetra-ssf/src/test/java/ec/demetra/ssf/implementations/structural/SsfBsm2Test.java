@@ -20,9 +20,10 @@ import data.Models;
 import ec.demetra.ssf.akf.AkfToolkit;
 import ec.demetra.ssf.ckms.CkmsToolkit;
 import ec.demetra.ssf.dk.DkToolkit;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
@@ -56,7 +57,7 @@ public class SsfBsm2Test {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestBsm() {
         testBsm();
         long t0 = System.currentTimeMillis();

@@ -24,8 +24,8 @@ import ec.tstoolkit.ucarima.ModelDecomposer;
 import ec.tstoolkit.ucarima.SeasonalSelector;
 import ec.tstoolkit.ucarima.TrendCycleSelector;
 import ec.tstoolkit.ucarima.UcarimaModel;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

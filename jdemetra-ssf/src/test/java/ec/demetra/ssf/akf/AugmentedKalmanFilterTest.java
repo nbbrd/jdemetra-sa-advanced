@@ -29,8 +29,8 @@ import ec.demetra.ssf.implementations.arima.SsfArima;
 import ec.demetra.ssf.univariate.FilteringErrors;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.maths.matrices.ElementaryTransformations;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -98,7 +98,7 @@ public class AugmentedKalmanFilterTest {
         dk.initialize(state, ssf, ssfdata);
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testStressInitialisation() {
         long t0 = System.currentTimeMillis();

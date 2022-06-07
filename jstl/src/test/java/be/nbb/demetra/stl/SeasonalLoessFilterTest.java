@@ -19,8 +19,8 @@ package be.nbb.demetra.stl;
 import data.Data;
 import ec.demetra.timeseries.simplets.TsData;
 import ec.tstoolkit.data.DataBlock;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

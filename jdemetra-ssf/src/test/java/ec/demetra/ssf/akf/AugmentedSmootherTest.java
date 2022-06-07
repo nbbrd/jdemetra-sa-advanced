@@ -20,9 +20,10 @@ import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.data.IReadDataBlock;
 import java.util.Random;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -73,7 +74,7 @@ public class AugmentedSmootherTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestSmoother() {
         int N = 5000;
         SsfUcarima ssf = SsfUcarima.create(ucm);

@@ -23,8 +23,8 @@ import ec.tstoolkit.sarima.SarimaSpecification;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.ucarima.UcarimaModel;
 import ec.demetra.ssf.implementations.arima.SsfUcarima;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -58,7 +58,7 @@ public class OrdinarySmootherTest {
     int N = 10000;
 
     @Test
-    @Ignore
+    @Disabled
     public void testSmoother() {
 
         UcarimaModel ucm = new UcarimaModel();

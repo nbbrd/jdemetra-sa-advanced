@@ -26,9 +26,8 @@ import ec.tstoolkit.timeseries.Month;
 import ec.tstoolkit.timeseries.TsPeriodSelector;
 import ec.tstoolkit.timeseries.calendars.TradingDaysType;
 import ec.tstoolkit.timeseries.simplets.TsData;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -56,7 +55,7 @@ public class SSHSProcessingFactoryTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testGradient() {
         SSHSSpecification spec = spec();
         spec.getDecompositionSpec().method = EstimationMethod.LikelihoodGradient;
@@ -72,7 +71,7 @@ public class SSHSProcessingFactoryTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testIterative() {
         SSHSSpecification spec = spec();
         spec.getDecompositionSpec().method = EstimationMethod.Iterative;

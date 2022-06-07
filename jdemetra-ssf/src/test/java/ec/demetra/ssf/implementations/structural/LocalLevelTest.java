@@ -25,9 +25,9 @@ import ec.demetra.ssf.dk.sqrt.DiffuseSquareRootInitializer;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.demetra.ssf.univariate.FilteringErrors;
 import ec.demetra.ssf.univariate.SsfData;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -80,7 +80,7 @@ public class LocalLevelTest {
         assertTrue(state.a().range(1, 2).distance(lstate.a()) < 1e-9);
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void stressTest_LL_Bsm() {
         ModelSpecification spec = new ModelSpecification();

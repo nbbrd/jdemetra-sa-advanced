@@ -36,9 +36,8 @@ import ec.demetra.ssf.univariate.ISsfData;
 import ec.demetra.ssf.univariate.OrdinaryFilter;
 import ec.demetra.ssf.univariate.PredictionErrorDecomposition;
 import ec.tstoolkit.maths.matrices.Matrix;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -50,7 +49,7 @@ public class VarTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestLL() {
         System.out.println("Without intercept");
         int Q = 10;
@@ -128,7 +127,7 @@ public class VarTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestLLC() {
         int Q = 10;
         System.out.println("With diffuse intercept");

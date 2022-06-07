@@ -25,9 +25,8 @@ import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.demetra.ssf.implementations.structural.SeasonalModel;
 import ec.demetra.ssf.implementations.structural.SsfBsm;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -44,7 +43,7 @@ public class MarginalLikelihoodTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testLikelihood() {
         for (int i = 1; i < 100; ++i) {
             model.setVariance(Component.Seasonal, .1*i);

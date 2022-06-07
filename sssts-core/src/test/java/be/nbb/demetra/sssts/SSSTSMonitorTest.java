@@ -21,9 +21,8 @@ import data.Data;
 import ec.demetra.ssf.implementations.structural.Component;
 import ec.demetra.ssf.implementations.structural.ModelSpecification;
 import ec.tstoolkit.timeseries.simplets.TsData;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
