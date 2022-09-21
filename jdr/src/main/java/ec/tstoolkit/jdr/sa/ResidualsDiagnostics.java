@@ -16,8 +16,8 @@
  */
 package ec.tstoolkit.jdr.sa;
 
-import demetra.algorithm.IProcResults;
-import demetra.information.InformationMapping;
+import jd2.algorithm.IProcResults;
+import jd2.information.InformationMapping;
 import ec.satoolkit.GenericSaResults;
 import ec.tstoolkit.algorithm.CompositeResults;
 import ec.tstoolkit.algorithm.ProcQuality;

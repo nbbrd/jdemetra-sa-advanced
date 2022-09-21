@@ -16,7 +16,7 @@
  */
 package ec.tstoolkit.jdr.tests;
 
-import demetra.information.InformationMapping;
+import jd2.information.InformationMapping;
 import ec.satoolkit.diagnostics.CombinedSeasonalityTest;
 
 /**

@@ -5,7 +5,7 @@
  */
 package ec.tstoolkit.jdr.x11;
 
-import demetra.information.InformationMapping;
+import jd2.information.InformationMapping;
 import ec.satoolkit.x11.Mstatistics;
 
 /**

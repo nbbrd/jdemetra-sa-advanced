@@ -10,8 +10,6 @@ import ec.satoolkit.tramoseats.TramoSeatsSpecification;
 import ec.satoolkit.x13.X13Specification;
 import java.io.IOException;
 import jdr.spec.ts.Utility.Dictionary;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

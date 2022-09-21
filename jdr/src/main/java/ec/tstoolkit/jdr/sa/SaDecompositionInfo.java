@@ -16,7 +16,7 @@
  */
 package ec.tstoolkit.jdr.sa;
 
-import demetra.information.InformationMapping;
+import jd2.information.InformationMapping;
 import ec.satoolkit.DecompositionMode;
 import ec.satoolkit.ISeriesDecomposition;
 import ec.tstoolkit.modelling.ComponentInformation;

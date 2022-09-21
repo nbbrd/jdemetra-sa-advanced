@@ -5,13 +5,13 @@
  */
 package ec.tstoolkit.jdr.x11;
 
-import demetra.information.InformationMapping;
+import jd2.information.InformationMapping;
 import ec.satoolkit.x11.Mstatistics;
 import ec.satoolkit.x11.X11Kernel;
 import ec.satoolkit.x11.X11Results;
 import ec.satoolkit.x11.X11Specification;
 import ec.satoolkit.x11.X11Toolkit;
-import demetra.algorithm.IProcResults;
+import jd2.algorithm.IProcResults;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.LinkedHashMap;
 import java.util.List;

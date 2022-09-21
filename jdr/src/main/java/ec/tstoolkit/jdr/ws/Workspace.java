@@ -16,15 +16,15 @@
  */
 package ec.tstoolkit.jdr.ws;
 
-import demetra.datatypes.Ts;
-import demetra.datatypes.sa.SaProcessingType;
-import demetra.datatypes.sa.SaItemType;
-import demetra.workspace.WorkspaceFamily;
-import demetra.workspace.WorkspaceItem;
-import demetra.workspace.file.FileFormat;
-import demetra.workspace.file.FileRepository;
-import demetra.workspace.file.FileWorkspace;
-import demetra.workspace.util.Paths;
+import jd2.datatypes.Ts;
+import jd2.datatypes.sa.SaProcessingType;
+import jd2.datatypes.sa.SaItemType;
+import jd2.workspace.WorkspaceFamily;
+import jd2.workspace.WorkspaceItem;
+import jd2.workspace.file.FileFormat;
+import jd2.workspace.file.FileRepository;
+import jd2.workspace.file.FileWorkspace;
+import jd2.workspace.util.Paths;
 import ec.satoolkit.tramoseats.TramoSeatsSpecification;
 import ec.tstoolkit.algorithm.ProcessingContext;
 import ec.tstoolkit.jdr.sa.Processor;

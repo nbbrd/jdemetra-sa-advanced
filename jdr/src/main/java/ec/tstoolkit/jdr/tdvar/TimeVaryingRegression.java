@@ -5,8 +5,8 @@
  */
 package ec.tstoolkit.jdr.tdvar;
 
-import demetra.algorithm.IProcResults;
-import demetra.information.InformationMapping;
+import jd2.algorithm.IProcResults;
+import jd2.information.InformationMapping;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IDataBlock;
 import ec.tstoolkit.data.IReadDataBlock;

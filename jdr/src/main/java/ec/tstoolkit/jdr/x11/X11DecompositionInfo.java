@@ -5,8 +5,8 @@
  */
 package ec.tstoolkit.jdr.x11;
 
-import static demetra.information.InformationExtractor.concatenate;
-import demetra.information.InformationMapping;
+import static jd2.information.InformationExtractor.concatenate;
+import jd2.information.InformationMapping;
 import ec.satoolkit.x11.X11Results;
 import ec.tstoolkit.timeseries.simplets.TsData;
 

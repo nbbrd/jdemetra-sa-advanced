@@ -17,8 +17,8 @@
 package jdr.spec.ts;
 
 import ec.tstoolkit.timeseries.Day;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static junit.framework.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  *

@@ -4,7 +4,7 @@
     <parent>
         <groupId>be.nbb.demetra</groupId>
         <artifactId>demetra-sa-advanced-aggregator</artifactId>
-        <version>2.2.3-RC1</version>
+        <version>2.2.4-RC1</version>
     </parent>
     
     <artifactId>jdr</artifactId>
@@ -12,12 +12,6 @@
 
     <dependencies>
         <!-- compile only -->
-        <!-- compile only -->
-        <dependency>
-            <groupId>org.checkerframework</groupId>
-            <artifactId>checker-qual</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
@@ -27,6 +21,10 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
         </dependency>
         <!-- compile and runtime -->
         <dependency>
@@ -39,8 +37,9 @@
         </dependency>
         <!-- test only -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -55,18 +54,10 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>dependency</classpathPrefix>
-                            <mainClass>ec.jbench.App</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
-            <!--plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin-->
         </plugins>
     </build>
 </project>

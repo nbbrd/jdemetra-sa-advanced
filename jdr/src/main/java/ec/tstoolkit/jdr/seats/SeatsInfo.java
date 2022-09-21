@@ -16,7 +16,7 @@
  */
 package ec.tstoolkit.jdr.seats;
 
-import demetra.information.InformationMapping;
+import jd2.information.InformationMapping;
 import ec.satoolkit.seats.SeatsResults;
 import ec.tstoolkit.arima.ArimaModel;
 import ec.tstoolkit.jdr.mapping.ArimaInfo;

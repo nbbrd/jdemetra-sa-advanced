@@ -16,8 +16,8 @@
  */
 package ec.tstoolkit.jdr.tests;
 
-import demetra.algorithm.IProcResults;
-import demetra.information.InformationMapping;
+import jd2.algorithm.IProcResults;
+import jd2.information.InformationMapping;
 import ec.satoolkit.diagnostics.CombinedSeasonalityTest;
 import ec.satoolkit.diagnostics.FriedmanTest;
 import ec.satoolkit.diagnostics.KruskalWallisTest;

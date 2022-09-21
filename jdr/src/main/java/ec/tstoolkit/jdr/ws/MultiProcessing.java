@@ -16,11 +16,11 @@
  */
 package ec.tstoolkit.jdr.ws;
 
-import demetra.datatypes.Ts;
-import demetra.datatypes.TsInformationType;
-import demetra.datatypes.TsMoniker;
-import demetra.datatypes.sa.SaItemType;
-import demetra.datatypes.sa.SaProcessingType;
+import jd2.datatypes.Ts;
+import jd2.datatypes.TsInformationType;
+import jd2.datatypes.TsMoniker;
+import jd2.datatypes.sa.SaItemType;
+import jd2.datatypes.sa.SaProcessingType;
 import ec.satoolkit.tramoseats.TramoSeatsSpecification;
 import ec.satoolkit.x13.X13Specification;
 import ec.tstoolkit.algorithm.ProcessingContext;

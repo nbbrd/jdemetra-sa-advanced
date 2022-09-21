@@ -16,7 +16,7 @@
  */
 package ec.tstoolkit.jdr.mapping;
 
-import demetra.information.InformationMapping;
+import jd2.information.InformationMapping;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.sarima.SarimaModel;
 
