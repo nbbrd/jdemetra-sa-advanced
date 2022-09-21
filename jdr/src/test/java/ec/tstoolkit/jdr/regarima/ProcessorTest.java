@@ -22,8 +22,8 @@ import ec.tstoolkit.timeseries.simplets.TsData;
 import jdr.spec.tramoseats.TramoSpec;
 import jdr.spec.ts.Utility.Dictionary;
 import jdr.spec.x13.RegArimaSpec;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static junit.framework.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  *

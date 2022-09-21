@@ -4,12 +4,11 @@
     <parent>
         <groupId>be.nbb.demetra</groupId>
         <artifactId>demetra-sa-advanced-aggregator</artifactId>
-        <version>2.2.3</version>
+        <version>2.2.4-RC1</version>
     </parent>
     
     <artifactId>jdr</artifactId>
     <name>JD for R</name>
-    <version>2.2.4</version>
 
     <dependencies>
         <!-- compile only -->
@@ -40,6 +39,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

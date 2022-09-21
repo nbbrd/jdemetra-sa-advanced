@@ -16,13 +16,11 @@
  */
 package ec.tstoolkit.jdr.tdvar;
 
-import static ec.tstoolkit.arima.special.mixedfrequencies.EstimateSpec.Method.Matrix;
-import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.timeseries.simplets.TsFrequency;
 import ec.tstoolkit.timeseries.simplets.TsPeriod;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static junit.framework.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  *
