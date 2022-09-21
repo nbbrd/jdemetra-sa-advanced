@@ -22,8 +22,8 @@ import ec.tstoolkit.arima.ArimaModelBuilder;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.sarima.SarimaModelBuilder;
 import ec.demetra.ssf.univariate.SsfData;
-import org.junit.Test;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -64,7 +64,7 @@ public class AkfToolkitTest {
         DiffuseLikelihood ll = AkfToolkit.likelihoodComputer(true).compute(ssf, ssfData);
     }
     
-    @Ignore
+    @Disabled
     @Test
     public void testStressLikelihood() {
         long t0 = System.currentTimeMillis();

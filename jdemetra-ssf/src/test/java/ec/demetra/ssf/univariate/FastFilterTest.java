@@ -23,9 +23,10 @@ import ec.demetra.ssf.ResultsRange;
 import ec.demetra.ssf.dk.DefaultDiffuseFilteringResults;
 import ec.demetra.ssf.dk.DkToolkit;
 import ec.tstoolkit.data.DataBlockIterator;
-import static org.junit.Assert.assertTrue;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -39,7 +40,7 @@ public class FastFilterTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestUcarima() {
         ISsf ssf = Models.ssfUcarima;
         SsfData data = Models.ssfXRandom;

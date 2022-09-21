@@ -30,9 +30,9 @@ import ec.demetra.ssf.univariate.ISsfMeasurement;
 import ec.demetra.ssf.univariate.OrdinaryFilter;
 import ec.demetra.ssf.univariate.PredictionErrorDecomposition;
 import ec.demetra.ssf.univariate.SsfData;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -148,7 +148,7 @@ public class StochasticDifferenceTest {
         assertTrue(Math.abs(ll - ll1) < 1e-6);
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void stressTest1() {
         double ll = 0, ll1 = 0;

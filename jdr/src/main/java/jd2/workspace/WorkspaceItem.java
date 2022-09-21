@@ -23,7 +23,7 @@ package jd2.workspace;
  * @since 2.2.0
  */
 @lombok.Value
-@lombok.Builder(builderClassName = "Builder", toBuilder = true)
+@lombok.Builder(toBuilder = true)
 public class WorkspaceItem {
 
     /**

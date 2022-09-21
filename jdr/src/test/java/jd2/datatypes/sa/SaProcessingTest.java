@@ -19,8 +19,8 @@ package jd2.datatypes.sa;
 import jd2.datatypes.sa.SaProcessingType;
 import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.information.InformationSetSerializable;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

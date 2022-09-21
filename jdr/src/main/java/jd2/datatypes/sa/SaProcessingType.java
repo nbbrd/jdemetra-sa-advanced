@@ -67,7 +67,7 @@ public class SaProcessingType implements InformationSetSerializable {
         if (mset != null) {
             List<Information<String>> sel = mset.deepSelect(String.class);
             for (Information<String> sinfo : sel) {
-                metaData.put(sinfo.name, sinfo.value);
+                metaData.put(sinfo.name, (String) sinfo.value);
             }
         }
         // read the default specifications
@@ -79,7 +79,7 @@ public class SaProcessingType implements InformationSetSerializable {
         List<Information<InformationSet>> dspecs = defspec.select(InformationSet.class);
         HashMap<String, String> equivalence = new HashMap<>();
         for (Information<InformationSet> dspec : dspecs) {
-            ISaSpecification cur = SaManager.createSpecification(dspec.value);
+            ISaSpecification cur = SaManager.createSpecification((InformationSet) dspec.value);
             if (cur != null) {
                 // workaround to solve some old serialization problems
                 String cname = dic.get(cur);
@@ -92,7 +92,7 @@ public class SaProcessingType implements InformationSetSerializable {
         }
         List<Information<InformationSet>> sas = info.select("sa*", InformationSet.class);
         for (Information<InformationSet> sa : sas) {
-            SaItemType cur=SaItemType.read(sa.value, dic, equivalence);
+            SaItemType cur=SaItemType.read((InformationSet) sa.value, dic, equivalence);
             if (cur != null){
               items.add(cur);
             }

@@ -2,9 +2,9 @@ package ec.demetra.maths.matrices.implementation;
 
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CroutDoolittleTest {
     @SuppressWarnings("SuspiciousNameCombination")

@@ -31,9 +31,10 @@ import ec.demetra.ssf.univariate.DefaultSmoothingResults;
 import ec.demetra.ssf.univariate.SsfData;
 import ec.tstoolkit.data.DataBlock;
 import java.util.Random;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -102,7 +103,7 @@ public class DiffuseSmootherTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTestSmoothing() {
         int K=5000;
         long t0 = System.currentTimeMillis();

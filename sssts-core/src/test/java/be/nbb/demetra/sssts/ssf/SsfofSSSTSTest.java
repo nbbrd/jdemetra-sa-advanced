@@ -30,9 +30,9 @@ import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.DataBlockStorage;
 import ec.tstoolkit.maths.matrices.Matrix;
 import ec.tstoolkit.maths.matrices.SymmetricMatrix;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -52,7 +52,7 @@ public class SsfofSSSTSTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testSSLLTDyn() {
 
         SSLLTDyn dyn = new SSLLTDyn(model);

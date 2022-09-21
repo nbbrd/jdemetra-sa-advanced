@@ -6,9 +6,10 @@
 package ec.demetra.maths.matrices;
 
 import java.util.Random;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -20,7 +21,7 @@ public class SubMatrixTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOldMethod() {
         ec.tstoolkit.maths.matrices.Matrix Q = ec.tstoolkit.maths.matrices.Matrix.square(0);
         long t0 = System.currentTimeMillis();
@@ -37,7 +38,7 @@ public class SubMatrixTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testNewMethod() {
         Matrix Q = Matrix.square(0);
         long t0 = System.currentTimeMillis();
@@ -55,7 +56,7 @@ public class SubMatrixTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testProduct() {
         int L = 50, M = 30, N = 100, K = 100000;
         double[] a = new double[L * M];

@@ -21,9 +21,10 @@ import ec.demetra.timeseries.PeriodSelector;
 import ec.demetra.timeseries.TsAggregationType;
 import java.time.LocalDate;
 import java.time.Month;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -248,7 +249,7 @@ public class TsDataTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testDisplay() {
         for (TsObservation obs:Data.P){
             System.out.print(obs.getPeriod().firstDay());

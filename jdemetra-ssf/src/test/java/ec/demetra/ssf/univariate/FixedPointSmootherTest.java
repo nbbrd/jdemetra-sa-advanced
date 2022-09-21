@@ -19,9 +19,8 @@ package ec.demetra.ssf.univariate;
 import data.Models;
 import ec.tstoolkit.ucarima.UcarimaModel;
 import ec.demetra.ssf.implementations.arima.SsfUcarima;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -33,7 +32,7 @@ public class FixedPointSmootherTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testUcarima() {
         long t0=System.currentTimeMillis();
         FixedPointSmoother smoother=new FixedPointSmoother(data.Models.ssfUcarima, 60);

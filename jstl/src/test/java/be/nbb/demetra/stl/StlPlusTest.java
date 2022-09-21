@@ -19,8 +19,8 @@ package be.nbb.demetra.stl;
 import data.Data;
 import ec.demetra.timeseries.simplets.TsData;
 import java.util.Random;
-import org.junit.Test;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 /**
  *
@@ -100,7 +100,7 @@ public class StlPlusTest {
     }
 
     @Test
-      @Ignore
+      @Disabled
     public void stressTest() {
         long t0 = System.currentTimeMillis();
         for (int i = 0; i < 10000; ++i) {

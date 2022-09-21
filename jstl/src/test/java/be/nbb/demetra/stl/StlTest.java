@@ -20,8 +20,8 @@ import data.Data;
 import ec.demetra.timeseries.simplets.TsData;
 import ec.tstoolkit.data.DataBlock;
 import java.util.Random;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -86,7 +86,7 @@ public class StlTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void stressTest() {
         long t0 = System.currentTimeMillis();
         for (int i = 0; i < 10000; ++i) {

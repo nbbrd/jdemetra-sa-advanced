@@ -24,8 +24,8 @@ import ec.tstoolkit.timeseries.Month;
 import ec.tstoolkit.timeseries.TsPeriodSelector;
 import ec.tstoolkit.timeseries.calendars.TradingDaysType;
 import ec.tstoolkit.timeseries.simplets.TsData;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -51,7 +51,7 @@ public class MixedAirlineProcessingFactoryTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testGradient() {
         CompositeResults process = MixedAirlineProcessingFactory.process(s, spec());
         MixedAirlineResults results = process.get(MixedAirlineProcessingFactory.DECOMPOSITION, MixedAirlineResults.class);
@@ -63,7 +63,7 @@ public class MixedAirlineProcessingFactoryTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testIterative() {
         MixedAirlineSpecification spec = spec();
         spec.getDecompositionSpec().method = EstimationMethod.Iterative;
