@@ -48,14 +48,14 @@ public class MatrixSerializer {
     }
 
     public static void write(Matrix m, File file) throws FileNotFoundException, IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file.toPath())) {
             writer.write(m.toString());
         }
     }
     
     public static Matrix read(File file, Locale locale) throws FileNotFoundException, IOException {
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
             List<double[]> data = new ArrayList<>();
             String curline;
             int nc = 0;

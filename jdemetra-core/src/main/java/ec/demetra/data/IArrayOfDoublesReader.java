@@ -19,6 +19,8 @@ package ec.demetra.data;
 import ec.tstoolkit.design.Development;
 import ec.tstoolkit.utilities.IntList;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoublePredicate;
 import java.util.function.IntToDoubleFunction;
@@ -362,9 +364,10 @@ public interface IArrayOfDoublesReader {
         StringBuilder builder = new StringBuilder();
         int n=rd.getLength();
         if (n>0) {
-            builder.append(new DecimalFormat(fmt).format(rd.get(0)));
+            DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.getDefault(Locale.Category.FORMAT));
+            builder.append(new DecimalFormat(fmt, symbols).format(rd.get(0)));
             for (int i = 1; i <n; ++i) {
-                builder.append('\t').append(new DecimalFormat(fmt).format(rd.get(i)));
+                builder.append('\t').append(new DecimalFormat(fmt, symbols).format(rd.get(i)));
            }
         }
         builder.append(System.lineSeparator());

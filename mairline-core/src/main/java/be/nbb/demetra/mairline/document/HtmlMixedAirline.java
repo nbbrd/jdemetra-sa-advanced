@@ -28,7 +28,9 @@ import ec.tss.html.HtmlTag;
 import ec.tss.html.IHtmlElement;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 
 /**
  *
@@ -42,7 +44,7 @@ public class HtmlMixedAirline extends AbstractHtmlElement implements IHtmlElemen
     }
     private List<MixedAirlineMonitor.MixedEstimation> models;
     private int best;
-    private DecimalFormat df4 = new DecimalFormat("0.0000");
+    private DecimalFormat df4 = new DecimalFormat("0.0000", DecimalFormatSymbols.getInstance(Locale.getDefault(Locale.Category.FORMAT)));
 
     public void write(HtmlStream stream) throws IOException {
         stream.open(new HtmlTable(0, 500));

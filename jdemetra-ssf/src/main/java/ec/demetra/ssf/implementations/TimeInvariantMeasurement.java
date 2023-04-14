@@ -21,6 +21,8 @@ import ec.tstoolkit.data.DataBlockIterator;
 import ec.tstoolkit.maths.matrices.SubMatrix;
 import ec.demetra.ssf.univariate.ISsfMeasurement;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 /**
  *
@@ -118,7 +120,7 @@ public class TimeInvariantMeasurement implements ISsfMeasurement {
     public String toString(){
         StringBuilder builder=new StringBuilder();
         builder.append("Z:\r\n").append(Z.toString(FMT)).append("\r\n");
-        builder.append("H:\r\n").append(new DecimalFormat(FMT).format(var)).append("\r\n\r\n");
+        builder.append("H:\r\n").append(new DecimalFormat(FMT, DecimalFormatSymbols.getInstance(Locale.getDefault(Locale.Category.FORMAT))).format(var)).append("\r\n\r\n");
         return builder.toString();
     }
     private static final String FMT="0.#####";

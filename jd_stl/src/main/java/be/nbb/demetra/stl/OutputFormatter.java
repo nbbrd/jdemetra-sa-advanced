@@ -27,6 +27,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -39,7 +41,7 @@ public class OutputFormatter {
     public static void write(File file, String[] items, DataBlock coeff, DataBlock tstats) throws IOException {
         NumberFormat fmt = NumberFormat.getNumberInstance(Locale.ROOT);
         fmt.setGroupingUsed(false);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file.toPath())) {
             for (int i = 0; i < items.length; ++i) {
                 writer.append(items[i]);
                 writer.append('\t');
@@ -52,7 +54,7 @@ public class OutputFormatter {
     }
 
     public static void writeArima(File file, IArimaModel arima) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file.toPath())) {
             writer.append(arima.toString());
         }
     }
@@ -61,7 +63,7 @@ public class OutputFormatter {
         NumberFormat fmt = NumberFormat.getNumberInstance(Locale.ROOT);
         fmt.setMinimumFractionDigits(6);
         fmt.setGroupingUsed(false);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file.toPath())) {
             IReadDataBlock p = mapping.map(estimation.model.getArima());
             writer.append("Parameters");
             writer.newLine();

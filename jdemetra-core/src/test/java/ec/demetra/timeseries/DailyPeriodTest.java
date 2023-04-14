@@ -20,10 +20,10 @@ public class DailyPeriodTest {
 
     @Test
     public void testDay() {
-        LocalDate ld0=LocalDate.now();
+        LocalDate ld0=LocalDate.of(2010, 1, 2);
         DailyPeriod d0 = DailyPeriod.of(ld0);
         System.out.println(d0.toString());
-        LocalDate ld1=LocalDate.now();
+        LocalDate ld1=LocalDate.of(2010, 1, 2);
         DailyPeriod d1 = DailyPeriod.of(ld1);
         assertTrue(d0.equals(d1));
         assertTrue(d0.hashCode() == d1.hashCode());
@@ -33,8 +33,8 @@ public class DailyPeriodTest {
     
     @Test
     public void testDays() {
-        LocalDate ld0=LocalDate.now();
-        LocalDate ld1=LocalDate.now().plusDays(10);
+        LocalDate ld0=LocalDate.of(2010, 1, 2);
+        LocalDate ld1=LocalDate.of(2010, 1, 2).plusDays(10);
         DailyPeriod d0 = DailyPeriod.of(ld0, ld1);
         System.out.println(d0.toString());
         IDatePeriod d1 = DailyPeriod.of(ld0, ld0.plusDays(10));

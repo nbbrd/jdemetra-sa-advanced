@@ -46,6 +46,7 @@ import ec.tstoolkit.timeseries.regression.TsVariableSelection;
 import ec.tstoolkit.timeseries.simplets.TsFrequency;
 import java.io.IOException;
 import java.util.Formatter;
+import java.util.Locale;
 
 /**
  *
@@ -159,8 +160,8 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
             double var = bsm.getVariance(cmp[i]);
             stream.open(HtmlTag.TABLEROW);
             stream.write(new HtmlTableCell(cmp[i].name()));
-            stream.write(new HtmlTableCell(new Formatter().format(fmt, sig * var).toString()));
-            stream.write(new HtmlTableCell(new Formatter().format("%.4f", var).toString()));
+            stream.write(new HtmlTableCell(new Formatter(Locale.ROOT).format(fmt, sig * var).toString()));
+            stream.write(new HtmlTableCell(new Formatter(Locale.ROOT).format("%.4f", var).toString()));
             stream.close(HtmlTag.TABLEROW);
         }
         stream.close(HtmlTag.TABLE);
@@ -170,10 +171,10 @@ public class HtmlBsm extends AbstractHtmlElement implements IHtmlElement {
             stream.write(HtmlTag.HEADER3, h3, "Cycle");
             stream.write("Average length (in years): ");
             double len = bsm.getCyclicalPeriod() / bsm.getFrequency();
-            stream.write(new Formatter().format("%.1f", len).toString());
+            stream.write(new Formatter(Locale.ROOT).format("%.1f", len).toString());
             stream.newLine();
             stream.write("Dumping factor: ");
-            stream.write(new Formatter().format("%.3f", bsm.getCyclicalDumpingFactor()).toString());
+            stream.write(new Formatter(Locale.ROOT).format("%.3f", bsm.getCyclicalDumpingFactor()).toString());
         }
         stream.write(HtmlTag.LINEBREAK);
     }

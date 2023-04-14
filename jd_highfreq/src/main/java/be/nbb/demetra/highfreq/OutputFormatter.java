@@ -42,7 +42,7 @@ public class OutputFormatter {
     public static void write(File file, String[] items, DataBlock coeff, DataBlock tstats) throws IOException {
         NumberFormat fmt = NumberFormat.getNumberInstance(Locale.ROOT);
         fmt.setGroupingUsed(false);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file.toPath())) {
             for (int i = 0; i < items.length; ++i) {
                 writer.append(items[i]);
                 writer.append('\t');

@@ -23,6 +23,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Locale;
 
 /**
  *
@@ -78,7 +80,7 @@ public class App {
             if (cmd.length() == 0) {
                 return false;
             }
-            cmd = cmd.toLowerCase();
+            cmd = cmd.toLowerCase(Locale.ROOT);
 
             switch (cmd) {
                 case "-y": {
@@ -458,7 +460,7 @@ public class App {
         LjungBoxTest2 stest = new LjungBoxTest2();
         stest.setLags(lags);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(lbs))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(lbs.toPath())) {
             stest.test(y);
             OutputFormatter.writeLb(writer, "y", stest);
             stest.test(sa);
