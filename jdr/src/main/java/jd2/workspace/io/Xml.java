@@ -32,10 +32,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  *
  * @author Philippe Charles
  */
-@lombok.experimental.UtilityClass
-public class Xml {
+public final class Xml {
 
-    public interface Parser<T> {
+    private Xml() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
+    public static interface Parser<T> {
 
         @NonNull
         default T parseChars(@NonNull CharSequence source) throws IOException {

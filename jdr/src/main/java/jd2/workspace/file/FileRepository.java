@@ -16,15 +16,16 @@
  */
 package jd2.workspace.file;
 
-import jd2.datatypes.sa.SaProcessingType;
-import jd2.workspace.util.Paths;
-import jd2.workspace.WorkspaceItem;
-import jd2.workspace.WorkspaceFamily;
 import ec.tstoolkit.algorithm.ProcessingContext;
 import ec.tstoolkit.timeseries.calendars.GregorianCalendarManager;
 import ec.tstoolkit.timeseries.calendars.IGregorianCalendarProvider;
 import ec.tstoolkit.timeseries.regression.TsVariables;
 import ec.tstoolkit.utilities.NameManager;
+import jd2.datatypes.sa.SaProcessingType;
+import jd2.workspace.WorkspaceFamily;
+import jd2.workspace.WorkspaceItem;
+import jd2.workspace.util.Paths;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,17 +34,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- *
  * @author Jean Palate
  */
-@lombok.experimental.UtilityClass
-public class FileRepository {
-    public void storeSaProcessing(FileWorkspace ws, WorkspaceItem item, SaProcessingType processing) throws IOException {
+public final class FileRepository {
+    private FileRepository() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
+    public static void storeSaProcessing(FileWorkspace ws, WorkspaceItem item, SaProcessingType processing) throws IOException {
         makeSaProcessingBackup(ws, item);
         ws.store(item, processing);
     }
 
-    public Map<WorkspaceItem, SaProcessingType> loadAllSaProcessing(FileWorkspace ws, ProcessingContext context) throws IOException {
+    public static Map<WorkspaceItem, SaProcessingType> loadAllSaProcessing(FileWorkspace ws, ProcessingContext context) throws IOException {
         Map<WorkspaceItem, SaProcessingType> result = new LinkedHashMap<>();
         for (WorkspaceItem item : ws.getItems()) {
             WorkspaceFamily family = item.getFamily();
@@ -54,7 +57,7 @@ public class FileRepository {
         return result;
     }
 
-    public Map<WorkspaceItem, GregorianCalendarManager> loadAllCalendars(FileWorkspace ws, ProcessingContext context) throws IOException {
+    public static Map<WorkspaceItem, GregorianCalendarManager> loadAllCalendars(FileWorkspace ws, ProcessingContext context) throws IOException {
         Map<WorkspaceItem, GregorianCalendarManager> result = new LinkedHashMap<>();
         for (WorkspaceItem item : ws.getItems()) {
             WorkspaceFamily family = item.getFamily();
@@ -67,7 +70,7 @@ public class FileRepository {
         return result;
     }
 
-    public Map<WorkspaceItem, TsVariables> loadAllVariables(FileWorkspace ws, ProcessingContext context) throws IOException {
+    public static Map<WorkspaceItem, TsVariables> loadAllVariables(FileWorkspace ws, ProcessingContext context) throws IOException {
         Map<WorkspaceItem, TsVariables> result = new LinkedHashMap<>();
         for (WorkspaceItem item : ws.getItems()) {
             WorkspaceFamily family = item.getFamily();
@@ -80,19 +83,19 @@ public class FileRepository {
         return result;
     }
 
-    private void makeSaProcessingBackup(FileWorkspace ws, WorkspaceItem item) throws IOException {
+    private static void makeSaProcessingBackup(FileWorkspace ws, WorkspaceItem item) throws IOException {
         Path source = ws.getFile(item);
         Path target = source.getParent().resolve(Paths.changeExtension(source.getFileName().toString(), "bak"));
         Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private void applyVariables(ProcessingContext context, String id, TsVariables value) {
+    private static void applyVariables(ProcessingContext context, String id, TsVariables value) {
         NameManager<TsVariables> manager = context.getTsVariableManagers();
         manager.set(id, value);
         manager.resetDirty();
     }
 
-    private void applyCalendars(ProcessingContext context, GregorianCalendarManager value) {
+    private static void applyCalendars(ProcessingContext context, GregorianCalendarManager value) {
         GregorianCalendarManager manager = context.getGregorianCalendars();
         for (String s : value.getNames()) {
             if (!manager.contains(s)) {

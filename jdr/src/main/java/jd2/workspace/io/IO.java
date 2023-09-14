@@ -16,41 +16,31 @@
  */
 package jd2.workspace.io;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.io.*;
+import java.lang.annotation.*;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.StreamSupport;
 
 /**
  * Set of utilities related to IO.
  *
  * @author Philippe Charles
  */
-@lombok.experimental.UtilityClass
-public class IO {
+public final class IO {
+
+    private IO() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     /**
      * Represents a function without argument and result.
      */
     @FunctionalInterface
-    public interface Runnable {
+    public static interface Runnable {
 
         /**
          * Run this function.
@@ -65,7 +55,7 @@ public class IO {
             return this::runWithIO;
         }
 
-        
+
         default java.lang.Runnable asUnchecked() {
             return () -> {
                 try {
@@ -112,7 +102,7 @@ public class IO {
      * @param <T> the type of results supplied by this supplier
      */
     @FunctionalInterface
-    public interface Supplier<T> {
+    public static interface Supplier<T> {
 
         /**
          * Gets a result.
@@ -171,7 +161,7 @@ public class IO {
      * @param <R> the type of the result of the function
      */
     @FunctionalInterface
-    public interface Function<T, R> {
+    public static interface Function<T, R> {
 
         /**
          * Applies this function to the given argument.
@@ -189,13 +179,12 @@ public class IO {
          * If evaluation of either function throws an exception, it is relayed
          * to the caller of the composed function.
          *
-         * @param <V> the type of input to the {@code before} function, and to
-         * the composed function
+         * @param <V>    the type of input to the {@code before} function, and to
+         *               the composed function
          * @param before the function to apply before this function is applied
          * @return a composed function that first applies the {@code before}
          * function and then applies this function
          * @throws NullPointerException if before is null
-         *
          * @see #andThen(FunctionWithIO)
          */
         @JdkWithIO
@@ -211,13 +200,12 @@ public class IO {
          * evaluation of either function throws an exception, it is relayed to
          * the caller of the composed function.
          *
-         * @param <V> the type of output of the {@code after} function, and of
-         * the composed function
+         * @param <V>   the type of output of the {@code after} function, and of
+         *              the composed function
          * @param after the function to apply after this function is applied
          * @return a composed function that first applies this function and then
          * applies the {@code after} function
          * @throws NullPointerException if after is null
-         *
          * @see #compose(FunctionWithIO)
          */
         @JdkWithIO
@@ -237,7 +225,7 @@ public class IO {
             };
         }
 
-       static <T, R> java.util.function.Function<T, R> unchecked(@NonNull Function<T, R> o) {
+        static <T, R> java.util.function.Function<T, R> unchecked(@NonNull Function<T, R> o) {
             return o.asUnchecked();
         }
 
@@ -285,7 +273,7 @@ public class IO {
      * @param <T> the type of the input to the predicate
      */
     @FunctionalInterface
-    public interface Predicate<T> {
+    public static interface Predicate<T> {
 
         /**
          * Evaluates this predicate on the given argument.
@@ -310,7 +298,7 @@ public class IO {
          * exception, the {@code other} predicate will not be evaluated.
          *
          * @param other a predicate that will be logically-ANDed with this
-         * predicate
+         *              predicate
          * @return a composed predicate that represents the short-circuiting
          * logical AND of this predicate and the {@code other} predicate
          * @throws NullPointerException if other is null
@@ -347,7 +335,7 @@ public class IO {
          * exception, the {@code other} predicate will not be evaluated.
          *
          * @param other a predicate that will be logically-ORed with this
-         * predicate
+         *              predicate
          * @return a composed predicate that represents the short-circuiting
          * logical OR of this predicate and the {@code other} predicate
          * @throws NullPointerException if other is null
@@ -359,7 +347,7 @@ public class IO {
             return (t) -> testWithIO(t) || other.testWithIO(t);
         }
 
-         default java.util.function.Predicate<T> asUnchecked() {
+        default java.util.function.Predicate<T> asUnchecked() {
             return (T t) -> {
                 try {
                     return testWithIO(t);
@@ -373,7 +361,7 @@ public class IO {
             return o.asUnchecked();
         }
 
-         static <T> Predicate<T> checked(java.util.function.Predicate<T> predicate) {
+        static <T> Predicate<T> checked(java.util.function.Predicate<T> predicate) {
             Objects.requireNonNull(predicate);
             return o -> {
                 try {
@@ -396,9 +384,9 @@ public class IO {
          * Returns a predicate that tests if two arguments are equal according
          * to {@link Objects#equals(Object, Object)}.
          *
-         * @param <T> the type of arguments to the predicate
+         * @param <T>       the type of arguments to the predicate
          * @param targetRef the object reference with which to compare for
-         * equality, which may be {@code null}
+         *                  equality, which may be {@code null}
          * @return a predicate that tests if two arguments are equal according
          * to {@link Objects#equals(Object, Object)}
          */
@@ -424,7 +412,7 @@ public class IO {
      * @param <T> the type of the input to the operation
      */
     @FunctionalInterface
-    public interface Consumer<T> {
+    public static interface Consumer<T> {
 
         /**
          * Performs this operation on the given argument.
@@ -496,7 +484,7 @@ public class IO {
         }
     }
 
-    public interface ResourceLoader<K> extends Closeable {
+    public static interface ResourceLoader<K> extends Closeable {
 
         @NonNull
         InputStream load(@NonNull K key) throws IOException, IllegalStateException;
@@ -535,27 +523,30 @@ public class IO {
         }
     }
 
-    public interface ResourceStorer<K> extends Closeable {
+    public static interface ResourceStorer<K> extends Closeable {
 
         void store(@NonNull K key, @NonNull OutputStream output) throws IOException, IllegalStateException;
     }
 
-    public interface Resource<K> extends ResourceLoader<K>, ResourceStorer<K> {
+    public static interface Resource<K> extends ResourceLoader<K>, ResourceStorer<K> {
 
     }
 
-    @lombok.experimental.UtilityClass
     public static final class Stream {
 
-        public <T extends Closeable, R> java.util.stream.Stream<R> open(Supplier<T> source, Function<? super T, java.util.stream.Stream<R>> streamer) throws IOException {
+        private Stream() {
+            throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+        }
+
+        public static <T extends Closeable, R> java.util.stream.Stream<R> open(Supplier<T> source, Function<? super T, java.util.stream.Stream<R>> streamer) throws IOException {
             return Stream.<T, R>asParser(streamer).applyWithIO(source);
         }
 
-        public <T> java.util.stream.Stream<T> generateUntilNull(@NonNull Supplier<T> generator) {
+        public static <T> java.util.stream.Stream<T> generateUntilNull(@NonNull Supplier<T> generator) {
             return StreamSupport.stream(Spliterators.spliteratorUnknownSize(asIterator(generator), Spliterator.ORDERED | Spliterator.NONNULL), false);
         }
 
-        private <C extends Closeable, R> Function<Supplier<C>, java.util.stream.Stream<R>> asParser(Function<? super C, java.util.stream.Stream<R>> streamer) {
+        private static <C extends Closeable, R> Function<Supplier<C>, java.util.stream.Stream<R>> asParser(Function<? super C, java.util.stream.Stream<R>> streamer) {
             return flowOf(
                     source -> source.getWithIO(),
                     resource -> streamer.applyWithIO(resource).onClose(Runnable.unchecked(resource::close)),
@@ -564,7 +555,7 @@ public class IO {
         }
 
         @NonNull
-        private <T> Iterator<T> asIterator(@NonNull Supplier<T> nextSupplier) {
+        private static <T> Iterator<T> asIterator(@NonNull Supplier<T> nextSupplier) {
             Objects.requireNonNull(nextSupplier);
             return new Iterator<T>() {
                 T nextElement = null;
@@ -614,7 +605,7 @@ public class IO {
      * associated with the default provider
      */
     @NonNull
-    public Optional<File> getFile(@NonNull Path path) {
+    public static Optional<File> getFile(@NonNull Path path) {
         try {
             return Optional.of(path.toFile());
         } catch (UnsupportedOperationException ex) {
@@ -623,12 +614,12 @@ public class IO {
     }
 
     @NonNull
-    public Optional<InputStream> getResourceAsStream(@NonNull Class<?> type, @NonNull String name) {
+    public static Optional<InputStream> getResourceAsStream(@NonNull Class<?> type, @NonNull String name) {
         return Optional.ofNullable(type.getResourceAsStream(name));
     }
 
     @SuppressWarnings("ThrowableResultIgnored")
-     public <X extends Throwable> void ensureClosed(@NonNull X exception, @NonNull Closeable closeable) {
+    public static <X extends Throwable> void ensureClosed(@NonNull X exception, @NonNull Closeable closeable) {
         Objects.requireNonNull(exception);
         try {
             closeable.close();
@@ -678,7 +669,7 @@ public class IO {
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.SOURCE)
     @Documented
-    private @interface JdkWithIO {
+    private static @interface JdkWithIO {
 
         String value() default "";
     }

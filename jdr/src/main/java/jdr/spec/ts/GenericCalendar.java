@@ -11,27 +11,29 @@ import ec.tstoolkit.timeseries.calendars.GenericTradingDays;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
 
 /**
- *
  * @author Jean Palate <jean.palate@nbb.be>
  */
 public class GenericCalendar {
-@lombok.experimental.UtilityClass
-public class GenericCalendars {
+    public static final class GenericCalendars {
 
-    public Matrix td(TsDomain domain, int[] groups, boolean contrasts) {
-        DayClustering dc = DayClustering.create(groups);
-        if (contrasts) {
-            GenericTradingDays gtd = GenericTradingDays.contrasts(dc);
-            Matrix m = new Matrix(domain.getLength(), dc.getGroupsCount() - 1);
-            gtd.data(domain, m.columnList());
-            return m;
-        } else {
-            GenericTradingDays gtd = GenericTradingDays.of(dc);
-            Matrix m = new Matrix(domain.getLength(), dc.getGroupsCount());
-            gtd.data(domain, m.columnList());
-            return m;
+        private GenericCalendars() {
+            throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+        }
+
+        public static Matrix td(TsDomain domain, int[] groups, boolean contrasts) {
+            DayClustering dc = DayClustering.create(groups);
+            if (contrasts) {
+                GenericTradingDays gtd = GenericTradingDays.contrasts(dc);
+                Matrix m = new Matrix(domain.getLength(), dc.getGroupsCount() - 1);
+                gtd.data(domain, m.columnList());
+                return m;
+            } else {
+                GenericTradingDays gtd = GenericTradingDays.of(dc);
+                Matrix m = new Matrix(domain.getLength(), dc.getGroupsCount());
+                gtd.data(domain, m.columnList());
+                return m;
+            }
         }
     }
-}
-    
+
 }

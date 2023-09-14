@@ -16,37 +16,39 @@
  */
 package jd2.workspace.io;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.Objects;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
- *
  * @author Philippe Charles
  */
-@lombok.experimental.UtilityClass
-public class Stax {
+public final class Stax {
+    private Stax() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     /**
      * Prevents XXE vulnerability by disabling features.
      *
      * @param factory non-null factory
-     * @see
-     * https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#XMLInputFactory_.28a_StAX_parser.29
+     * @see https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#XMLInputFactory_.28a_StAX_parser.29
      */
-    public void preventXXE(@NonNull XMLInputFactory factory) {
+    public static void preventXXE(@NonNull XMLInputFactory factory) {
         setFeature(factory, XMLInputFactory.SUPPORT_DTD, false);
         setFeature(factory, XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
     }
 
     @FunctionalInterface
-    public interface FlowHandler<I, T> {
+    public static interface FlowHandler<I, T> {
 
         @NonNull
         T parse(@NonNull I input, @NonNull Closeable onClose) throws IOException, XMLStreamException;
@@ -58,7 +60,7 @@ public class Stax {
     }
 
     @FunctionalInterface
-    public interface ValueHandler<I, T> {
+    public static interface ValueHandler<I, T> {
 
         @NonNull
         T parse(@NonNull I input) throws XMLStreamException;
@@ -263,12 +265,12 @@ public class Stax {
     }
 
     @FunctionalInterface
-    private interface XSupplier<T> {
+    private static interface XSupplier<T> {
 
         T create(XMLInputFactory input) throws XMLStreamException;
     }
 
-    private void setFeature(XMLInputFactory factory, String feature, boolean value) {
+    private static void setFeature(XMLInputFactory factory, String feature, boolean value) {
         if (factory.isPropertySupported(feature)
                 && ((Boolean) factory.getProperty(feature)) != value) {
             factory.setProperty(feature, value);

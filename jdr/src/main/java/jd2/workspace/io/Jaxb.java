@@ -16,29 +16,28 @@
  */
 package jd2.workspace.io;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.Objects;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import java.io.*;
+import java.util.Objects;
 
 /**
- *
  * @author Philippe Charles
  */
-@lombok.experimental.UtilityClass
-public class Jaxb {
+public final class Jaxb {
+
+    private Jaxb() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     @NonNull
-    public Unmarshaller createUnmarshaller(@NonNull Class<?> type) throws IOException {
+    public static Unmarshaller createUnmarshaller(@NonNull Class<?> type) throws IOException {
         Objects.requireNonNull(type);
         try {
             return JAXBContext.newInstance(type).createUnmarshaller();
@@ -48,7 +47,7 @@ public class Jaxb {
     }
 
     @NonNull
-    public Unmarshaller createUnmarshaller(@NonNull JAXBContext context) throws IOException {
+    public static Unmarshaller createUnmarshaller(@NonNull JAXBContext context) throws IOException {
         Objects.requireNonNull(context);
         try {
             return context.createUnmarshaller();

@@ -6,10 +6,8 @@ package jdr.spec.ts;
 
 import ec.tstoolkit.timeseries.PeriodSelectorType;
 import ec.tstoolkit.timeseries.TsPeriodSelector;
-import java.text.ParseException;
 
 /**
- *
  * @author Jean Palate
  */
 public class SpanSelector {
@@ -97,32 +95,32 @@ public class SpanSelector {
         return core.getN1();
     }
 
-    public void from(String d0){
+    public void from(String d0) {
         core.from(Utility.of(d0));
     }
 
-    public void to(String d1){
+    public void to(String d1) {
         core.to(Utility.of(d1));
     }
 
-    public void between(String d0, String d1){
+    public void between(String d0, String d1) {
         core.between(Utility.of(d0), Utility.of(d1));
     }
 
-    public void all(){
+    public void all() {
         core.all();
     }
 
-    public void first(int n){
+    public void first(int n) {
         core.first(n);
     }
 
-    public void last(int n){
+    public void last(int n) {
         core.last(n);
     }
-    
-    public void excluding(int n0, int n1){
+
+    public void excluding(int n0, int n1) {
         core.excluding(n0, n1);
     }
-    
+
 }

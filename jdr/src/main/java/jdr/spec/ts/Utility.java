@@ -8,30 +8,28 @@ package jdr.spec.ts;
 import ec.tstoolkit.Parameter;
 import ec.tstoolkit.ParameterType;
 import ec.tstoolkit.algorithm.ProcessingContext;
-import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.timeseries.Day;
 import ec.tstoolkit.timeseries.regression.TsVariable;
 import ec.tstoolkit.timeseries.regression.TsVariables;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.timeseries.simplets.TsFrequency;
 import ec.tstoolkit.timeseries.simplets.TsPeriod;
+
 import java.text.ParseException;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- *
  * @author Jean Palate <jean.palate@nbb.be>
  */
-@lombok.experimental.UtilityClass
-public class Utility {
+public final class Utility {
 
-    public Day of(String date) {
+    private Utility() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
+    public static Day of(String date) {
         try {
             return Day.fromString(date);
         } catch (ParseException ex) {
@@ -39,7 +37,7 @@ public class Utility {
         }
     }
 
-    public String toString(Date date) {
+    public static String toString(Date date) {
         return new Day(date).toString();
 //        StringBuilder builder = new StringBuilder();
 //        GregorianCalendar gc = new GregorianCalendar();
@@ -50,15 +48,15 @@ public class Utility {
 //        return builder.toString();
     }
 
-    public String toString(Day day) {
+    public static String toString(Day day) {
         return day == null || day == Day.BEG || day == Day.END ? "" : day.toString();
     }
 
-    public Parameter[] parameters(double[] values) {
+    public static Parameter[] parameters(double[] values) {
         return parameters(values, null);
     }
 
-    public Parameter[] parameters(double[] values, boolean[] fixed) {
+    public static Parameter[] parameters(double[] values, boolean[] fixed) {
         Parameter[] p = new Parameter[values.length];
         for (int i = 0; i < p.length; ++i) {
             if (Double.isFinite(values[i])) {
@@ -74,7 +72,7 @@ public class Utility {
         return p;
     }
 
-    public String outlierName(String code, String date, int frequency) {
+    public static String outlierName(String code, String date, int frequency) {
         StringBuilder builder = new StringBuilder();
         builder.append(code).append(" (");
         if (frequency == 0) {
@@ -87,26 +85,26 @@ public class Utility {
     }
 
     @lombok.Value
-    public static class Outlier {
+    public static final class Outlier {
 
-        private String code;
-        private String position;
-        private double coefficient;
+        private final String code;
+        private final String position;
+        private final double coefficient;
     }
 
     @lombok.Value
-    public static class Ramp {
+    public static final class Ramp {
 
-        private String start, end;
-        private double coefficient;
+        private final String start, end;
+        private final double coefficient;
     }
 
     @lombok.Value
-    public static class UserDefinedVariable {
+    public static final class UserDefinedVariable {
 
-        private String name;
-        private String component;
-        private double coefficient;
+        private final String name;
+        private final String component;
+        private final double coefficient;
     }
 
     public static final String R = "r", RPREFIX = "r@";
@@ -118,12 +116,12 @@ public class Utility {
         public void add(String name, TsData s) {
             dictionary.put(name, s);
         }
-        
-        public String[] names(){
+
+        public String[] names() {
             return dictionary.keySet().toArray(new String[dictionary.size()]);
         }
-        
-        public TsData get(String name){
+
+        public TsData get(String name) {
             return dictionary.get(name);
         }
 
