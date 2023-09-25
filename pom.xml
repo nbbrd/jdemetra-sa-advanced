@@ -44,7 +44,7 @@
         <brandingToken>nbbdemetra</brandingToken>
         <!-- < plugins versions -->
         <assertj.version>3.24.2</assertj.version>
-        <lombok.version>1.18.28</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
         <jdemetra.version>2.2.4-RC1</jdemetra.version>
         <nbdemetra.version>2.2.4-RC1</nbdemetra.version>
         <nbbdemetra.version>2.2.4-RC1</nbbdemetra.version>
