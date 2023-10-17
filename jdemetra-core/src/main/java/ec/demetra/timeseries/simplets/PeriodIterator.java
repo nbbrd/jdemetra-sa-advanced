@@ -32,7 +32,7 @@ import ec.tstoolkit.design.Development;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public class PeriodIterator implements java.util.Enumeration<TsDataBlock> {
+public class PeriodIterator implements java.util.Iterator<TsDataBlock> {
     /**
      * Returns an iterator considering only complete years
      * @param series The analyzed series
@@ -85,7 +85,7 @@ public class PeriodIterator implements java.util.Enumeration<TsDataBlock> {
     }
 
     @Override
-    public boolean hasMoreElements() {
+    public boolean hasNext() {
 	if (data == null)
 	    return false;
 	return cur == null
@@ -94,7 +94,7 @@ public class PeriodIterator implements java.util.Enumeration<TsDataBlock> {
     }
 
     @Override
-    public TsDataBlock nextElement() {
+    public TsDataBlock next() {
 	if (cur == null)
 	    initialize();
 	else

@@ -27,7 +27,7 @@ import ec.tstoolkit.design.Development;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public class YearIterator implements java.util.Enumeration<TsDataBlock> {
+public class YearIterator implements java.util.Iterator<TsDataBlock> {
     /**
      * 
      * @param series
@@ -79,7 +79,7 @@ public class YearIterator implements java.util.Enumeration<TsDataBlock> {
     }
 
     @Override
-    public boolean hasMoreElements() {
+    public boolean hasNext() {
 	if (data == null)
 	    return false;
 	if (cur == null)
@@ -98,7 +98,7 @@ public class YearIterator implements java.util.Enumeration<TsDataBlock> {
     }
 
     @Override
-    public TsDataBlock nextElement() {
+    public TsDataBlock next() {
 	int ifreq = data.start.getFrequency().intValue();
 	if (cur == null)
 	    initialize();

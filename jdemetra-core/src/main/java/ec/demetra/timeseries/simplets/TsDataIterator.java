@@ -24,7 +24,7 @@ import ec.tstoolkit.design.Development;
  * @author Jean Palate
  */
 @Development(status = Development.Status.Alpha)
-public class TsDataIterator implements java.util.Enumeration<TsObservation> {
+public class TsDataIterator implements java.util.Iterator<TsObservation> {
 
     private TsDataBlock data;
     private int cur = 0;
@@ -49,7 +49,7 @@ public class TsDataIterator implements java.util.Enumeration<TsObservation> {
     }
 
     @Override
-    public boolean hasMoreElements() {
+    public boolean hasNext() {
 	if (skip) {
 	    for (; cur < data.data.getLength(); ++cur)
 		if (Double.isFinite(data.data.get(cur)))
@@ -69,7 +69,7 @@ public class TsDataIterator implements java.util.Enumeration<TsObservation> {
     }
 
     @Override
-    public TsObservation nextElement() {
+    public TsObservation next() {
 	// hasMoreElements was called before that call...
 	double v = data.data.get(cur);
 	TsObservation obs = new TsObservation(data.start.plus(cur

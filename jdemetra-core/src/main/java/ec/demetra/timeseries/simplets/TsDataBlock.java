@@ -134,7 +134,7 @@ public final class TsDataBlock {
      *         a previous call to hasMoreElements()) is needed to access the
      *         first observation.
      */
-    public java.util.Enumeration<TsObservation> observations() {
+    public java.util.Iterator<TsObservation> observations() {
         return new TsDataIterator(this);
     }
 

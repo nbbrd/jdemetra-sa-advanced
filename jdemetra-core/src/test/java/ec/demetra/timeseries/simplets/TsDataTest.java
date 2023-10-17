@@ -92,11 +92,11 @@ public class TsDataTest {
         PeriodIterator pf = PeriodIterator.fullYears(s);
         YearIterator yf = YearIterator.fullYears(s);
         double p = 0, y = 0;
-        while (pf.hasMoreElements()) {
-            p += pf.nextElement().data.sum();
+        while (pf.hasNext()) {
+            p += pf.next().data.sum();
         }
-        while (yf.hasMoreElements()) {
-            y += yf.nextElement().data.sum();
+        while (yf.hasNext()) {
+            y += yf.next().data.sum();
         }
         assertTrue(p == y);
 //        System.out.print(" ok");
@@ -104,11 +104,11 @@ public class TsDataTest {
         yf = new YearIterator(s);
         p = 0;
         y = 0;
-        while (pf.hasMoreElements()) {
-            p += pf.nextElement().data.sum();
+        while (pf.hasNext()) {
+            p += pf.next().data.sum();
         }
-        while (yf.hasMoreElements()) {
-            y += yf.nextElement().data.sum();
+        while (yf.hasNext()) {
+            y += yf.next().data.sum();
         }
 //        System.out.print(" ");
 //        System.out.print(y);
@@ -170,10 +170,10 @@ public class TsDataTest {
         YearIterator yq = new YearIterator(Qq);
         YearIterator yqa = new YearIterator(QAq);
         YearIterator yqb = new YearIterator(QBq);
-        while (yq.hasMoreElements()) {
-            TsDataBlock qcur = yq.nextElement();
-            TsDataBlock qacur = yqa.nextElement();
-            TsDataBlock qbcur = yqb.nextElement();
+        while (yq.hasNext()) {
+            TsDataBlock qcur = yq.next();
+            TsDataBlock qacur = yqa.next();
+            TsDataBlock qbcur = yqb.next();
             TsPeriod prev = TsPeriod.year(qcur.start.getYear() - 1);
             // Qq=PAy(y-1)*QAq
             // Qq=Qq + PBy(y-1)*QBq
@@ -188,11 +188,11 @@ public class TsDataTest {
         double idx = 100;
         int ifreq = Qq.getFrequency().intValue();
         yq.reset();
-        while (yq.hasMoreElements()) {
+        while (yq.hasNext()) {
             // the index is applied to the quantities Qq, divided by the average value of
             // previous year. It is increased by the growth of the year 
             // (value(t), expressed in price of (t-1) divided by value in t-1)
-            TsDataBlock qcur = yq.nextElement();
+            TsDataBlock qcur = yq.next();
             TsPeriod prev = TsPeriod.year(qcur.start.getYear() - 1);
             double val0 = Vy.get(prev);
             double val1 = qcur.data.sum();
