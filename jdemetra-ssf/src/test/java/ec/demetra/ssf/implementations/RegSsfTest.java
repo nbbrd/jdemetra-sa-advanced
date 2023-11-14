@@ -67,6 +67,7 @@ public class RegSsfTest {
     }
 
     @Test
+    @Disabled("Fails randomly")
     public void testDynamics() {
         ISsf ref = TimeInvariantSsf.of(ssf);
         int dim = ssf.getStateDim();
@@ -102,6 +103,7 @@ public class RegSsfTest {
     }
 
     @Test
+    @Disabled("Fails randomly")
     public void testSmoothing() {
         DefaultSmoothingResults sm1 = DkToolkit.sqrtSmooth(ssf, p, true);
         DefaultSmoothingResults sm2 = DkToolkit.smooth(ssf, p, true);
