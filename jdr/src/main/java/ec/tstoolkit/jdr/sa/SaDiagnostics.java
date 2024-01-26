@@ -32,6 +32,7 @@ import ec.tstoolkit.eco.RegModel;
 import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.jdr.tests.CombinedSeasonalityTestInfo;
 import ec.tstoolkit.maths.linearfilters.SymmetricFilter;
+import ec.tstoolkit.modelling.DifferencingResults;
 import ec.tstoolkit.modelling.ModellingDictionary;
 import ec.tstoolkit.modelling.arima.JointRegressionTest;
 import ec.tstoolkit.modelling.arima.PreprocessingDictionary;
@@ -607,7 +608,9 @@ public class SaDiagnostics implements IProcResults {
         });
 
         MAPPING.set(SEAS_LIN_KW, ec.tstoolkit.information.StatisticalTest.class, source -> {
-            KruskalWallisTest kw = new KruskalWallisTest(source.lin);
+            TsData lin = source.lin;
+            lin = DifferencingResults.create(lin, 1, true).getDifferenced();
+            KruskalWallisTest kw = new KruskalWallisTest(lin);
             return ec.tstoolkit.information.StatisticalTest.of(kw);
         });
 
@@ -860,7 +863,9 @@ public class SaDiagnostics implements IProcResults {
         });
 
         MAPPING.set(SEAS_SA_KW, ec.tstoolkit.information.StatisticalTest.class, source -> {
-            KruskalWallisTest kw = new KruskalWallisTest(source.sa);
+            TsData sa = source.sa;
+            sa = DifferencingResults.create(source.mul ? sa.log() : sa, 1, true).getDifferenced();
+            KruskalWallisTest kw = new KruskalWallisTest(sa);
             return ec.tstoolkit.information.StatisticalTest.of(kw);
         });
 
