@@ -1030,7 +1030,7 @@ public class SaDiagnostics implements IProcResults {
             return msr.getGlobalMsr();
         });
 
-        MAPPING.setArray(MSR, 1, 12, Double.class, (source, i) -> {
+        MAPPING.setArray(MSR, 1, 13, Double.class, (source, i) -> {
             MsrTable msr = source.msr();
             if (msr == null) {
                 return null;
