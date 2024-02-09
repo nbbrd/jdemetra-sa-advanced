@@ -46,7 +46,10 @@ public class X11DecompositionInfo {
             D10aL = "d10a_lin", D11aL = "d11a_lin", D12aL = "d12a_lin", D13aL = "d13a_lin",
             D9_DEFAULT = "s3x5default", D9_FILTER = "d9filter", D12_FILTER = "d12filter", D12_TLEN = "tlen", D9_FILTER_COMPOSIT = "d9filtercomposit";
     final String E1 = "e1", E2 = "e2", E3 = "e3", E11 = "e11";
-
+    final String Y = "y_cmp", Y_F = "y_cmp_f", T = "t_cmp", T_F = "t_cmp_f",
+            I = "i_cmp", I_F = "i_cmp_f", S = "s_cmp", S_F = "s_cmp_f",
+            SA = "sa_cmp", SA_F = "sa_cmp_f";
+    
     final String[] ALL_A = {A1, A1a, A1b, A6, A7, A8, A8t, A8s, A8i, A9, A9sa, A9u, A9ser};
     final String[] ALL_B = {B1, B2, B3, B4, B5, B6, B7, B8, B9,
         B10, B11, B12, B13, B14, B15, B16, B17, B18, B19, B20};
@@ -55,6 +58,8 @@ public class X11DecompositionInfo {
     final String[] ALL_D = {D1, D2, D3, D4, D5, D6, D7, D8, D9,
         D10, D10a, D10b, D11, D11a, D12, D12a, D13, D14, D15, D16, D16a, D16b, D18, D19, D20};
     final String[] ALL_E = {E1, E2, E3, E11};
+    final String[] ALL_CMP = {Y, T, I, S, SA,
+        Y_F, T_F, I_F, S_F, SA_F};
 
     final InformationMapping<X11Results> MAPPING = new InformationMapping<>(X11Results.class);
 
@@ -78,6 +83,10 @@ public class X11DecompositionInfo {
         for (int i = 0; i < ALL_E.length; ++i) {
             final String item = concatenate(E, ALL_E[i]);
             MAPPING.set(ALL_E[i], TsData.class, source -> source.getData(item, TsData.class));
+        }
+        for (int i = 0; i < ALL_CMP.length; ++i) {
+            final String item = ALL_CMP[i];
+            MAPPING.set(ALL_CMP[i], TsData.class, source -> source.getData(item, TsData.class));
         }
         MAPPING.set(D9_FILTER, String.class, source->source.getData(D9_FILTER, String.class));
         MAPPING.set(D9_SLEN, Integer.class, source->source.getData(D9_SLEN, Integer.class));
