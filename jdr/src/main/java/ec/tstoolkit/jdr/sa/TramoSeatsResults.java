@@ -10,9 +10,8 @@ import jd2.information.InformationMapping;
 import ec.satoolkit.GenericSaProcessingFactory;
 import ec.satoolkit.ISeriesDecomposition;
 import ec.satoolkit.algorithm.implementation.TramoSeatsProcessingFactory;
-import ec.satoolkit.algorithm.implementation.X13ProcessingFactory;
 import ec.satoolkit.seats.SeatsResults;
-import ec.satoolkit.x11.X11Results;
+import ec.satoolkit.benchmarking.SaBenchmarkingResults;
 import ec.tstoolkit.algorithm.CompositeResults;
 import ec.tstoolkit.jdr.mapping.PreprocessingInfo;
 import ec.tstoolkit.jdr.seats.SeatsInfo;
@@ -31,6 +30,7 @@ public class TramoSeatsResults implements IProcResults {
     SaDiagnostics diagnostics;
     CoherenceDiagnostics coherence;
     ResidualsDiagnostics residuals;
+    SaBenchmarkingResults benchmarking;
 
     SaDiagnostics diagnostics() {
         synchronized (results) {
@@ -78,6 +78,9 @@ public class TramoSeatsResults implements IProcResults {
         return results == null ? null : results.get(TramoSeatsProcessingFactory.DECOMPOSITION, SeatsResults.class);
     }
 
+    SaBenchmarkingResults benchmarking() {
+        return results == null ? null : results.get(TramoSeatsProcessingFactory.BENCHMARKING, SaBenchmarkingResults.class);
+    }
     static final InformationMapping<TramoSeatsResults> MAPPING = new InformationMapping<>(TramoSeatsResults.class);
 
     static {
@@ -87,6 +90,7 @@ public class TramoSeatsResults implements IProcResults {
         MAPPING.delegate("diagnostics", SaDiagnostics.getMapping(), source -> source.diagnostics());
         MAPPING.delegate("coherence", CoherenceDiagnostics.getMapping(), source -> source.coherence());
         MAPPING.delegate("residuals", ResidualsDiagnostics.getMapping(), source -> source.residuals());
+        MAPPING.delegate("benchmarking", SaBenchmarkingResultsInfo.getMapping(), source -> source.benchmarking());
     }
 
     public InformationMapping<TramoSeatsResults> getMapping() {
