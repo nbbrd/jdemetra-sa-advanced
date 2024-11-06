@@ -11,6 +11,7 @@ import ec.satoolkit.ISeriesDecomposition;
 import ec.satoolkit.algorithm.implementation.X13ProcessingFactory;
 import ec.satoolkit.x11.Mstatistics;
 import ec.satoolkit.x11.X11Results;
+import ec.satoolkit.benchmarking.SaBenchmarkingResults;
 import ec.tstoolkit.algorithm.CompositeResults;
 import ec.tstoolkit.jdr.mapping.PreprocessingInfo;
 import ec.tstoolkit.jdr.x11.X11DecompositionInfo;
@@ -30,6 +31,7 @@ public class X13Results implements IProcResults {
     SaDiagnostics diagnostics;
     CoherenceDiagnostics coherence;
     ResidualsDiagnostics residuals;
+    SaBenchmarkingResults benchmarking;
 
     SaDiagnostics diagnostics() {
         if (diagnostics == null && results != null) {
@@ -78,6 +80,10 @@ public class X13Results implements IProcResults {
     Mstatistics mstats() {
         return results == null ? null : results.get(X13ProcessingFactory.MSTATISTICS, Mstatistics.class);
     }
+    
+    SaBenchmarkingResults benchmarking() {
+        return results == null ? null : results.get(X13ProcessingFactory.BENCHMARKING, SaBenchmarkingResults.class);
+    }
     static final InformationMapping<X13Results> MAPPING = new InformationMapping<>(X13Results.class);
 
     static {
@@ -88,6 +94,7 @@ public class X13Results implements IProcResults {
         MAPPING.delegate("diagnostics", SaDiagnostics.getMapping(), source -> source.diagnostics());
         MAPPING.delegate("coherence", CoherenceDiagnostics.getMapping(), source -> source.coherence());
         MAPPING.delegate("residuals", ResidualsDiagnostics.getMapping(), source -> source.residuals());
+        MAPPING.delegate("benchmarking", SaBenchmarkingResultsInfo.getMapping(), source -> source.benchmarking());
     }
 
     public InformationMapping<X13Results> getMapping() {
