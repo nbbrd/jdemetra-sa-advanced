@@ -67,7 +67,6 @@ public class FastDiffuseFilterTest {
     }
 
     @Test
-    @Disabled("Fails randomly")
     public void testUcarima() {
         ISsf ssf = Models.ssfUcarima;
         SsfData data = Models.ssfX;

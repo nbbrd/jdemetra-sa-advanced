@@ -87,7 +87,7 @@ public class Workspace {
     private final ProcessingContext context;
     private final List<MultiProcessing> multiProcessing = new ArrayList<>();
 
-    private Workspace(final ProcessingContext context) {
+    public Workspace(final ProcessingContext context) {
         this.context = context;
     }
     
