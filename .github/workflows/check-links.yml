@@ -34,8 +34,7 @@ jobs:
 
       - name: Check links
         id: lychee
-        uses: lycheeverse/lychee-action@v2.0.2
+        uses: lycheeverse/lychee-action@v2.0.0
         with:
-          fail-if-empty: false
           fail: true
           args: --max-concurrency 1 --cache --no-progress --exclude-all-private './**/*.md'
