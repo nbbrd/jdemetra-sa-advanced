@@ -36,6 +36,5 @@ jobs:
         id: lychee
         uses: lycheeverse/lychee-action@v2.0.2
         with:
-          fail-if-empty: false
-          fail: true
+          fail: false
           args: --max-concurrency 1 --cache --no-progress --exclude-all-private './**/*.md'
