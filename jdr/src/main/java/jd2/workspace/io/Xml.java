@@ -16,16 +16,12 @@
  */
 package jd2.workspace.io;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * Set of utilities related to XML.
@@ -47,7 +43,7 @@ public final class Xml {
 
         @NonNull
         default T parseFile(@NonNull File source) throws IOException {
-            return parseStream(() -> new FileInputStream(source));
+            return parseStream(() -> Files.newInputStream(source.toPath()));
         }
 
         @NonNull

@@ -25,6 +25,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Objects;
 
 /**
@@ -142,7 +143,7 @@ public final class Jaxb {
         }
 
         private static <T> T parseFileXXE(Unmarshaller engine, File source, XMLInputFactory xxe) throws IOException {
-            try (FileInputStream resource = new FileInputStream(source)) {
+            try (InputStream resource = Files.newInputStream(source.toPath())) {
                 XMLStreamReader reader = xxe.createXMLStreamReader(resource);
                 try {
                     return (T) engine.unmarshal(reader);
