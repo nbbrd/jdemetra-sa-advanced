@@ -25,6 +25,7 @@ import ec.tstoolkit.timeseries.regression.TsVariables;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
@@ -39,8 +40,8 @@ public class FileWorkspaceTest {
     
     //@Test
     public void testSomeMethod() throws IOException {
-        File file = new File("c:\\sarepository\\mytest.xml");
-        FileWorkspace ws = FileWorkspace.open(file.toPath());
+        Path file = Paths.get("c:\\sarepository\\mytest.xml");
+        FileWorkspace ws = FileWorkspace.open(file);
         Collection<WorkspaceItem> items = ws.getItems();
         items.forEach(item -> System.out.println(item.getLabel()));
         ProcessingContext context = new ProcessingContext();
@@ -48,8 +49,8 @@ public class FileWorkspaceTest {
         Map<WorkspaceItem, TsVariables> vars = FileRepository.loadAllVariables(ws, context);
         Map<WorkspaceItem, SaProcessingType> sa = FileRepository.loadAllSaProcessing(ws, context);
         
-        File file2 = new File("c:\\sarepository\\mytest2.xml");
-        FileWorkspace ws2 = FileWorkspace.create(file2.toPath(), FileFormat.GENERIC);
+        Path file2 = Paths.get("c:\\sarepository\\mytest2.xml");
+        FileWorkspace ws2 = FileWorkspace.create(file2, FileFormat.GENERIC);
         ws.copyTo(ws2);
         ws2.setName("myTest2");
         ws.close();

@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Modernize use of NIO API
+
 
 [Unreleased]: https://github.com/nbbrd/jdemetra-sa-advanced/compare/v2.2.5...HEAD
 

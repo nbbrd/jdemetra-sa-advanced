@@ -33,6 +33,7 @@ import ec.tstoolkit.timeseries.regression.TsVariables;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,8 +50,8 @@ public class Workspace {
 
     public static Workspace open(String fileName) throws IOException {
 //        try {
-            File file = new File(fileName);
-            FileWorkspace fws = FileWorkspace.open(file.toPath());
+            Path file = java.nio.file.Paths.get(fileName);
+            FileWorkspace fws = FileWorkspace.open(file);
             Collection<WorkspaceItem> items = fws.getItems();
             ProcessingContext context = new ProcessingContext();
             Map<WorkspaceItem, GregorianCalendarManager> cal = FileRepository.loadAllCalendars(fws, context);
@@ -112,9 +113,9 @@ public class Workspace {
     }
 
     public boolean save(String fileName) {
-        File file = new File(fileName);
+        Path file = java.nio.file.Paths.get(fileName);
         try {
-            try (FileWorkspace fws = FileWorkspace.create(file.toPath(), FileFormat.GENERIC)) {
+            try (FileWorkspace fws = FileWorkspace.create(file, FileFormat.GENERIC)) {
                 fws.setName(Paths.getBaseName(fileName));
                 for (MultiProcessing p : multiProcessing) {
                     WorkspaceItem cur = WorkspaceItem.builder()

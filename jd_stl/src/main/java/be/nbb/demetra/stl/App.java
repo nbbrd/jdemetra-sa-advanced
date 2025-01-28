@@ -19,11 +19,12 @@ package be.nbb.demetra.stl;
 import ec.tstoolkit.data.AutoRegressiveSpectrum;
 import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.maths.matrices.Matrix;
+
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Locale;
 
 /**
@@ -92,7 +93,7 @@ public class App {
                         return false;
                     }
                     try {
-                        data = MatrixSerializer.read(new File(str));
+                        data = MatrixSerializer.read(Paths.get(str).toFile());
                     } catch (IOException ex) {
                         System.out.println("Invalid data");
                         return false;
@@ -335,11 +336,11 @@ public class App {
     }
 
     private static File generateFile(String name, int col) {
-        File path = new File(output == null ? "." : output);
+        File path = Paths.get(output == null ? "." : output).toFile();
         if (!path.exists()) {
             path.mkdirs();
         }
-        return new File(path, name + ("-") + (col + 1) + ".txt");
+        return path.toPath().resolve(name + ("-") + (col + 1) + ".txt").toFile();
     }
 
     private static int periodicity() {
