@@ -55,7 +55,7 @@
         <!-- < plugins versions -->
         <assertj.version>3.27.3</assertj.version>
         <lombok.version>1.18.36</lombok.version>
-        <jdemetra.version>2.2.5</jdemetra.version>
+        <jdemetra.version>2.2.6</jdemetra.version>
         <nbdemetra.version>2.2.5</nbdemetra.version>
         <nbbdemetra.version>2.2.5</nbbdemetra.version>
     </properties>
