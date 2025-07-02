@@ -10,7 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Modernize use of NIO API
-
+- Migrate OSSRH to Central Portal
 
 [Unreleased]: https://github.com/nbbrd/jdemetra-sa-advanced/compare/v2.2.5...HEAD
 
