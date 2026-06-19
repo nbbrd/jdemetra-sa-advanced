@@ -13,8 +13,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Migrate OSSRH to Central Portal
 
 [Unreleased]: https://github.com/nbbrd/jdemetra-sa-advanced/compare/v2.2.5...HEAD
-
-[STAT]: https://img.shields.io/badge/-STAT-068C09
-[OTHER]: https://img.shields.io/badge/-OTHER-e4e669
 [IO]: https://img.shields.io/badge/-IO-F813F7
+[OTHER]: https://img.shields.io/badge/-OTHER-e4e669
+[STAT]: https://img.shields.io/badge/-STAT-068C09
 [UI]: https://img.shields.io/badge/-UI-5319E7
