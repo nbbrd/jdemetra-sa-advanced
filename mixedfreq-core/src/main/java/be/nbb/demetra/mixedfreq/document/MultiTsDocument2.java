@@ -16,30 +16,19 @@
  */
 package be.nbb.demetra.mixedfreq.document;
 
-import ec.tss.Ts;
-import ec.tss.TsFactory;
-import ec.tss.TsInformation;
-import ec.tss.TsInformationType;
-import ec.tss.TsMoniker;
-import ec.tss.TsStatus;
+import ec.tss.*;
 import ec.tss.documents.ActiveDocument;
 import ec.tss.documents.TsDocument;
 import ec.tstoolkit.MetaData;
-import ec.tstoolkit.algorithm.AlgorithmDescriptor;
-import ec.tstoolkit.algorithm.IProcResults;
-import ec.tstoolkit.algorithm.IProcSpecification;
-import ec.tstoolkit.algorithm.IProcessing;
-import ec.tstoolkit.algorithm.IProcessingFactory;
-import ec.tstoolkit.algorithm.ProcessingContext;
+import ec.tstoolkit.algorithm.*;
 import ec.tstoolkit.information.Information;
 import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.timeseries.TsException;
 import ec.tstoolkit.timeseries.simplets.TsData;
+
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  *
@@ -230,7 +219,7 @@ public abstract class MultiTsDocument2<S extends IProcSpecification, R extends I
         InformationSet input = info.getSubSet(INPUT);
         if (input != null) {
             List<Information<TsInformation>> sel = input.select(SERIES + '*', TsInformation.class);
-            Collections.sort(sel, new Information.IndexedNameSorter(SERIES));
+            sel.sort(new Information.IndexedNameSorter(SERIES));
             Ts[] s = new Ts[sel.size()];
             for (int i = 0; i < s.length; ++i) {
                 TsInformation tsinfo = sel.get(i).value;
