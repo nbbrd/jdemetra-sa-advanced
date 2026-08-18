@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>be.nbb.demetra</groupId>
@@ -12,11 +11,9 @@
     <description>Experimental SA methods extension for JDemetra+</description>
     <url>https://github.com/${x.github.user}/${x.github.repo}</url>
     <inceptionYear>2015</inceptionYear>
-
     <organization>
         <name>National Bank of Belgium</name>
     </organization>
-
     <licenses>
         <license>
             <name>European Union Public Licence (EUPL)</name>
@@ -32,6 +29,31 @@
             <organizationUrl>https://www.nbb.be</organizationUrl>
         </developer>
     </developers>
+
+    <modules>
+        <module>jdemetra-core</module>
+        <module>jdemetra-ssf</module>
+        <module>sts-core</module>
+        <module>gairline-core</module>
+        <module>mairline-core</module>
+        <module>mixedfreq-core</module>
+        <module>sssts-core</module>
+        <module>bvar-core</module>
+        <module>dfm-core</module>
+        <module>sutse-core</module>
+        <module>nbdemetra-ncore</module>
+        <module>nbdemetra-mairline</module>
+        <module>nbdemetra-gairline</module>
+        <module>nbdemetra-sts</module>
+        <module>nbdemetra-mixedfreq</module>
+        <module>nbdemetra-sssts</module>
+        <module>jdemetra-modelling</module>
+        <module>jstl</module>
+        <module>jd_stl</module>
+        <module>mtd-core</module>
+        <module>jdr</module>
+        <module>demetra-sa-advanced-binaries</module>
+    </modules>
 
     <scm>
         <connection>scm:git:git://github.com/${x.github.user}/${x.github.repo}.git</connection>
@@ -61,31 +83,6 @@
         <nbbdemetra.version>2.2.5</nbbdemetra.version>
         <heylogs.version>0.19.1</heylogs.version>
     </properties>
-
-    <modules>
-        <module>jdemetra-core</module>
-        <module>jdemetra-ssf</module>
-        <module>sts-core</module>
-        <module>gairline-core</module>
-        <module>mairline-core</module>
-        <module>mixedfreq-core</module>
-        <module>sssts-core</module>
-        <module>bvar-core</module>
-        <module>dfm-core</module>
-        <module>sutse-core</module>
-        <module>nbdemetra-ncore</module>
-        <module>nbdemetra-mairline</module>
-        <module>nbdemetra-gairline</module>
-        <module>nbdemetra-sts</module>
-        <module>nbdemetra-mixedfreq</module>
-        <module>nbdemetra-sssts</module>
-        <module>jdemetra-modelling</module>
-        <module>jstl</module>
-        <module>jd_stl</module>
-        <module>mtd-core</module>
-        <module>jdr</module>
-        <module>demetra-sa-advanced-binaries</module>
-    </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -157,6 +154,32 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <!-- Custom repositories: order matters! -->
+    <!-- Maven Central is enforced at top to prevent dependabot to use snapshots as releases -->
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>jfrog-maven-mirror</id>
+            <url>https://raw.githubusercontent.com/nbbrd/jfrog-maven-mirror/main</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>netbeans-releases-mirror</id>
+            <url>https://raw.githubusercontent.com/nbbrd/netbeans-maven-mirror/main</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <build>
         <pluginManagement>
@@ -239,6 +262,11 @@
                     <version>0.8.15</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>tidy-maven-plugin</artifactId>
+                    <version>1.4.0</version>
+                </plugin>
+                <plugin>
                     <groupId>org.jreleaser</groupId>
                     <artifactId>jreleaser-maven-plugin</artifactId>
                     <version>1.25.0</version>
@@ -291,6 +319,18 @@
                         <goals>
                             <goal>check</goal>
                             <goal>testCheck</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tidy-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -606,33 +646,8 @@
                 <forbiddenapis.skip>true</forbiddenapis.skip>
                 <jacoco.skip>true</jacoco.skip>
                 <heylogs.skip>true</heylogs.skip>
+                <tidy.skip>true</tidy.skip>
             </properties>
         </profile>
     </profiles>
-
-    <!-- Custom repositories: order matters! -->
-    <!-- Maven Central is enforced at top to prevent dependabot to use snapshots as releases -->
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jfrog-maven-mirror</id>
-            <url>https://raw.githubusercontent.com/nbbrd/jfrog-maven-mirror/main</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>netbeans-releases-mirror</id>
-            <url>https://raw.githubusercontent.com/nbbrd/netbeans-maven-mirror/main</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>
