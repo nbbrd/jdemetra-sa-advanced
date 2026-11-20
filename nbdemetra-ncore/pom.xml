@@ -46,7 +46,6 @@
             <groupId>be.nbb.demetra</groupId>
             <artifactId>sts-core</artifactId>
         </dependency>
-        
     </dependencies>
 
     <build>
